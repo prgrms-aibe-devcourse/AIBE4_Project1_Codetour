@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>K-콘텐츠 여행 — 샘플</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --k-pink: #ff4d8d;
+        --seoul-blue: #3a8dff;
+        --hanok-beige: #f5e6d3;
+        --modern-black: #1a1a1a;
+        --white: #ffffff;
+        --radius: 12px;
+        --shadow: 0 6px 18px rgba(26, 26, 26, 0.08);
+      }
+
+      body {
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        color: var(--modern-black);
+        background: linear-gradient(
+          180deg,
+          var(--white) 0%,
+          var(--hanok-beige) 100%
+        );
+        line-height: 1.4;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 40px auto;
+        padding: 24px;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+      }
+      .brand {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .logo {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--k-pink), var(--seoul-blue));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-weight: 700;
+        box-shadow: var(--shadow);
+      }
+      .brand h1 {
+        margin: 0;
+        font-size: 18px;
+      }
+      .brand p {
+        margin: 0;
+        font-size: 12px;
+        color: #555;
+      }
+
+      nav {
+        display: flex;
+        gap: 12px;
+      }
+      .btn {
+        padding: 8px 14px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .btn-primary {
+        background: var(--seoul-blue);
+        color: var(--white);
+      }
+      .btn-accent {
+        background: var(--k-pink);
+        color: var(--white);
+      }
+
+      .hero {
+        margin-top: 22px;
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 28px;
+        align-items: center;
+      }
+      .hero-card {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 28px;
+        box-shadow: var(--shadow);
+      }
+      .hero h2 {
+        margin: 0 0 8px 0;
+        font-size: 26px;
+      }
+      .hero p {
+        margin: 0;
+        color: #555;
+      }
+
+      .search {
+        display: flex;
+        gap: 8px;
+        margin-top: 18px;
+      }
+      .input {
+        flex: 1;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid #e9e9e9;
+      }
+
+      .summary {
+        background: linear-gradient(180deg, var(--hanok-beige), #fff);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: var(--shadow);
+      }
+      .chip {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(58, 141, 255, 0.12);
+        color: var(--seoul-blue);
+        font-weight: 600;
+        font-size: 13px;
+      }
+
+      #map {
+        width: 100%;
+        height: 400px;
+        margin-top: 30px;
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+      }
+
+      footer {
+        margin-top: 32px;
+        color: #666;
+        font-size: 13px;
+        text-align: center;
+      }
+
+      @media (max-width: 900px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+        .container {
+          padding: 16px;
+        }
+      }
+    </style>
+    <script
+      type="text/javascript"
+      src="//dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services,clusterer,drawing"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="brand">
+          <div class="logo">K</div>
+          <div>
+            <h1>K-Travel</h1>
+            <p>한류 콘텐츠 기반 맞춤 여행</p>
+          </div>
+        </div>
+        <nav>
+          <button class="btn">Explore</button>
+          <button class="btn">Map</button>
+          <button class="btn btn-primary">Get Started</button>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <div class="hero-card">
+          <h2>내가 좋아하는 K-콘텐츠로 여행을 만들어보세요</h2>
+          <p>
+            아이돌 그룹, 드라마, 영화 등 좋아하는 콘텐츠를 입력하면 관련
+            촬영지와 명소를 추천해드립니다.
+          </p>
+
+          <div class="search">
+            <input
+              class="input"
+              placeholder="아이돌/드라마 이름을 입력하세요 (예: BTS, 사랑의 불시착)"
+              id="q"
+            />
+            <button class="btn btn-accent" onclick="search()">검색</button>
+          </div>
+
+          <div
+            style="margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap"
+          >
+            <span class="chip">추천: BTS</span>
+            <span
+              class="chip"
+              style="background: rgba(255, 77, 141, 0.08); color: var(--k-pink)"
+              >추천: 이태원 클라쓰</span
+            >
+          </div>
+        </div>
+
+        <aside class="summary">
+          <h3 style="margin-top: 0">오늘의 인기 테마</h3>
+          <p style="margin: 8px 0 12px 0; color: #444">
+            K-pop 뮤직비디오 촬영지 · 드라마 명소 · 한식 맛집 코스
+          </p>
+          <div style="display: flex; gap: 10px; align-items: center">
+            <div style="flex: 1">
+              <div
+                style="
+                  font-size: 22px;
+                  font-weight: 700;
+                  color: var(--seoul-blue);
+                "
+              >
+                1,234
+              </div>
+              <div style="font-size: 12px; color: #666">추천 스팟 수</div>
+            </div>
+            <div style="text-align: right">
+              <button class="btn btn-primary">더보기</button>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <div id="map"></div>
+
+      <footer>
+        © 2025 K-Travel · 다국어 지원(영/中/日) · 개인정보처리방침
+      </footer>
+    </div>
+
+    <script>
+      function search() {
+        const q = document.getElementById("q").value.trim();
+        if (!q) {
+          alert("검색어를 입력하세요.");
+          return;
+        }
+        alert(q + " 관련 장소를 추천해 드릴게요! (샘플)");
+      }
+
+      // Kakao 지도 초기화
+      window.onload = function () {
+        const container = document.getElementById("map");
+        const options = {
+          center: new kakao.maps.LatLng(37.5665, 126.978),
+          level: 3,
+        };
+        const map = new kakao.maps.Map(container, options);
+      };
+    </script>
+  </body>
+</html>
