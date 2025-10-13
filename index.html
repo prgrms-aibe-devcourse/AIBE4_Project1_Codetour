@@ -7,11 +7,37 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- 검색 모달 -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <button class="search-close" id="searchClose">✕</button>
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="드라마, 영화, 장소를 검색하세요...">
+                <button class="search-button">🔍</button>
+            </div>
+            <div class="search-suggestions">
+                <div class="suggestion-category">
+                    <h4>인기 검색어</h4>
+                    <div class="suggestion-tags">
+                        <span class="suggestion-tag">도깨비</span>
+                        <span class="suggestion-tag">사랑의 불시착</span>
+                        <span class="suggestion-tag">기생충</span>
+                        <span class="suggestion-tag">서울</span>
+                        <span class="suggestion-tag">제주도</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 헤더 -->
     <header class="header">
         <div class="container">
             <div class="logo">
-                <div class="logo-icon"></div>
+                <div class="logo-icon">
+                    <div class="pin-outer"></div>
+                    <div class="pin-inner"></div>
+                </div>
                 <div class="logo-text">K-SPOT</div>
             </div>
             <nav class="nav">
@@ -27,7 +53,7 @@
                     <option value="en">English</option>
                     <option value="ja">日本語</option>
                 </select>
-                <button class="btn-search">🔍</button>
+                <button class="btn-search" id="searchButton">🔍</button>
                 <button class="btn-login" data-i18n="btn.login">로그인</button>
                 <button class="btn-signup" data-i18n="btn.signup">회원가입</button>
             </div>
@@ -39,7 +65,7 @@
         <div class="hero-overlay">
             <div class="container">
                 <h2 class="hero-title" data-i18n="hero.title">한류 콘텐츠와 함께하는<br>특별한 여행</h2>
-                <p class="hero-subtitle" data-i18n="hero.subtitle">좋아하는 드라마, K-pop, 영화의 촬영지를 직접 방문해보세요</p>
+                <p class="hero-subtitle" data-i18n="hero.subtitle">좋아하는 드라마, K-pop, 영화의 촬영지를 직접 방문해보세요!</p>
                 <button class="btn-hero" data-i18n="hero.cta">시작하기</button>
             </div>
         </div>
@@ -49,10 +75,19 @@
     <section class="section" id="content">
         <div class="container">
             <div class="section-header">
-                <h3 class="section-title" data-i18n="popular.title">인기 콘텐츠</h3>
-                <p class="section-subtitle" data-i18n="popular.subtitle">국내외 팬들이 가장 많이 찾는 한류 콘텐츠를 만나보세요</p>
+                <div class="section-text">
+                    <h3 class="section-title" data-i18n="popular.title">인기 콘텐츠</h3>
+                    <p class="section-subtitle" data-i18n="popular.subtitle">국내외 팬들이 가장 많이 찾는 한류 콘텐츠를 만나보세요</p>
+                </div>
             </div>
-            <div class="card-grid" id="popularContent"></div>
+            <div class="carousel-container">
+                <button class="nav-arrow nav-arrow-left" onclick="scrollCarousel('popularContent', -1)">←</button>
+                <div class="carousel-wrapper">
+                    <div class="card-carousel" id="popularContent"></div>
+                </div>
+                <button class="nav-arrow nav-arrow-right" onclick="scrollCarousel('popularContent', 1)">→</button>
+            </div>
+            <div class="carousel-dots" id="popularContentDots"></div>
         </div>
     </section>
 
@@ -60,10 +95,19 @@
     <section class="section section-alt" id="routes">
         <div class="container">
             <div class="section-header">
-                <h3 class="section-title" data-i18n="recommended.title">추천 여행 코스</h3>
-                <p class="section-subtitle" data-i18n="recommended.subtitle">취향과 가까운 테마별 코스를 추천</p>
+                <div class="section-text">
+                    <h3 class="section-title" data-i18n="recommended.title">추천 여행 코스</h3>
+                    <p class="section-subtitle" data-i18n="recommended.subtitle">취향과 가까운 테마별 코스를 추천</p>
+                </div>
             </div>
-            <div class="card-grid" id="recommendedCourses"></div>
+            <div class="carousel-container">
+                <button class="nav-arrow nav-arrow-left" onclick="scrollCarousel('recommendedCourses', -1)">←</button>
+                <div class="carousel-wrapper">
+                    <div class="card-carousel" id="recommendedCourses"></div>
+                </div>
+                <button class="nav-arrow nav-arrow-right" onclick="scrollCarousel('recommendedCourses', 1)">→</button>
+            </div>
+            <div class="carousel-dots" id="recommendedCoursesDots"></div>
         </div>
     </section>
 
@@ -71,11 +115,20 @@
     <section class="section" id="personalized">
         <div class="container">
             <div class="section-header">
-                <h3 class="section-title" data-i18n="personalized.title">사용자 맞춤 추천</h3>
-                <p class="section-subtitle" data-i18n="personalized.subtitle">내 취향 맞춤 코스</p>
+                <div class="section-text">
+                    <h3 class="section-title" data-i18n="personalized.title">사용자 맞춤 추천</h3>
+                    <p class="section-subtitle" data-i18n="personalized.subtitle">내 취향 맞춤 코스</p>
+                </div>
             </div>
             <div class="personalized-wrapper">
-                <div class="card-grid blur-overlay" id="personalizedCourses"></div>
+                <div class="carousel-container">
+                    <button class="nav-arrow nav-arrow-left" onclick="scrollCarousel('personalizedCourses', -1)">←</button>
+                    <div class="carousel-wrapper">
+                        <div class="card-carousel blur-overlay" id="personalizedCourses"></div>
+                    </div>
+                    <button class="nav-arrow nav-arrow-right" onclick="scrollCarousel('personalizedCourses', 1)">→</button>
+                </div>
+                <div class="carousel-dots" id="personalizedCoursesDots"></div>
                 <div class="login-message">
                     <div class="login-icon">🔒</div>
                     <h3 data-i18n="personalized.loginRequired">로그인이 필요합니다</h3>

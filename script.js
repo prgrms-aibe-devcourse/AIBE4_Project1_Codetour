@@ -34,13 +34,22 @@ const translations = {
 const popularContents = [
     { id: 1, title: { ko: '도깨비', en: 'Goblin', ja: 'トッケビ' }, location: { ko: '인천 송도, 강릉', en: 'Incheon Songdo, Gangneung', ja: '仁川松島、江陵' }, rating: 4.9, reviews: 2847, badge: 'drama', image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop' },
     { id: 2, title: { ko: '사랑의 불시착', en: 'Crash Landing on You', ja: '愛の不時着' }, location: { ko: '스위스, 평창', en: 'Switzerland, Pyeongchang', ja: 'スイス、平昌' }, rating: 4.8, reviews: 3521, badge: 'drama', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop' },
-    { id: 3, title: { ko: '기생충', en: 'Parasite', ja: 'パラサイト' }, location: { ko: '서울 광진구', en: 'Gwangjin-gu, Seoul', ja: 'ソウル広津区' }, rating: 4.9, reviews: 1823, badge: 'movie', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop' }
+    { id: 3, title: { ko: '기생충', en: 'Parasite', ja: 'パラサイト' }, location: { ko: '서울 광진구', en: 'Gwangjin-gu, Seoul', ja: 'ソウル広津区' }, rating: 4.9, reviews: 1823, badge: 'movie', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop' },
+    { id: 4, title: { ko: '이태원 클라쓰', en: 'Itaewon Class', ja: '梨泰院クラス' }, location: { ko: '서울 이태원', en: 'Itaewon, Seoul', ja: 'ソウル梨泰院' }, rating: 4.7, reviews: 2156, badge: 'drama', image: 'https://images.unsplash.com/photo-1555992336-fb0d29498b13?w=400&h=300&fit=crop' },
+    { id: 5, title: { ko: '오징어 게임', en: 'Squid Game', ja: 'イカゲーム' }, location: { ko: '서울 강북구, 대부도', en: 'Gangbuk-gu Seoul, Daebudo', ja: 'ソウル江北区、大阜島' }, rating: 4.8, reviews: 4283, badge: 'drama', image: 'https://images.unsplash.com/photo-1579621970795-87facc2f976d?w=400&h=300&fit=crop' },
+    { id: 6, title: { ko: '부산행', en: 'Train to Busan', ja: '新感染' }, location: { ko: '대전역, 동대구역', en: 'Daejeon Station, Dongdaegu Station', ja: '大田駅、東大邱駅' }, rating: 4.9, reviews: 3892, badge: 'movie', image: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=400&h=300&fit=crop' },
+    { id: 7, title: { ko: '나의 아저씨', en: 'My Mister', ja: '私のおじさん' }, location: { ko: '서울 종로구, 광화문', en: 'Jongno-gu, Gwanghwamun', ja: 'ソウル鍾路区、光化門' }, rating: 4.9, reviews: 2647, badge: 'drama', image: 'https://images.unsplash.com/photo-1551622657-7a90d37c89fa?w=400&h=300&fit=crop' },
+    { id: 8, title: { ko: '스물다섯 스물하나', en: 'Twenty-Five Twenty-One', ja: '二十五、二十一' }, location: { ko: '서울 강남구, 서초구', en: 'Gangnam-gu, Seocho-gu', ja: 'ソウル江南区、瑞草区' }, rating: 4.7, reviews: 1985, badge: 'drama', image: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400&h=300&fit=crop' }
 ];
 
 const recommendedCourses = [
     { id: 1, title: { ko: '서울 드라마 투어 1박 2일', en: 'Seoul Drama Tour 2 Days', ja: 'ソウルドラマツアー1泊2日' }, subtitle: { ko: '도깨비, 이태원 클라쓰 등 명작의 흔적을', en: 'Traces of masterpieces like Goblin, Itaewon Class', ja: 'トッケビ、梨泰院クラスなどの名作の跡を' }, days: '2', price: '$150', duration: '6-8 hours', badge: 'popular', image: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=400&h=300&fit=crop' },
     { id: 2, title: { ko: '제주도 로맨스 코스', en: 'Jeju Island Romance Course', ja: '済州島ロマンスコース' }, subtitle: { ko: '서귀포 일대, 우도 외 5곳', en: 'Seogwipo area, Udo and 5 more places', ja: '西帰浦一帯、牛島外5ヶ所' }, days: '3', price: '$345', duration: '10+ hours', badge: 'recommended', image: 'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=400&h=300&fit=crop' },
-    { id: 3, title: { ko: '부산 영화 속 여행', en: 'Busan Movie Tour', ja: '釜山映画の旅' }, subtitle: { ko: '범죄도시, 마약왕과 함께', en: 'With The Outlaws, The Drug King', ja: '犯罪都市、麻薬王と共に' }, days: '2', price: '$280', duration: '6-8 hours', badge: 'special', image: 'https://images.unsplash.com/photo-1529014576110-d5c8a2c0de9c?w=400&h=300&fit=crop' }
+    { id: 3, title: { ko: '부산 영화 속 여행', en: 'Busan Movie Tour', ja: '釜山映画の旅' }, subtitle: { ko: '범죄도시, 마약왕과 함께', en: 'With The Outlaws, The Drug King', ja: '犯罪都市、麻薬王と共に' }, days: '2', price: '$280', duration: '6-8 hours', badge: 'special', image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=300&fit=crop' },
+    { id: 4, title: { ko: '강릉 감성 여행', en: 'Gangneung Emotional Tour', ja: '江陵感性旅行' }, subtitle: { ko: '도깨비 메밀밭과 해변', en: 'Goblin buckwheat field and beach', ja: 'トッケビそば畑と海辺' }, days: '1', price: '$120', duration: '4-6 hours', badge: 'popular', image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=400&h=300&fit=crop' },
+    { id: 5, title: { ko: '경주 역사 드라마 투어', en: 'Gyeongju Historical Drama Tour', ja: '慶州歴史ドラマツアー' }, subtitle: { ko: '선덕여왕, 화랑 촬영지', en: 'Queen Seondeok, Hwarang locations', ja: '善徳女王、花郎撮影地' }, days: '2', price: '$195', duration: '8-10 hours', badge: 'recommended', image: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400&h=300&fit=crop' },
+    { id: 6, title: { ko: '평창 겨울 드라마 코스', en: 'Pyeongchang Winter Drama Course', ja: '平昌冬ドラマコース' }, subtitle: { ko: '사랑의 불시착 명장면 속으로', en: 'Into famous scenes of CLOY', ja: '愛の不時着名場面の中へ' }, days: '2', price: '$310', duration: '6-8 hours', badge: 'special', image: 'https://images.unsplash.com/photo-1548273572-89c91eec3cab?w=400&h=300&fit=crop' },
+    { id: 7, title: { ko: '인천 송도 모던 투어', en: 'Incheon Songdo Modern Tour', ja: '仁川松島モダンツアー' }, subtitle: { ko: '도깨비 랜드마크 완전 정복', en: 'Complete conquest of Goblin landmarks', ja: 'トッケビランドマーク完全征服' }, days: '1', price: '$95', duration: '4-5 hours', badge: 'popular', image: 'https://images.unsplash.com/photo-1535639818669-c059d2f038e6?w=400&h=300&fit=crop' }
 ];
 
 let currentLang = 'ko';
@@ -51,6 +60,8 @@ document.addEventListener('DOMContentLoaded', function() {
     renderRecommendedCourses();
     renderPersonalizedCourses();
     setupEventListeners();
+    setupSearchModal();
+    setupCarouselDots();
 });
 
 function updateLanguage(lang) {
@@ -64,6 +75,8 @@ function updateLanguage(lang) {
     renderPopularContent();
     renderRecommendedCourses();
     renderPersonalizedCourses();
+    // 도트를 다시 설정
+    setTimeout(() => setupCarouselDots(), 100);
 }
 
 function renderPopularContent() {
@@ -121,6 +134,103 @@ function createCourseCard(data) {
     return card;
 }
 
+// 캐러셀 스크롤 함수
+function scrollCarousel(carouselId, direction) {
+    const carousel = document.getElementById(carouselId);
+    const scrollAmount = 360; // 카드 너비 + 갭
+    const targetScroll = carousel.scrollLeft + (scrollAmount * direction);
+    carousel.scrollTo({
+        left: targetScroll,
+        behavior: 'smooth'
+    });
+}
+
+// 캐러셀 도트 설정
+function setupCarouselDots() {
+    const carousels = [
+        { id: 'popularContent', dotsId: 'popularContentDots', itemCount: popularContents.length },
+        { id: 'recommendedCourses', dotsId: 'recommendedCoursesDots', itemCount: recommendedCourses.length },
+        { id: 'personalizedCourses', dotsId: 'personalizedCoursesDots', itemCount: recommendedCourses.length }
+    ];
+
+    carousels.forEach(({ id, dotsId, itemCount }) => {
+        const carousel = document.getElementById(id);
+        const dotsContainer = document.getElementById(dotsId);
+        
+        // 도트 개수 계산 (보통 3개씩 보이므로)
+        const visibleCards = 3;
+        const dotCount = Math.ceil(itemCount / visibleCards);
+        
+        // 도트 생성
+        dotsContainer.innerHTML = '';
+        for (let i = 0; i < dotCount; i++) {
+            const dot = document.createElement('button');
+            dot.className = 'carousel-dot';
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => {
+                const scrollAmount = carousel.scrollWidth / dotCount;
+                carousel.scrollTo({
+                    left: scrollAmount * i,
+                    behavior: 'smooth'
+                });
+            });
+            dotsContainer.appendChild(dot);
+        }
+
+        // 스크롤 이벤트로 활성 도트 업데이트
+        carousel.addEventListener('scroll', () => {
+            const scrollPercentage = carousel.scrollLeft / (carousel.scrollWidth - carousel.clientWidth);
+            const activeDotIndex = Math.round(scrollPercentage * (dotCount - 1));
+            
+            dotsContainer.querySelectorAll('.carousel-dot').forEach((dot, index) => {
+                if (index === activeDotIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        });
+    });
+}
+
+// 검색 모달 설정
+function setupSearchModal() {
+    const searchButton = document.getElementById('searchButton');
+    const searchModal = document.getElementById('searchModal');
+    const searchClose = document.getElementById('searchClose');
+    const searchInput = document.getElementById('searchInput');
+
+    searchButton.addEventListener('click', () => {
+        searchModal.classList.add('active');
+        setTimeout(() => searchInput.focus(), 100);
+    });
+
+    searchClose.addEventListener('click', () => {
+        searchModal.classList.remove('active');
+    });
+
+    searchModal.addEventListener('click', (e) => {
+        if (e.target === searchModal) {
+            searchModal.classList.remove('active');
+        }
+    });
+
+    // ESC 키로 모달 닫기
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && searchModal.classList.contains('active')) {
+            searchModal.classList.remove('active');
+        }
+    });
+
+    // 검색 제안 태그 클릭
+    document.querySelectorAll('.suggestion-tag').forEach(tag => {
+        tag.addEventListener('click', () => {
+            searchInput.value = tag.textContent;
+            searchInput.focus();
+        });
+    });
+}
+
 function setupEventListeners() {
     document.getElementById('languageSelector').addEventListener('change', (e) => updateLanguage(e.target.value));
     document.querySelector('.btn-hero').addEventListener('click', () => document.querySelector('#content').scrollIntoView({ behavior: 'smooth' }));
@@ -139,22 +249,3 @@ function setupEventListeners() {
         });
     });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
