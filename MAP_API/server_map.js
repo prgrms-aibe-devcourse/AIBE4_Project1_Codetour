@@ -138,7 +138,7 @@ app.get("/api/contents", async (req, res) => {
   try {
     const { data: contents, error } = await supabase
       .from("contents")
-      .select("contents_id, contents, name, location, explanation, img_url")
+      .select("contents_id, contents, name, location, explanation")
       .limit(50);
 
     console.log("📺 콘텐츠 조회 시도");
