@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
 const { createClient } = require("@supabase/supabase-js");
+const path = require("path");
+const { fileURLToPath } = require("url");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,7 +17,14 @@ const supabase = createClient(
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "..")));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "index.html"));
+});
+app.get("/map", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "map_page.html"));
+});
 
 // 좌표 파싱 함수
 function parseCoordinates(coordStr) {

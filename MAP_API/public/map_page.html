@@ -401,8 +401,13 @@
   </head>
   <body>
     <header>
-      <h1>🇰🇷 K-콘텐츠 여행 지도</h1>
-      <p>한류 콘텐츠와 함께하는 특별한 여행 코스를 만들어보세요</p>
+      <div class="header-content">
+        <div>
+          <h1>🇰🇷 K-콘텐츠 여행 지도</h1>
+          <p>한류 콘텐츠와 함께하는 특별한 여행 코스를 만들어보세요</p>
+        </div>
+        <button class="home-btn" onclick="goHome()">🏠 홈</button>
+      </div>
     </header>
 
     <div class="container">
@@ -488,7 +493,10 @@
     <script>
       let currentSearchMode = "place";
       let contentsData = [];
-
+      //홈으로 이동
+      window.goHome = function () {
+        window.location.href = "http://localhost:3000";
+      };
       // 검색 모드 전환
       window.switchSearchMode = function (mode) {
         currentSearchMode = mode;
