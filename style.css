@@ -229,8 +229,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 2rem;
-    gap: 2rem;
+    padding: 1rem 1rem;
+    gap: 1rem;
 }
 
 .header-left {
