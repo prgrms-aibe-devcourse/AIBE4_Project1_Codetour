@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>K-Pop - Korea Travel Planner</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+      @import url("https://webfontworld.github.io/kopus/KoPubBatang.css");
+
+      :root {
+        --primary-pink: #ff4d8d;
+        --primary-blue: #3a8dff;
+        --background-beige: #f5e6d3;
+        --text-dark: #1a1a1a;
+      }
+
+      body {
+        font-family: "KoPubBatang", serif;
+        background-color: var(--background-beige);
+        color: var(--text-dark);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      header {
+        width: 100%;
+        padding: 2rem 0;
+        text-align: center;
+        background-color: var(--text-dark);
+        color: var(--background-beige);
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        letter-spacing: 2px;
+      }
+
+      main {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2rem;
+        padding: 4rem 2rem;
+        width: 100%;
+        max-width: 1200px;
+        box-sizing: border-box;
+      }
+
+      main {
+        padding: 4rem 2rem;
+        width: 100%;
+        max-width: 900px;
+        box-sizing: border-box;
+      }
+
+      .category-card {
+        width: 250px;
+        height: 250px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 15px;
+        color: var(--text-dark);
+        text-decoration: none;
+      }
+
+      .card-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .card-label {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--text-dark);
+        text-align: center;
+      }
+
+      .category-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+      }
+
+      .modal-content {
+        background-color: var(--background-beige);
+        margin: 10% auto;
+        padding: 2rem;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 800px;
+        position: relative;
+      }
+
+      .close-button {
+        color: var(--text-dark);
+        position: absolute;
+        top: 1rem;
+        right: 1.5rem;
+        font-size: 2rem;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .slideshow-container {
+        max-width: 1000px;
+        position: relative;
+        margin: auto;
+      }
+
+      .mySlides {
+        display: none;
+      }
+
+      .mySlides img {
+        width: 100%;
+        border-radius: 10px;
+      }
+
+      .prev,
+      .next {
+        cursor: pointer;
+        position: absolute;
+        top: 50%;
+        width: auto;
+        margin-top: -22px;
+        padding: 16px;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+        transition: 0.6s ease;
+        border-radius: 0 3px 3px 0;
+        user-select: none;
+        background-color: rgba(0, 0, 0, 0.3);
+      }
+
+      .next {
+        right: 0;
+        border-radius: 3px 0 0 3px;
+      }
+
+      .prev:hover,
+      .next:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+
+      .dot {
+        cursor: pointer;
+        height: 15px;
+        width: 15px;
+        margin: 0 2px;
+        background-color: #bbb;
+        border-radius: 50%;
+        display: inline-block;
+        transition: background-color 0.6s ease;
+      }
+
+      .active,
+      .dot:hover {
+        background-color: #717171;
+      }
+
+      footer {
+        margin-top: auto;
+        width: 100%;
+        padding: 1rem 0;
+        text-align: center;
+        background-color: var(--text-dark);
+        color: var(--background-beige);
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 2rem;
+        padding: 0.5rem 1rem; /* This might be redundant, check usage */
+        background-color: var(--primary-blue);
+        color: var(--background-beige);
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+
+      .back-link:hover {
+        background-color: #2a78e8;
+      }
+
+      /* Fading animation */
+      .fade {
+        animation-name: fade;
+        animation-duration: 1.5s;
+      }
+
+      @keyframes fade {
+        from {
+          opacity: 0.4;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>K-Pop Places</h1>
+    </header>
+
+    <main>
+      <!-- Artist/Location cards will be dynamically inserted here -->
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Korea Travel Planner</p>
+    </footer>
+
+    <div id="bts-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <div
+          class="keywords"
+          id="modal-keywords"
+          style="margin-bottom: 1rem; color: var(--primary-pink)"
+        ></div>
+        <h2 id="modal-title"></h2>
+        <p id="modal-description">설명을 불러오는 중...</p>
+        <div id="modal-details" style="margin-top: 1.5rem; line-height: 1.6;"></div>
+
+        <div class="slideshow-container">
+          <!-- Slides will be dynamically inserted here -->
+          <a class="prev">&#10094;</a>
+          <a class="next">&#10095;</a>
+        </div>
+        <br />
+        <div class="dot-container" style="text-align: center">
+          <!-- Dots will be dynamically inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      let supabase;
+      async function initSupabase() {
+        try {
+          const response = await fetch("http://localhost:3000/api/config");
+          if (!response.ok) throw new Error("Failed to fetch Supabase config");
+          const config = await response.json();
+          supabase = window.supabase.createClient(
+            config.supabaseUrl,
+            config.supabaseKey
+          );
+          showArtistSelection(); // Initial view
+        } catch (error) {
+          console.error("Error initializing Supabase:", error);
+          document.querySelector("main").innerHTML =
+            "<p>Error loading content. Please try again later.</p>";
+        }
+      }
+      initSupabase();
+
+      const mainContainer = document.querySelector("main");
+      const btsModal = document.getElementById("bts-modal");
+      const closeButton = btsModal.querySelector(".close-button");
+      let slideIndex = 1;
+
+      function showSlides(n) {
+        let slides = btsModal.getElementsByClassName("mySlides");
+        let dots = btsModal.getElementsByClassName("dot");
+        if (n > slides.length) slideIndex = 1;
+        if (n < 1) slideIndex = slides.length;
+        for (let i = 0; i < slides.length; i++) {
+          slides[i].style.display = "none";
+        }
+        for (let i = 0; i < dots.length; i++) {
+          dots[i].className = dots[i].className.replace(" active", "");
+        }
+        if (slides.length > 0) {
+          slides[slideIndex - 1].style.display = "block";
+          dots[slideIndex - 1].className += " active";
+        }
+      }
+
+      async function showLocationModal(placeId, title) {
+        if (!supabase) {
+          alert("DB connection error. Please refresh.");
+          return;
+        }
+        btsModal.querySelector("#modal-title").textContent = title;
+        const modalDescription = btsModal.querySelector("#modal-description");
+        modalDescription.textContent = "Loading description...";
+
+        const { data, error } = await supabase
+          .from("location")
+          .select("description, keyword, address, tel, subDescription, entranceFee")
+          .eq("placeId", placeId)
+          .single();
+
+        if (error) {
+          console.error("Error fetching location data:", error);
+          modalDescription.textContent = "Failed to load description.";
+        } else {
+          modalDescription.textContent = data.description;
+          const modalKeywords = btsModal.querySelector("#modal-keywords");
+          modalKeywords.innerHTML = ""; // Clear previous keywords
+          if (data.keyword) {
+            const keywords = data.keyword.split(',').map(k => k.trim().replace(/"/g, ''));
+            keywords.forEach(k => {
+                if(k) {
+                    const keywordEl = document.createElement('span');
+                    keywordEl.textContent = `#${k} `;
+                    modalKeywords.appendChild(keywordEl);
+                }
+            });
+          }
+
+          const modalDetails = btsModal.querySelector("#modal-details");
+          modalDetails.innerHTML = ""; // Clear previous details
+
+          if (data.address) {
+              const p = document.createElement('p');
+              p.innerHTML = `<strong>주소:</strong> ${data.address}`;
+              modalDetails.appendChild(p);
+          }
+          if (data.tel) {
+              const p = document.createElement('p');
+              p.innerHTML = `<strong>전화번호:</strong> ${data.tel}`;
+              modalDetails.appendChild(p);
+          }
+          if (data.subDescription) {
+              const p = document.createElement('p');
+              p.innerHTML = `<strong>운영시간:</strong> ${data.subDescription}`;
+              modalDetails.appendChild(p);
+          }
+          if (data.entranceFee) {
+              const p = document.createElement('p');
+              p.innerHTML = `<strong>입장료:</strong> ${data.entranceFee}`;
+              modalDetails.appendChild(p);
+          }
+        }
+
+        // Fetch all image URLs from the 'images' table for the given placeId
+        const { data: imagesData, error: imagesError } = await supabase
+          .from("images")
+          .select("imageUrl")
+          .eq("placeId", placeId);
+
+        let imageUrls = [];
+        if (imagesError) {
+          console.error("Error fetching images:", imagesError);
+          // You could add a placeholder image here if needed
+        } else {
+          imageUrls = imagesData.map((img) => img.imageUrl);
+        }
+
+        const slideshowContainer = btsModal.querySelector(
+          ".slideshow-container"
+        );
+        const dotContainer = btsModal.querySelector(".dot-container");
+        slideshowContainer
+          .querySelectorAll(".mySlides")
+          .forEach((el) => el.remove());
+        dotContainer.innerHTML = "";
+
+        imageUrls.forEach((url, index) => {
+          if (!url) return;
+          const slide = document.createElement("div");
+          slide.className = "mySlides fade";
+          const img = document.createElement("img");
+          img.src = url;
+          slide.appendChild(img);
+          slideshowContainer.insertBefore(
+            slide,
+            slideshowContainer.querySelector(".prev")
+          );
+          const dot = document.createElement("span");
+          dot.className = "dot";
+          dot.onclick = () => {
+            slideIndex = index + 1;
+            showSlides(slideIndex);
+          };
+          dotContainer.appendChild(dot);
+        });
+
+        slideIndex = 1;
+        showSlides(slideIndex);
+        btsModal.style.display = "block";
+      }
+
+      function showArtistSelection() {
+        mainContainer.innerHTML = ""; // Clear the container
+
+        const btsCard = document.createElement("div");
+        btsCard.id = "bts-card";
+        btsCard.className = "category-card";
+        btsCard.style.backgroundColor = "#ff4d8d";
+        btsCard.style.cursor = "pointer";
+        const btsCardDiv = document.createElement("div");
+        btsCardDiv.textContent = "BTS";
+        btsCard.appendChild(btsCardDiv);
+
+        const blackpinkCard = document.createElement("div");
+        blackpinkCard.id = "blackpink-card";
+        blackpinkCard.className = "category-card";
+        blackpinkCard.style.backgroundColor = "#3a8dff";
+        blackpinkCard.style.cursor = "pointer";
+        const blackpinkCardDiv = document.createElement("div");
+        blackpinkCardDiv.textContent = "Black Pink";
+        blackpinkCard.appendChild(blackpinkCardDiv);
+
+        const backLink = document.createElement("a");
+        backLink.href = "/index.html";
+        backLink.className = "back-link";
+        backLink.style.textAlign = "center";
+        backLink.style.width = "100%";
+        backLink.textContent = "Back to Main Categories";
+
+        mainContainer.appendChild(btsCard);
+        mainContainer.appendChild(blackpinkCard);
+        mainContainer.appendChild(backLink);
+      }
+
+      document.body.addEventListener("click", async (event) => {
+        const targetCard = event.target.closest(".category-card");
+        if (!targetCard) return;
+
+        const id = targetCard.id;
+
+        if (id === "bts-card") {
+          mainContainer.innerHTML = ""; // Clear the container
+
+          // --- Iryeong Station Card ---
+          const iryeongWrapper = document.createElement("div");
+          iryeongWrapper.className = "card-wrapper";
+          const iryeongCard = document.createElement("div");
+          iryeongCard.id = "iryeong-station-card";
+          iryeongCard.className = "category-card";
+          iryeongCard.style.cursor = "pointer";
+          iryeongCard.style.backgroundImage = `url(${
+            supabase.storage
+              .from("tour-images")
+              .getPublicUrl("Iryeong Station1.jpg").data.publicUrl
+          })`;
+          iryeongCard.style.backgroundSize = "cover";
+          iryeongCard.style.backgroundPosition = "center";
+          const iryeongLabel = document.createElement("div");
+          iryeongLabel.className = "card-label";
+          iryeongLabel.textContent = "일영역";
+          iryeongWrapper.appendChild(iryeongCard);
+          iryeongWrapper.appendChild(iryeongLabel);
+
+          // --- Hyangho Beach Card ---
+          const hyanghoWrapper = document.createElement("div");
+          hyanghoWrapper.className = "card-wrapper";
+          const hyanghoCard = document.createElement("div");
+          hyanghoCard.id = "hyangho-beach-card";
+          hyanghoCard.className = "category-card";
+          hyanghoCard.style.cursor = "pointer";
+          hyanghoCard.style.backgroundImage = `url(${
+            supabase.storage
+              .from("tour-images")
+              .getPublicUrl("Hyangho Beach1.jpg").data.publicUrl
+          })`;
+          hyanghoCard.style.backgroundSize = "cover";
+          hyanghoCard.style.backgroundPosition = "center";
+          const hyanghoLabel = document.createElement("div");
+          hyanghoLabel.className = "card-label";
+          hyanghoLabel.textContent = "향호해변";
+          hyanghoWrapper.appendChild(hyanghoCard);
+          hyanghoWrapper.appendChild(hyanghoLabel);
+
+          // --- Back Link ---
+          const backLink = document.createElement("div"); // Using div to make it clickable via JS
+          backLink.className = "back-link";
+          backLink.textContent = "Back to Artists";
+          backLink.style.cursor = "pointer";
+          backLink.style.width = "100%";
+          backLink.style.textAlign = "center";
+          backLink.onclick = showArtistSelection;
+
+          mainContainer.appendChild(iryeongWrapper);
+          mainContainer.appendChild(hyanghoWrapper);
+          mainContainer.appendChild(backLink);
+        } else if (id === "iryeong-station-card") {
+          showLocationModal(3044, "BTS - 일영역 (Iryeong Station)");
+        } else if (id === "hyangho-beach-card") {
+          showLocationModal(4878, "BTS - 향호해변 (Hyangho Beach)");
+        } else if (id === "blackpink-card") {
+          alert("Black Pink 페이지는 준비 중입니다.");
+        }
+      });
+
+      btsModal.querySelector(".prev").onclick = () => showSlides(--slideIndex);
+      btsModal.querySelector(".next").onclick = () => showSlides(++slideIndex);
+      closeButton.onclick = () => (btsModal.style.display = "none");
+      window.onclick = (event) => {
+        if (event.target == btsModal) btsModal.style.display = "none";
+      };
+    </script>
+  </body>
+</html>
