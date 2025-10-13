@@ -1,2 +1,2 @@
-# AIBE4_Project1_Team1
-test by jaeho
+index.html(메인페이지)은 제 담당이 아니라 매우 간단히 해놨고 UX를 짜보고 기능구현을 로컬에서 해보는 중입니다
+미완성이라 완성되면 업데이트하겠습니다!
