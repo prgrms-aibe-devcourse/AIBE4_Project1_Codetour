@@ -236,6 +236,28 @@ app.get("/api/course/:userId", async (req, res) => {
   }
 });
 
+// 코스 삭제
+app.delete("/api/course/:courseId", async (req, res) => {
+  const { courseId } = req.params;
+  if (!courseId)
+    return res.status(400).json({ success: false, error: "코스 ID 필요" });
+
+  try {
+    const { error } = await supabase
+      .from("courses")
+      .delete()
+      .eq("id", courseId);
+
+    if (error) throw error;
+
+    console.log(`🗑️ 코스 ${courseId} 삭제됨`);
+    res.json({ success: true, message: "코스 삭제 완료" });
+  } catch (err) {
+    console.error("❌ 코스 삭제 실패:", err);
+    res.status(500).json({ success: false, error: "코스 삭제 실패" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

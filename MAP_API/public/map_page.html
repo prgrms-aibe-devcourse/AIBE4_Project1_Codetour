@@ -653,6 +653,28 @@
           }
         };
 
+        window.deleteCourse = async function (courseId) {
+          if (!confirm("이 코스를 삭제하시겠습니까? 🗑️")) return;
+
+          try {
+            const res = await fetch(`/api/course/${courseId}`, {
+              method: "DELETE",
+            });
+            const data = await res.json();
+
+            if (data.success) {
+              alert("✅ 코스가 삭제되었습니다!");
+              // 코스 목록 새로고침
+              document.getElementById("loadCoursesBtn").click();
+            } else {
+              alert("삭제 실패: " + data.error);
+            }
+          } catch (err) {
+            console.error(err);
+            alert("삭제 중 오류가 발생했습니다 😢");
+          }
+        };
+
         // 장소 검색 기능
         document.getElementById("searchBtn").onclick = async function () {
           const query = document.getElementById("searchInput").value;
@@ -848,10 +870,18 @@
               const div = document.createElement("div");
               div.className = "saved-course";
               div.innerHTML = `
-                <strong>🎯 ${course.name}</strong><br>
-                <small>📍 ${course.course_places.length}개 장소</small>
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div style="flex: 1;">
+                    <strong>🎯 ${course.name}</strong><br>
+                    <small>📍 ${course.course_places.length}개 장소</small>
+                  </div>
+                  <button onclick="deleteCourse(${course.id})" style="background: #FF4D8D; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; margin-left: 8px;">삭제</button>
+                </div>
               `;
-              div.onclick = () => loadCourse(course);
+              div.onclick = (e) => {
+                if (e.target.closest("button")) return; // 삭제 버튼 클릭 시 제외
+                loadCourse(course);
+              };
               container.appendChild(div);
             });
           } catch (err) {
@@ -923,36 +953,51 @@
               );
               const data = await res.json();
 
+              console.log("경로 API 응답:", data);
+
               if (data.routes && data.routes.length > 0) {
                 const route = data.routes[0];
-                totalDistance += route.summary.distance;
-                totalDuration += route.summary.duration;
 
-                route.sections.forEach((section) => {
-                  section.roads.forEach((road) => {
-                    road.vertexes.forEach((vertex, idx) => {
-                      if (idx % 2 === 0) {
-                        pathCoords.push(
-                          new kakao.maps.LatLng(
-                            road.vertexes[idx + 1],
-                            road.vertexes[idx]
-                          )
-                        );
-                      }
-                    });
+                // 응답 구조 확인
+                if (route.summary) {
+                  totalDistance += route.summary.distance || 0;
+                  totalDuration += route.summary.duration || 0;
+                }
+
+                // 경로 좌표 추출
+                if (route.sections) {
+                  route.sections.forEach((section) => {
+                    if (section.roads) {
+                      section.roads.forEach((road) => {
+                        if (road.vertexes) {
+                          road.vertexes.forEach((vertex, idx) => {
+                            if (idx % 2 === 0) {
+                              pathCoords.push(
+                                new kakao.maps.LatLng(
+                                  road.vertexes[idx + 1],
+                                  road.vertexes[idx]
+                                )
+                              );
+                            }
+                          });
+                        }
+                      });
+                    }
                   });
-                });
+                }
               }
             }
 
-            routePolyline = new kakao.maps.Polyline({
-              path: pathCoords,
-              strokeWeight: 6,
-              strokeColor: "#FF4D8D",
-              strokeOpacity: 0.8,
-              strokeStyle: "solid",
-            });
-            routePolyline.setMap(map);
+            if (pathCoords.length > 0) {
+              routePolyline = new kakao.maps.Polyline({
+                path: pathCoords,
+                strokeWeight: 6,
+                strokeColor: "#FF4D8D",
+                strokeOpacity: 0.8,
+                strokeStyle: "solid",
+              });
+              routePolyline.setMap(map);
+            }
 
             document.getElementById("routeInfo").innerHTML = `
               <div class="route-info">
@@ -968,7 +1013,7 @@
               </div>
             `;
           } catch (err) {
-            console.error(err);
+            console.error("경로 검색 에러:", err);
             alert("경로 검색에 실패했습니다 😢");
           }
         };
