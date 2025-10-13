@@ -69,21 +69,48 @@ app.get("/api/search", async (req, res) => {
   }
 });
 
-// 콘텐츠로 장소 검색
+// 콘텐츠로 장소 검색 (contents 테이블의 contents 컬럼으로 선택 → name 컬럼의 location으로 매칭)
 app.get("/api/search-by-content", async (req, res) => {
   const contentName = req.query.name;
   if (!contentName)
     return res.status(400).json({ error: "콘텐츠 이름이 필요합니다." });
 
   try {
-    const { data: locations, error } = await supabase
+    // 1. contents 테이블에서 해당 contents의 모든 name(location) 정보 가져오기
+    const { data: contentData, error: contentError } = await supabase
+      .from("contents")
+      .select("name")
+      .eq("contents", contentName);
+
+    if (contentError) throw contentError;
+
+    if (!contentData || contentData.length === 0) {
+      return res.json({ documents: [] });
+    }
+
+    // 2. name 컬럼의 값들을 추출 (중복 제거)
+    const locationNames = [
+      ...new Set(contentData.map((c) => c.name).filter(Boolean)),
+    ];
+
+    console.log(`🔍 "${contentName}"의 촬영지:`, locationNames);
+
+    // 3. location 테이블에서 해당 placeName들과 일치하는 모든 항목 찾기
+    const { data: locations, error: locError } = await supabase
       .from("location")
       .select("*")
-      .ilike("mediaTitle", `%${contentName}%`);
+      .in("placeName", locationNames);
 
-    if (error) throw error;
+    if (locError) throw locError;
 
-    const documents = locations.map((loc) => {
+    console.log("📍 찾은 location 데이터:", locations?.length);
+
+    // 중복 제거 (placeName 기준)
+    const uniqueLocations = [
+      ...new Map(locations.map((item) => [item.placeName, item])).values(),
+    ];
+
+    const documents = uniqueLocations.map((loc) => {
       const coords = parseCoordinates(loc.coordinates);
       return {
         place_name: loc.placeName,
@@ -98,9 +125,10 @@ app.get("/api/search-by-content", async (req, res) => {
       };
     });
 
+    console.log(`✅ "${contentName}" 검색 결과: ${documents.length}개 장소`);
     res.json({ documents });
   } catch (err) {
-    console.error(err);
+    console.error("❌ 콘텐츠 검색 실패:", err);
     res.status(500).json({ error: "검색 중 오류 발생" });
   }
 });
@@ -110,13 +138,17 @@ app.get("/api/contents", async (req, res) => {
   try {
     const { data: contents, error } = await supabase
       .from("contents")
-      .select("*")
+      .select("contents_id, contents, name, location, explanation, img_url")
       .limit(50);
+
+    console.log("📺 콘텐츠 조회 시도");
+    console.log("Error:", error);
+    console.log("Data count:", contents?.length);
 
     if (error) throw error;
     res.json(contents);
   } catch (err) {
-    console.error(err);
+    console.error("❌ 콘텐츠 조회 실패:", err);
     res.status(500).json({ error: "콘텐츠 조회 실패" });
   }
 });
@@ -201,6 +233,28 @@ app.get("/api/course/:userId", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "코스 조회 실패" });
+  }
+});
+
+// 코스 삭제
+app.delete("/api/course/:courseId", async (req, res) => {
+  const { courseId } = req.params;
+  if (!courseId)
+    return res.status(400).json({ success: false, error: "코스 ID 필요" });
+
+  try {
+    const { error } = await supabase
+      .from("courses")
+      .delete()
+      .eq("id", courseId);
+
+    if (error) throw error;
+
+    console.log(`🗑️ 코스 ${courseId} 삭제됨`);
+    res.json({ success: true, message: "코스 삭제 완료" });
+  } catch (err) {
+    console.error("❌ 코스 삭제 실패:", err);
+    res.status(500).json({ success: false, error: "코스 삭제 실패" });
   }
 });
 
