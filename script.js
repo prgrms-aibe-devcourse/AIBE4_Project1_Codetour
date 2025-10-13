@@ -100,37 +100,16 @@ function renderPersonalizedCourses() {
 function createContentCard(data) {
     const card = document.createElement('div');
     card.className = 'card';
-    card.innerHTML = `
-        <span class="card-badge">${translations[currentLang].card.badge[data.badge]}</span>
-        <img src="${data.image}" alt="${data.title[currentLang]}" class="card-image">
-        <div class="card-content">
-            <h4 class="card-title">${data.title[currentLang]}</h4>
-            <p class="card-subtitle">📍 ${data.location[currentLang]}</p>
-            <div class="card-meta">
-                <span class="card-rating">⭐ ${data.rating}</span>
-                <span>${data.reviews.toLocaleString()} ${translations[currentLang].card.reviews}</span>
-            </div>
-        </div>
-    `;
+    const badgeClass = '';
+    card.innerHTML = `<span class="card-badge ${badgeClass}">${translations[currentLang].card.badge[data.badge]}</span><img src="${data.image}" alt="${data.title[currentLang]}" class="card-image"><div class="card-content"><h4 class="card-title">${data.title[currentLang]}</h4><p class="card-subtitle">📍 ${data.location[currentLang]}</p><div class="card-meta"><span class="card-rating">⭐ ${data.rating}</span><span>${data.reviews.toLocaleString()} ${translations[currentLang].card.reviews}</span></div></div>`;
     return card;
 }
 
 function createCourseCard(data) {
     const card = document.createElement('div');
     card.className = 'card';
-    card.innerHTML = `
-        <span class="card-badge">${translations[currentLang].card.badge[data.badge]}</span>
-        <img src="${data.image}" alt="${data.title[currentLang]}" class="card-image">
-        <div class="card-content">
-            <h4 class="card-title">${data.title[currentLang]}</h4>
-            <p class="card-subtitle">${data.subtitle[currentLang]}</p>
-            <div class="card-meta">
-                <span>📅 ${data.days}${translations[currentLang].card.days}</span>
-                <span>💰 ${data.price}</span>
-                <span>⏱️ ${data.duration}</span>
-            </div>
-        </div>
-    `;
+    let badgeClass = '';
+    card.innerHTML = `<span class="card-badge ${badgeClass}">${translations[currentLang].card.badge[data.badge]}</span><img src="${data.image}" alt="${data.title[currentLang]}" class="card-image"><div class="card-content"><h4 class="card-title">${data.title[currentLang]}</h4><p class="card-subtitle">${data.subtitle[currentLang]}</p><div class="card-meta"><span>📅 ${data.days}${translations[currentLang].card.days}</span><span>💰 ${data.price}</span><span>⏱️ ${data.duration}</span></div></div>`;
     return card;
 }
 
