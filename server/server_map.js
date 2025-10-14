@@ -12,6 +12,10 @@ const PORT = process.env.PORT || 3000;
 // 파일 경로 확인 (디버깅용)
 const indexPath = path.join(__dirname, "../source/pages/index/index.html");
 const mapPath = path.join(__dirname, "../source/pages/map/map_page.html");
+const aiCoursePath = path.join(
+  __dirname,
+  "../source/pages/aiCourse/indexBae.html"
+);
 
 console.log("Index 경로:", indexPath);
 console.log("Index 파일 존재:", fs.existsSync(indexPath));
@@ -37,6 +41,10 @@ app.use(
   "/source/pages/map",
   express.static(path.join(__dirname, "../source/pages/map"))
 );
+app.use(
+  "/aiCourse",
+  express.static(path.join(__dirname, "../source/pages/aiCourse"))
+);
 
 // 메인 페이지
 app.get("/", (req, res) => {
@@ -52,6 +60,14 @@ app.get("/map", (req, res) => {
     return res.status(404).send("map_page.html을 찾을 수 없습니다");
   }
   res.sendFile(mapPath);
+});
+
+// aiCourse 페이지
+app.get("/aiCourse", (req, res) => {
+  if (!fs.existsSync(aiCoursePath)) {
+    return res.status(404).send("indexBae.html을 찾을 수 없습니다");
+  }
+  res.sendFile(aiCoursePath);
 });
 // 좌표 파싱 함수
 function parseCoordinates(coordStr) {
