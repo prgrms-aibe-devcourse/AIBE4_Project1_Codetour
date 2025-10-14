@@ -1,9 +1,10 @@
-// auth.js (single-page OAuth callback + hard logout) — userStore 싱글톤 사용
-import { supabase, getSafeUserInfo } from "./userStore.js";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /** URL/경로 유틸 **/
 function basePath() {
-  // / -> /   |  /repo/index.html -> /repo/
   return location.pathname.endsWith("/")
     ? location.pathname
     : location.pathname.replace(/[^/]+$/, "");
@@ -19,7 +20,7 @@ function urlTo(p) {
 }
 function currentPage() {
   const last = location.pathname.split("/").pop();
-  return (last && last.length) ? last.toLowerCase() : PATHS.INDEX;
+  return last && last.length ? last.toLowerCase() : PATHS.INDEX;
 }
 
 /** OAuth 콜백 **/
@@ -39,7 +40,9 @@ async function handleOAuthRedirectIfNeeded() {
   if (!hasCode || !hasState) return false;
 
   try {
-    const { error } = await supabase.auth.exchangeCodeForSession({ url: window.location.href });
+    const { error } = await supabase.auth.exchangeCodeForSession({
+      url: window.location.href,
+    });
     if (error) throw error;
 
     history.replaceState({}, "", `${BASE}${currentPage()}`);
@@ -47,15 +50,14 @@ async function handleOAuthRedirectIfNeeded() {
   } catch (e) {
     console.error("세션 교환 실패:", e);
     alert(
-      "세션 처리 중 오류가 발생했습니다.\n" +
-      "Supabase/Google Redirect URL이 현재 페이지(루트 /)와 일치하는지 확인하세요."
+      "세션 처리 중 오류가 발생했습니다.\nSupabase Redirect URL이 현재 페이지(루트 /)와 일치하는지 확인하세요."
     );
     history.replaceState({}, "", `${BASE}${currentPage()}`);
     return false;
   }
 }
 
-/** 로그인/로그아웃 유틸 **/
+
 async function hardLocalClear() {
   try {
     for (const k of Object.keys(localStorage)) {
@@ -90,43 +92,39 @@ async function signOut() {
   routing = true;
 
   const target = `${urlTo(PATHS.INDEX)}?signed_out=${Date.now()}`;
-
-  let redirected = false;
   const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-    if (event === "SIGNED_OUT" && !redirected) {
-      redirected = true;
-      window.location.replace(target);
-    }
+    if (event === "SIGNED_OUT") window.location.replace(target);
   });
 
   try {
     await supabase.auth.signOut({ scope: "global" }).catch(() => {});
     await supabase.auth.signOut({ scope: "local" }).catch(() => {});
-  } catch (e) {
-    console.warn("signOut warn:", e);
   } finally {
     await hardLocalClear();
 
+    const userManager = window.UserManager?.getInstance?.();
+    userManager?.clearUser?.();
+
     setTimeout(() => {
-      if (!redirected) window.location.replace(target);
-      try { sub?.subscription?.unsubscribe?.(); } catch {}
+      try {
+        sub?.subscription?.unsubscribe?.();
+      } catch {}
+      window.location.replace(target);
       routing = false;
     }, 500);
   }
 }
 
-/** 메인 UI 토글(닉네임 표시/버튼) */
+
 async function renderIndexUI() {
   const $greet = document.getElementById("greeting");
-  const $nick  = document.getElementById("nickname");
+  const $nick = document.getElementById("nickname");
   const $login = document.getElementById("loginBtn");
-  const $logout= document.getElementById("logoutBtn");
+  const $logout = document.getElementById("logoutBtn");
   if (!$greet || !$nick || !$login || !$logout) return;
 
-  const user = getSafeUserInfo();
-
-  if (!user.id) {
-    // 비로그인 화면
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
     $greet.classList.add("hide");
     $nick.textContent = "";
     $logout.classList.add("hide");
@@ -134,31 +132,43 @@ async function renderIndexUI() {
     return;
   }
 
-  // 로그인 화면 
   const { data, error } = await supabase
     .from("profiles")
     .select("display_name")
     .eq("id", user.id)
     .single();
 
-  const display = (!error && data?.display_name)
-    ? data.display_name
-    : (user.email?.split("@")[0] ?? "사용자");
+  const display =
+    (!error && data?.display_name)
+      ? data.display_name
+      : (user.email?.split("@")[0] ?? "사용자");
 
   $nick.textContent = display;
   $greet.classList.remove("hide");
   $login.classList.add("hide");
   $logout.classList.remove("hide");
+
+
+  const userManager = window.UserManager?.getInstance?.();
+  if (userManager && user) {
+    userManager.setLoggedInUser({
+      id: user.id,
+      email: user.email,
+      nickname: display,
+      profile_image_url: user.user_metadata?.avatar_url ?? "",
+    });
+    console.log("[auth.js] UserManager에 로그인 정보 전달 완료");
+  }
 }
+
 
 async function routeByProfile() {
   if (routing) return;
   routing = true;
 
   const page = currentPage();
-  const user = getSafeUserInfo();
-
-  if (!user.id) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
     if (page !== PATHS.INDEX) location.href = urlTo(PATHS.INDEX);
     routing = false;
     return;
@@ -180,6 +190,7 @@ async function routeByProfile() {
   routing = false;
 }
 
+
 window.addEventListener("DOMContentLoaded", async () => {
   const page = currentPage();
 
@@ -196,7 +207,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (exchanged) await routeByProfile();
 
     supabase.auth.onAuthStateChange(async (event) => {
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "SIGNED_OUT") {
+      if (["SIGNED_IN", "TOKEN_REFRESHED", "SIGNED_OUT"].includes(event)) {
         await renderIndexUI();
       }
     });
@@ -207,7 +218,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (session?.session) await routeByProfile();
 
     supabase.auth.onAuthStateChange(async (event) => {
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+      if (["SIGNED_IN", "TOKEN_REFRESHED"].includes(event)) {
         await routeByProfile();
       }
       if (event === "SIGNED_OUT") {

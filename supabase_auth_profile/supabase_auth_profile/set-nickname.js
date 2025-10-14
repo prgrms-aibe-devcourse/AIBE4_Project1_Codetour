@@ -1,6 +1,5 @@
 import { supabase, getSafeUserInfo } from "./userStore.js";
 
-/** 경로 **/
 function basePath() {
   const p = location.pathname.endsWith("/")
     ? location.pathname

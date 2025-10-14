@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 
+
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
 });
@@ -28,11 +29,15 @@ export function setCurrentUser(user) {
     user.user_metadata?.name ||
     (user.email ? user.email.split("@")[0] : "") ||
     "";
-  currentUser.avatar_url = user.user_metadata?.avatar_url || null;
+  currentUser.avatar_url =
+    user.user_metadata?.avatar_url ||
+    user.user_metadata?.picture ||
+    null;
 }
 
+
 export function getSafeUserInfo() {
-  return { ...currentUser }; // {id,email,name,avatar_url}
+  return { ...currentUser }; // 방어적 복사
 }
 
 (async () => {
@@ -40,6 +45,10 @@ export function getSafeUserInfo() {
   setCurrentUser(user || null);
 })();
 
+
 supabase.auth.onAuthStateChange((_event, session) => {
   setCurrentUser(session?.user || null);
 });
+
+window.currentUser = currentUser;
+window.getSafeUserInfo = getSafeUserInfo;
