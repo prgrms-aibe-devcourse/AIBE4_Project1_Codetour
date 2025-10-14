@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CodeTour</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="../style.css" />
   </head>
   <body>
     <header>
@@ -53,9 +53,22 @@
       <p>&copy; Kspot</p>
     </footer>
 
+    <!-- 모달 추가 -->
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <div id="modal-body"></div>
+      </div>
+    </div>
+
     <script type="module">
       let supabase;
       let allContents = []; // 모든 콘텐츠를 저장할 배열
+
+      // --- [추가] 모달 관련 DOM 요소 가져오기 ---
+      const modal = document.getElementById("modal");
+      const modalBody = document.getElementById("modal-body");
+      const closeModalBtn = document.querySelector(".modal-close");
 
       // Supabase 클라이언트 초기화
       async function initSupabase() {
@@ -69,6 +82,9 @@
           );
           await loadAllContents(); // 모든 콘텐츠 로드
           setupTabListeners(); // 탭 이벤트 리스너 설정
+
+          // --- 모달 닫기 이벤트 리스너 설정 ---
+          setupModalListeners();
         } catch (error) {
           console.error("Error initializing Supabase:", error);
           const cardContainer = document.getElementById("card-container");
@@ -109,7 +125,7 @@
             if (id) {
               const { count: locationCount, error: countError } = await supabase
                 .from("location")
-                .select("", { count: "exact", head: true })
+                .select("*", { count: "exact", head: true })
                 .eq("contentId", id);
               if (!countError) {
                 count = locationCount;
@@ -122,7 +138,7 @@
           }
 
           allContents = contentsWithCount;
-          console.log("최종 가공된 allContents 데이터:", allContents);
+          // console.log("최종 가공된 allContents 데이터:", allContents);
 
           filterByCategory("k-pop"); // 처음에는 'K-Pop' 카테고리를 표시
         } catch (error) {
@@ -175,14 +191,12 @@
         });
       }
 
-      //---------------------------------------------------------
-
       // 주어진 아이템 목록을 화면에 카드 형태로 표시하는 함수
       function displayItems(contents) {
         const cardContainer = document.getElementById("card-container");
         cardContainer.innerHTML = "";
 
-        console.log("displayItems 함수로 전달된 데이터:", contents);
+        // console.log("displayItems 함수로 전달된 데이터:", contents);
 
         if (!contents || contents.length === 0) {
           cardContainer.innerHTML = "<p>해당 카테고리의 데이터가 없습니다.</p>";
@@ -208,7 +222,7 @@
                     content.des || "설명이 없습니다."
                   }</p>
                   <div class="details">
-                  
+
                     <button class="details-button" data-content-id="${
                       content.id
                     }">자세히 보기</button>
@@ -223,8 +237,65 @@
         document.querySelectorAll(".details-button").forEach((button) => {
           button.addEventListener("click", (event) => {
             const contentId = event.target.dataset.contentId;
-            console.log("View details for contentId:", contentId);
+            openModal(contentId);
           });
+        });
+      }
+
+      // --- 모달을 열고 상세 정보를 표시하는 함수 ---
+      async function openModal(contentId) {
+        modal.style.display = "block"; // 모달을 보이게 함
+        modalBody.innerHTML = "<p>상세 정보를 불러오는 중입니다...</p>";
+
+        try {
+          // 1. 클릭한 콘텐츠의 기본 정보를 allContents 배열에서 찾기
+          const contentInfo = allContents.find((c) => c.id == contentId);
+
+          // 2. 해당 콘텐츠에 속한 장소(location) 목록을 Supabase에서 조회
+          const { data: locations, error } = await supabase
+            .from("location")
+            .select("*")
+            .eq("contentId", contentId);
+
+          if (error) throw error;
+
+          // 3. 조회한 데이터를 바탕으로 모달에 표시할 HTML 생성
+          let html = `<h2>${contentInfo.name}</h2>`;
+          html += `<p>${contentInfo.des}</p>`;
+          html += "<hr><h3>관련 촬영지 정보</h3>";
+
+          if (locations && locations.length > 0) {
+            html += "<ul>";
+            locations.forEach((loc) => {
+              // location 테이블에 name과 address 컬럼이 있다고 가정
+              html += `<li><strong>${loc.name}</strong>: ${loc.address}</li>`;
+            });
+            html += "</ul>";
+          } else {
+            html += "<p>관련된 장소 정보가 없습니다.</p>";
+          }
+
+          modalBody.innerHTML = html; // 생성된 HTML을 모달 내부에 삽입
+        } catch (error) {
+          modalBody.innerHTML = `<p>상세 정보를 불러오는 데 실패했습니다: ${error.message}</p>`;
+        }
+      }
+
+      // --- [새 함수 추가] 모달을 닫는 함수 ---
+      function closeModal() {
+        modal.style.display = "none"; // 모달을 숨김
+      }
+
+      // --- [새 함수 추가] 모달 닫기 이벤트 리스너를 설정하는 함수 ---
+      function setupModalListeners() {
+        // 'X' 버튼 클릭 시 모달 닫기
+        closeModalBtn.addEventListener("click", closeModal);
+
+        // 모달 바깥 영역(배경) 클릭 시 모달 닫기
+        window.addEventListener("click", (event) => {
+          if (event.target == modal) {
+            closeModal();
+          }
         });
       }
 

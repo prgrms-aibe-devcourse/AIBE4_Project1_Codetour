@@ -248,3 +248,45 @@ main {
   object-fit: cover; /* 이미지가 비율을 유지하며 컨테이너를 가득 채우도록 설정 */
   display: block; /* 이미지 아래의 불필요한 여백 제거 */
 }
+
+/* 모달 콘텐츠 박스 */
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto; /* 화면 중앙에 위치 */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 700px;
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  animation-name: animatetop;
+  animation-duration: 0.4s;
+}
+
+/* 모달 나타나는 애니메이션 */
+@keyframes animatetop {
+  from {
+    top: -300px;
+    opacity: 0;
+  }
+  to {
+    top: 0;
+    opacity: 1;
+  }
+}
+
+/* 닫기 버튼 (X) */
+.modal-close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.modal-close:hover,
+.modal-close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
