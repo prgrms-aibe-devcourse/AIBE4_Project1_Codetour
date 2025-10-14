@@ -393,7 +393,8 @@ body {
 .hero {
     position: relative;
     height: 500px;
-    background: var(--primary-gradient);
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), 
+            url('https://images.unsplash.com/photo-1597552661064-af143a5f3bee?w=1920&q=80') center/cover no-repeat;
     overflow: hidden;
 }
 
