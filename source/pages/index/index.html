@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>K-Spot - 한류 콘텐츠 여행 플랫폼</title>
-    <link rel="stylesheet" href="/source/pages/index/style.css" />
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <!-- 검색 모달 -->
@@ -38,27 +38,43 @@
     <!-- 헤더 -->
     <header class="header">
       <div class="container">
-        <div class="logo">
-          <div class="logo-icon">
-            <div class="pin-outer"></div>
-            <div class="pin-inner"></div>
-          </div>
-          <div class="logo-text">K-SPOT</div>
-        </div>
-        <nav class="nav">
-          <a href="#home" class="nav-link active" data-i18n="nav.home">홈</a>
-          <a href="#content" class="nav-link" data-i18n="nav.content"
-            >콘텐츠별 여행지</a
-          >
-          <a href="/map" class="nav-link" data-i18n="nav.region">지역별 탐색</a>
-
-          <a href="#routes" class="nav-link" data-i18n="nav.routes"
-            >인기 여행 루트</a
-          >
-          <a href="#mypage" class="nav-link" data-i18n="nav.mypage"
-            >마이페이지</a
-          >
-        </nav>
+        <a href="index.html" class="logo">
+          <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#E91E8C;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#FF6B9D;stop-opacity:1" />
+              </linearGradient>
+              <style>
+                .logo-text { 
+                  font-family: 'Pretendard', sans-serif; 
+                  font-weight: 800;
+                  font-size: 40px;
+                  fill: url(#logoGradient);
+                  letter-spacing: -1px;
+                }
+              </style>
+            </defs>
+            <text x="0" y="37" class="logo-text">K</text>
+            <text x="30" y="37" class="logo-text">-</text>
+            <text x="44" y="37" class="logo-text">S</text>
+            <text x="70" y="37" class="logo-text">P</text>
+            <g transform="translate(95.5, 4) scale(0.93)">
+              <path d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z" 
+                    fill="url(#logoGradient)"/>
+              <circle cx="18" cy="13" r="8" fill="white"/>
+            </g>
+            <text x="128" y="37" class="logo-text">T</text>
+          </svg>
+        </a>
+          <nav class="nav">
+            <a href="index.html" class="nav-link active" data-i18n="nav.home">홈</a>
+            <a href="#content" class="nav-link" data-i18n="nav.content">콘텐츠별 여행지</a>
+            <a href="../aiCourse/aiSchedule.html" class="nav-link" data-i18n="nav.ai">AI 코스 추천</a>
+            <a href="../map/map_page.html" class="nav-link" data-i18n="nav.region">K-콘텐츠 여행 지도</a>
+            <a href="#routes" class="nav-link" data-i18n="nav.routes">인기 여행 루트</a>
+            <a href="../my-page/my-page.html" class="nav-link" data-i18n="nav.mypage">마이페이지</a>
+          </nav>
         <div class="header-right">
           <select class="lang-select" id="languageSelector">
             <option value="ko">한국어</option>
@@ -242,6 +258,6 @@
       </div>
     </footer>
 
-    <script src="/source/pages/index/script.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>

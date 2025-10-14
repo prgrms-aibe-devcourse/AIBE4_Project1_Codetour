@@ -3,7 +3,8 @@ const translations = {
     nav: {
       home: "홈",
       content: "콘텐츠별 여행지",
-      region: "지역별 탐색",
+      ai: "AI 코스 추천",
+      region: "K-콘텐츠 여행 지도",
       routes: "인기 여행 루트",
       mypage: "마이페이지",
     },
@@ -54,8 +55,9 @@ const translations = {
   en: {
     nav: {
       home: "Home",
-      content: "Content Locations",
-      region: "Explore Regions",
+      content: "By Content",
+      ai: "AI Course Picks",
+      region: "By Region",
       routes: "Popular Routes",
       mypage: "My Page",
     },
@@ -110,6 +112,7 @@ const translations = {
     nav: {
       home: "ホーム",
       content: "コンテンツ別旅行地",
+      ai: "AIコース推薦",
       region: "地域別探索",
       routes: "人気旅行ルート",
       mypage: "マイページ",
