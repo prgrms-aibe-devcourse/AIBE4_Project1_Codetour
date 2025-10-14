@@ -1,11 +1,22 @@
-require("dotenv").config();
+require("dotenv").config({ path: __dirname + "/../.env" });
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
 const { createClient } = require("@supabase/supabase-js");
+const path = require("path");
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// 파일 경로 확인 (디버깅용)
+const indexPath = path.join(__dirname, "../source/pages/index/index.html");
+const mapPath = path.join(__dirname, "../source/pages/map/map_page.html");
+
+console.log("Index 경로:", indexPath);
+console.log("Index 파일 존재:", fs.existsSync(indexPath));
+console.log("Map 경로:", mapPath);
+console.log("Map 파일 존재:", fs.existsSync(mapPath));
 
 // Supabase 연결
 const supabase = createClient(
@@ -15,17 +26,33 @@ const supabase = createClient(
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static("./")); // 현재 디렉토리 전체를 정적 파일로 제공
+
+// 정적 파일 제공
+app.use(express.static(path.join(__dirname, "../public")));
+app.use(
+  "/source/pages/index",
+  express.static(path.join(__dirname, "../source/pages/index"))
+);
+app.use(
+  "/source/pages/map",
+  express.static(path.join(__dirname, "../source/pages/map"))
+);
 
 // 메인 페이지
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-}); // 이전: public 폴더를 같은 레벨에서 찾음
-
-app.get("/map", (req, res) => {
-  res.sendFile(__dirname + "/MAP_API/public/map_page.html");
+  if (!fs.existsSync(indexPath)) {
+    return res.status(404).send("index.html을 찾을 수 없습니다");
+  }
+  res.sendFile(indexPath);
 });
 
+// 지도 페이지
+app.get("/map", (req, res) => {
+  if (!fs.existsSync(mapPath)) {
+    return res.status(404).send("map_page.html을 찾을 수 없습니다");
+  }
+  res.sendFile(mapPath);
+});
 // 좌표 파싱 함수
 function parseCoordinates(coordStr) {
   // "N37.545904, E126.92094" → { lat: 37.545904, lng: 126.92094 }
@@ -35,6 +62,15 @@ function parseCoordinates(coordStr) {
   const lng = parseFloat(parts[1].replace("E", "").replace("W", "-"));
   return { lat, lng };
 }
+
+// CSP 헤더 설정
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https:"
+  );
+  next();
+});
 
 // 장소 검색 (location 테이블)
 app.get("/api/search", async (req, res) => {
@@ -147,11 +183,14 @@ app.get("/api/contents", async (req, res) => {
   try {
     const { data: contents, error } = await supabase
       .from("contents")
-      .select("contents_id, contents, name, location, explanation")
+      .select("contentsId, contents, name, location, explanation,contentGroup")
       .limit(50);
 
     console.log("📺 콘텐츠 조회 시도");
     console.log("Error:", error);
+    console.log("Data:", contents);
+    console.log("Data type:", Array.isArray(contents) ? "배열" : "배열 아님");
+    console.log("Data count:", contents?.length);
 
     if (error) throw error;
 
