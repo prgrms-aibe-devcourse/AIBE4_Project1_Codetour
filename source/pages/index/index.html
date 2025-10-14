@@ -67,23 +67,28 @@
             <text x="128" y="37" class="logo-text">T</text>
           </svg>
         </a>
-          <nav class="nav">
-            <a href="index.html" class="nav-link active" data-i18n="nav.home">홈</a>
-            <a href="#content" class="nav-link" data-i18n="nav.content">콘텐츠별 여행지</a>
-            <a href="../aiCourse/aiSchedule.html" class="nav-link" data-i18n="nav.ai">AI 코스 추천</a>
-            <a href="../map/map_page.html" class="nav-link" data-i18n="nav.region">K-콘텐츠 여행 지도</a>
-            <a href="#routes" class="nav-link" data-i18n="nav.routes">인기 여행 루트</a>
-            <a href="../my-page/my-page.html" class="nav-link" data-i18n="nav.mypage">마이페이지</a>
-          </nav>
-        <div class="header-right">
+
+        <nav class="nav">
+          <a href="index.html" class="nav-link active" data-i18n="nav.home">홈</a>
+          <a href="#content" class="nav-link" data-i18n="nav.content">콘텐츠별 여행지</a>
+          <a href="../aiCourse/aiSchedule.html" class="nav-link" data-i18n="nav.ai">AI 코스 추천</a>
+          <a href="../map/map_page.html" class="nav-link" data-i18n="nav.region">K-콘텐츠 여행 지도</a>
+          <a href="#routes" class="nav-link" data-i18n="nav.routes">인기 여행 루트</a>
+          <a href="../my-page/my-page.html" class="nav-link" data-i18n="nav.mypage">마이페이지</a>
+        </nav>
+
+        <div class="header-right" style="display:flex;gap:8px;align-items:center;">
           <select class="lang-select" id="languageSelector">
             <option value="ko">한국어</option>
             <option value="en">English</option>
             <option value="ja">日本語</option>
           </select>
           <button class="btn-search" id="searchButton">🔍</button>
-          <button class="btn-login" data-i18n="btn.login">로그인</button>
-          <button class="btn-signup" data-i18n="btn.signup">회원가입</button>
+
+          <!-- ✅ Supabase Auth UI (auth.js가 이 ID들을 사용) -->
+          <span id="greeting" class="hide">안녕하세요, <span id="nickname"></span>님</span>
+          <button id="loginBtn" class="btn-login">로그인</button>
+          <button id="logoutBtn" class="btn-signup hide">로그아웃</button>
         </div>
       </div>
     </header>
@@ -128,8 +133,7 @@
             class="nav-arrow nav-arrow-right"
             onclick="scrollCarousel('popularContent', 1)"
           >
-            →
-          </button>
+            →</button>
         </div>
         <div class="carousel-dots" id="popularContentDots"></div>
       </div>
@@ -162,8 +166,7 @@
             class="nav-arrow nav-arrow-right"
             onclick="scrollCarousel('recommendedCourses', 1)"
           >
-            →
-          </button>
+            →</button>
         </div>
         <div class="carousel-dots" id="recommendedCoursesDots"></div>
       </div>
@@ -187,21 +190,14 @@
             <button
               class="nav-arrow nav-arrow-left"
               onclick="scrollCarousel('personalizedCourses', -1)"
-            >
-              ←
-            </button>
+            >←</button>
             <div class="carousel-wrapper">
-              <div
-                class="card-carousel blur-overlay"
-                id="personalizedCourses"
-              ></div>
+              <div class="card-carousel blur-overlay" id="personalizedCourses"></div>
             </div>
             <button
               class="nav-arrow nav-arrow-right"
               onclick="scrollCarousel('personalizedCourses', 1)"
-            >
-              →
-            </button>
+            >→</button>
           </div>
           <div class="carousel-dots" id="personalizedCoursesDots"></div>
           <div class="login-message">
@@ -210,9 +206,7 @@
             <p data-i18n="personalized.loginMessage">
               맞춤 여행 추천을 받으시려면 로그인해주세요
             </p>
-            <button class="btn-login-large" data-i18n="btn.login">
-              로그인하기
-            </button>
+            <button class="btn-login-large" data-i18n="btn.login">로그인하기</button>
           </div>
         </div>
       </div>
@@ -259,5 +253,16 @@
     </footer>
 
     <script src="script.js"></script>
+
+    <script src="/public/libs/userManager.js"></script>
+
+    <script>
+      window.AUTH_PATHS = {
+        INDEX: "/source/pages/index/index.html",
+        SET_NICK: "/public/auth/set-nickname.html"
+      };
+    </script>
+
+    <script type="module" src="/public/auth/auth.js"></script>
   </body>
 </html>
