@@ -10,10 +10,16 @@ function basePath() {
     : location.pathname.replace(/[^/]+$/, "");
 }
 const BASE = `${location.origin}${basePath()}`;
+
 const PATHS = window.AUTH_PATHS ?? { INDEX: "index.html", SET_NICK: "set-nickname.html" };
+
 function urlTo(p) {
-  return `${BASE}${p}`;
+  if (!p) return BASE;
+  if (/^https?:\/\//i.test(p)) return p;                 
+  if (p.startsWith("/")) return `${location.origin}${p}`; 
+  return `${BASE}${p}`;                                 
 }
+
 function currentPage() {
   const last = location.pathname.split("/").pop();
   return last && last.length ? last.toLowerCase() : PATHS.INDEX;
