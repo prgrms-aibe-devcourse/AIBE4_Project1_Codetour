@@ -45,6 +45,9 @@ app.use(
   "/aiCourse",
   express.static(path.join(__dirname, "../source/pages/aiCourse"))
 );
+// Bootstrap과 jQuery를 루트 경로에서 제공
+app.use("/bootstrap", express.static(path.join(__dirname, "../bootstrap")));
+app.use("/jquery", express.static(path.join(__dirname, "../jquery")));
 
 // 메인 페이지
 app.get("/", (req, res) => {
