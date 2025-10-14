@@ -42,14 +42,6 @@
       }
 
       main {
-        padding: 4rem 2rem;
-        width: 100%;
-        max-width: 900px;
-        box-sizing: border-box;
-      }
-
-      /* --- Card Styles (from k-pop.html) --- */
-      main {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
@@ -57,6 +49,13 @@
         padding: 4rem 2rem;
         width: 100%;
         max-width: 1200px;
+        box-sizing: border-box;
+      }
+
+      main {
+        padding: 4rem 2rem;
+        width: 100%;
+        max-width: 900px;
         box-sizing: border-box;
       }
 
@@ -95,54 +94,6 @@
         box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
       }
 
-      .location-section {
-        width: 100%;
-      }
-
-      .location-item {
-        background: #fff;
-        padding: 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      }
-
-      .location-item h3 {
-        color: var(--primary-blue);
-      }
-      /* --- End Card Styles --- */
-
-      #location-container h2 {
-        color: var(--primary-blue);
-        border-bottom: 2px solid var(--primary-blue);
-        padding-bottom: 0.5rem;
-        margin-bottom: 1.5rem;
-      }
-
-      footer {
-        margin-top: auto;
-        width: 100%;
-        padding: 1rem 0;
-        text-align: center;
-        background-color: var(--text-dark);
-        color: var(--background-beige);
-      }
-
-      .back-link {
-        display: inline-block;
-        margin-top: 2rem;
-        padding: 0.5rem 1rem;
-        background-color: var(--primary-blue);
-        color: var(--background-beige);
-        text-decoration: none;
-        border-radius: 5px;
-        transition: background-color 0.3s;
-      }
-
-      .back-link:hover {
-        background-color: #2a78e8;
-      }
-
-      /* --- Modal Styles (from k-pop.html) --- */
       .modal {
         display: none;
         position: fixed;
@@ -233,28 +184,60 @@
         background-color: #717171;
       }
 
+      footer {
+        margin-top: auto;
+        width: 100%;
+        padding: 1rem 0;
+        text-align: center;
+        background-color: var(--text-dark);
+        color: var(--background-beige);
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 2rem;
+        padding: 0.5rem 1rem; /* This might be redundant, check usage */
+        background-color: var(--primary-blue);
+        color: var(--background-beige);
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+
+      .back-link:hover {
+        background-color: #2a78e8;
+      }
+
+      /* Fading animation */
       .fade {
         animation-name: fade;
         animation-duration: 1.5s;
       }
-      /* --- End Modal Styles --- */
+
+      @keyframes fade {
+        from {
+          opacity: 0.4;
+        }
+        to {
+          opacity: 1;
+        }
+      }
     </style>
   </head>
   <body>
     <header>
-      <h1>K-Drama & Movie Locations</h1>
+      <h1>K-Drama/Movie Places</h1>
     </header>
 
-    <main id="location-container">
-      <!-- Data will be loaded here from Supabase -->
-      <p>Loading K-Drama & Movie locations...</p>
+    <main>
+      <!-- Artist/Location cards will be dynamically inserted here -->
     </main>
 
     <footer>
-      <p>&copy; Kspot</p>
+      <p>&copy; 2025 Korea Travel Planner</p>
     </footer>
 
-    <div id="location-modal" class="modal">
+    <div id="kdh-modal" class="modal">
       <div class="modal-content">
         <span class="close-button">&times;</span>
         <div
@@ -283,11 +266,6 @@
 
     <script type="module">
       let supabase;
-      const mainContainer = document.getElementById("location-container");
-      const locationModal = document.getElementById("location-modal");
-      const closeButton = locationModal.querySelector(".close-button");
-      let slideIndex = 1;
-
       async function initSupabase() {
         try {
           const response = await fetch("http://localhost:3000/api/config");
@@ -297,148 +275,23 @@
             config.supabaseUrl,
             config.supabaseKey
           );
-          showDramaSelection(); // Initial view
+          showArtistSelection(); // Initial view
         } catch (error) {
           console.error("Error initializing Supabase:", error);
-          mainContainer.innerHTML =
-            "<p>콘텐츠를 불러오는 데 실패했습니다. 나중에 다시 시도해 주세요.</p>";
+          document.querySelector("main").innerHTML =
+            "<p>Error loading content. Please try again later.</p>";
         }
       }
+      initSupabase();
 
-      function showDramaSelection() {
-        mainContainer.innerHTML = ""; // Clear the container
+      const mainContainer = document.querySelector("main");
+      const kdhModal = document.getElementById("kdh-modal");
+      const closeButton = kdhModal.querySelector(".close-button");
+      let slideIndex = 1;
 
-        const kpopDemonHuntersCard = document.createElement("div");
-        kpopDemonHuntersCard.id = "kpop-demon-hunters-card";
-        kpopDemonHuntersCard.className = "category-card";
-        kpopDemonHuntersCard.style.backgroundColor = "var(--primary-pink)";
-        kpopDemonHuntersCard.innerHTML = "<div>K-pop Demon Hunters</div>";
-
-        const squidGameCard = document.createElement("div");
-        squidGameCard.id = "squid-game-card";
-        squidGameCard.className = "category-card";
-        squidGameCard.style.backgroundColor = "var(--primary-blue)";
-        squidGameCard.innerHTML = "<div>오징어 게임<br/>(Squid Game)</div>";
-
-        const backLink = document.createElement("a");
-        backLink.href = "/index.html";
-        backLink.className = "back-link";
-        backLink.style.textAlign = "center";
-        backLink.style.width = "100%";
-        backLink.textContent = "메인 카테고리로 돌아가기";
-
-        mainContainer.appendChild(kpopDemonHuntersCard);
-        mainContainer.appendChild(squidGameCard);
-        mainContainer.appendChild(backLink);
-      }
-
-      async function showLocationsForDrama(dramaTitle) {
-        mainContainer.innerHTML = "<p>촬영지 정보를 불러오는 중...</p>";
-
-        const { data, error } = await supabase
-          .from("location")
-          .select("*")
-          .eq("mediaTitle", dramaTitle);
-
-        if (error) {
-          console.error("Error fetching locations:", error);
-          mainContainer.textContent =
-            "촬영지 정보를 불러오는 중 오류가 발생했습니다.";
-          return;
-        }
-
-        mainContainer.innerHTML = ""; // Clear loading message
-
-        const section = document.createElement("div");
-        section.className = "location-section";
-
-        const title = document.createElement("h2");
-        title.textContent = dramaTitle;
-        section.appendChild(title);
-
-        if (data && data.length > 0) {
-          data.forEach((location) => {
-            const item = document.createElement("div");
-            item.className = "location-item";
-            item.innerHTML = `
-              <h3>${location.name}</h3>
-              <p>${location.description}</p>
-            `;
-            section.appendChild(item);
-          });
-        } else {
-          const p = document.createElement("p");
-          p.textContent =
-            "해당 드라마의 촬영지 정보가 데이터베이스에 없습니다.";
-          section.appendChild(p);
-        }
-        mainContainer.appendChild(section);
-
-        const backLink = document.createElement("div");
-        backLink.className = "back-link";
-        backLink.textContent = "드라마 선택으로 돌아가기";
-        backLink.style.cursor = "pointer";
-        backLink.onclick = showDramaSelection;
-        mainContainer.appendChild(backLink);
-      }
-
-      function showKpopDemonHuntersLocations() {
-        mainContainer.innerHTML = ""; // Clear the container
-
-        // --- Naksan Park Card ---
-        const naksanWrapper = document.createElement("div");
-        naksanWrapper.className = "card-wrapper";
-        const naksanCard = document.createElement("div");
-        naksanCard.id = "naksan-park-card";
-        naksanCard.className = "category-card";
-        naksanCard.style.backgroundImage = `url(${
-          supabase.storage.from("tour-images").getPublicUrl("Naksan1.jpg").data
-            .publicUrl
-        })`;
-        naksanCard.style.backgroundSize = "cover";
-        naksanCard.style.backgroundPosition = "center";
-        const naksanLabel = document.createElement("div");
-        naksanLabel.className = "card-label";
-        naksanLabel.textContent = "낙산공원";
-        naksanWrapper.appendChild(naksanCard);
-        naksanWrapper.appendChild(naksanLabel);
-
-        // --- Myeongdong Street Card ---
-        const myeongdongWrapper = document.createElement("div");
-        myeongdongWrapper.className = "card-wrapper";
-        const myeongdongCard = document.createElement("div");
-        myeongdongCard.id = "myeongdong-street-card";
-        myeongdongCard.className = "category-card";
-        myeongdongCard.style.backgroundImage = `url(${
-          supabase.storage.from("tour-images").getPublicUrl("Myeongdong1.jpg")
-            .data.publicUrl
-        })`;
-        myeongdongCard.style.backgroundSize = "cover";
-        myeongdongCard.style.backgroundPosition = "center";
-        const myeongdongLabel = document.createElement("div");
-        myeongdongLabel.className = "card-label";
-        myeongdongLabel.textContent = "명동거리";
-        myeongdongWrapper.appendChild(myeongdongCard);
-        myeongdongWrapper.appendChild(myeongdongLabel);
-
-        // --- Back Link ---
-        const backLink = document.createElement("div");
-        backLink.className = "back-link";
-        backLink.textContent = "드라마 선택으로 돌아가기";
-        backLink.style.cursor = "pointer";
-        backLink.style.width = "100%";
-        backLink.style.textAlign = "center";
-        backLink.onclick = showDramaSelection;
-
-        mainContainer.appendChild(naksanWrapper);
-        mainContainer.appendChild(myeongdongWrapper);
-        mainContainer.appendChild(backLink);
-      }
-
-      // --- Modal Functions (from k-pop.html) ---
       function showSlides(n) {
-        let slides = locationModal.getElementsByClassName("mySlides");
-        let dots = locationModal.getElementsByClassName("dot");
+        let slides = kdhModal.getElementsByClassName("mySlides");
+        let dots = kdhModal.getElementsByClassName("dot");
         if (n > slides.length) slideIndex = 1;
         if (n < 1) slideIndex = slides.length;
         for (let i = 0; i < slides.length; i++) {
@@ -454,122 +307,232 @@
       }
 
       async function showLocationModal(placeId, title) {
-        if (!supabase) return alert("DB 연결 오류. 새로고침 해주세요.");
+        if (!supabase) {
+          alert("DB connection error. Please refresh.");
+          return;
+        }
+        kdhModal.querySelector("#modal-title").textContent = title;
+        const modalDescription = kdhModal.querySelector("#modal-description");
+        modalDescription.textContent = "Loading..."; // General loading text
 
-        locationModal.querySelector("#modal-title").textContent = title;
-        const modalDescription =
-          locationModal.querySelector("#modal-description");
-        modalDescription.textContent = "설명을 불러오는 중...";
+        // Fetch location details and images in parallel
+        const [locationPromise, imagesPromise] = [
+          supabase
+            .from("location")
+            .select("keyword, address, tel, subDescription, entranceFee")
+            .eq("placeId", placeId)
+            .single(),
+          supabase
+            .from("images")
+            .select("imageUrl, des") // Fetch description from images table
+            .eq("placeId", placeId),
+        ];
 
-        // Fetch from 'location' for general info and 'contents' for the main explanation
-        const { data: locationData, error: locationError } = await supabase
-          .from("location")
-          .select("keyword, address, tel, subDescription, entranceFee")
-          .eq("placeId", placeId)
-          .single();
+        const [
+          { data: locationData, error: locationError },
+          { data: imagesData, error: imagesError },
+        ] = await Promise.all([locationPromise, imagesPromise]);
 
-        const { data: contentData, error: contentError } = await supabase
-          .from("contents")
-          .select("explanation")
-          .eq("placeId", placeId)
-          .single();
-
-        if (locationError || contentError) {
+        // Handle location data
+        if (locationError) {
           console.error("Error fetching location data:", locationError);
-          console.error("Error fetching content data:", contentError);
-          modalDescription.textContent = "설명을 불러오지 못했습니다.";
-        } else {
-          // Use 'explanation' from 'contents' table for the description
-          modalDescription.textContent = contentData.explanation;
-
-          const modalKeywords = locationModal.querySelector("#modal-keywords");
+          // Maybe show an error in the details section
+        } else if (locationData) {
+          const modalKeywords = kdhModal.querySelector("#modal-keywords");
           modalKeywords.innerHTML = "";
           if (locationData.keyword) {
-            locationData.keyword.split(",").forEach((k) => {
-              if (k.trim()) {
+            const keywords = locationData.keyword
+              .split(",")
+              .map((k) => k.trim().replace(/"/g, ""));
+            keywords.forEach((k) => {
+              if (k) {
                 const keywordEl = document.createElement("span");
-                keywordEl.textContent = `#${k.trim().replace(/"/g, "")} `;
+                keywordEl.textContent = `#${k} `;
                 modalKeywords.appendChild(keywordEl);
               }
             });
           }
 
-          // Use data from 'location' table for other details
-          const modalDetails = locationModal.querySelector("#modal-details");
+          const modalDetails = kdhModal.querySelector("#modal-details");
           modalDetails.innerHTML = "";
-          if (locationData.address)
-            modalDetails.innerHTML += `<p><strong>주소:</strong> ${locationData.address}</p>`;
-          if (locationData.tel)
-            modalDetails.innerHTML += `<p><strong>전화번호:</strong> ${locationData.tel}</p>`;
-          if (locationData.subDescription)
-            modalDetails.innerHTML += `<p><strong>운영시간:</strong> ${locationData.subDescription}</p>`;
-          if (locationData.entranceFee)
-            modalDetails.innerHTML += `<p><strong>입장료:</strong> ${locationData.entranceFee}</p>`;
+          if (locationData.address) {
+            const p = document.createElement("p");
+            p.innerHTML = `<strong>주소:</strong> ${locationData.address}`;
+            modalDetails.appendChild(p);
+          }
+          if (locationData.tel) {
+            const p = document.createElement("p");
+            p.innerHTML = `<strong>전화번호:</strong> ${locationData.tel}`;
+            modalDetails.appendChild(p);
+          }
+          if (locationData.subDescription) {
+            const p = document.createElement("p");
+            p.innerHTML = `<strong>운영시간:</strong> ${locationData.subDescription}`;
+            modalDetails.appendChild(p);
+          }
+          if (locationData.entranceFee) {
+            const p = document.createElement("p");
+            p.innerHTML = `<strong>입장료:</strong> ${locationData.entranceFee}`;
+            modalDetails.appendChild(p);
+          }
         }
 
-        const { data: imagesData, error: imagesError } = await supabase
-          .from("images")
-          .select("imageUrl")
-          .eq("placeId", placeId);
+        // Handle images and description
+        let imageUrls = [];
+        if (imagesError) {
+          console.error("Error fetching images:", imagesError);
+          modalDescription.textContent = "Failed to load description.";
+        } else if (imagesData) {
+          // Set description from the first image, if available
+          if (imagesData.length > 0 && imagesData[0].des) {
+            modalDescription.textContent = imagesData[0].des;
+          } else {
+            modalDescription.textContent = "Description not available.";
+          }
+          imageUrls = imagesData.map((img) => img.imageUrl);
+        }
 
-        const slideshowContainer = locationModal.querySelector(
+        const slideshowContainer = kdhModal.querySelector(
           ".slideshow-container"
         );
-        const dotContainer = locationModal.querySelector(".dot-container");
+        const dotContainer = kdhModal.querySelector(".dot-container");
         slideshowContainer
           .querySelectorAll(".mySlides")
           .forEach((el) => el.remove());
         dotContainer.innerHTML = "";
 
-        if (!imagesError && imagesData.length > 0) {
-          imagesData.forEach((img, index) => {
-            if (!img.imageUrl) return;
-            const slide = document.createElement("div");
-            slide.className = "mySlides fade";
-            slide.innerHTML = `<img src="${img.imageUrl}">`;
-            slideshowContainer.insertBefore(
-              slide,
-              slideshowContainer.querySelector(".prev")
-            );
-
-            const dot = document.createElement("span");
-            dot.className = "dot";
-            dot.onclick = () => showSlides((slideIndex = index + 1));
-            dotContainer.appendChild(dot);
-          });
-        }
+        imageUrls.forEach((url, index) => {
+          if (!url) return;
+          const slide = document.createElement("div");
+          slide.className = "mySlides fade";
+          const img = document.createElement("img");
+          img.src = url;
+          slide.appendChild(img);
+          slideshowContainer.insertBefore(
+            slide,
+            slideshowContainer.querySelector(".prev")
+          );
+          const dot = document.createElement("span");
+          dot.className = "dot";
+          dot.onclick = () => {
+            slideIndex = index + 1;
+            showSlides(slideIndex);
+          };
+          dotContainer.appendChild(dot);
+        });
 
         slideIndex = 1;
         showSlides(slideIndex);
-        locationModal.style.display = "block";
+        kdhModal.style.display = "block";
       }
 
-      locationModal.querySelector(".prev").onclick = () =>
-        showSlides(--slideIndex);
-      locationModal.querySelector(".next").onclick = () =>
-        showSlides(++slideIndex);
-      closeButton.onclick = () => (locationModal.style.display = "none");
-      window.onclick = (event) => {
-        if (event.target == locationModal) locationModal.style.display = "none";
-      };
+      function showArtistSelection() {
+        mainContainer.innerHTML = ""; // Clear the container
 
-      initSupabase();
+        const kdhCard = document.createElement("div");
+        kdhCard.id = "kdh-card";
+        kdhCard.className = "category-card";
+        kdhCard.style.backgroundColor = "#ff4d8d";
+        kdhCard.style.cursor = "pointer";
+        const kdhCardDiv = document.createElement("div");
+        kdhCardDiv.textContent = "K-pop Demon Hunters";
+        kdhCard.appendChild(kdhCardDiv);
 
-      document.body.addEventListener("click", (event) => {
+        const squidgameCard = document.createElement("div");
+        squidgameCard.id = "squidgame-card";
+        squidgameCard.className = "category-card";
+        squidgameCard.style.backgroundColor = "#3a8dff";
+        squidgameCard.style.cursor = "pointer";
+        const squidgameCardDiv = document.createElement("div");
+        squidgameCardDiv.textContent = "Squid Game";
+        squidgameCard.appendChild(squidgameCardDiv);
+
+        const backLink = document.createElement("a");
+        backLink.href = "/index.html";
+        backLink.className = "back-link";
+        backLink.style.textAlign = "center";
+        backLink.style.width = "100%";
+        backLink.textContent = "Back to Main Categories";
+
+        mainContainer.appendChild(kdhCard);
+        mainContainer.appendChild(squidgameCard);
+        mainContainer.appendChild(backLink);
+      }
+
+      document.body.addEventListener("click", async (event) => {
         const targetCard = event.target.closest(".category-card");
         if (!targetCard) return;
 
         const id = targetCard.id;
-        if (id === "kpop-demon-hunters-card") {
-          showKpopDemonHuntersLocations();
-        } else if (id === "squid-game-card") {
-          showLocationsForDrama("오징어 게임");
-        } else if (id === "naksan-park-card") {
-          showLocationModal(253, "K-pop Demon Hunters - 낙산공원");
-        } else if (id === "myeongdong-street-card") {
-          showLocationModal(190, "K-pop Demon Hunters - 명동거리");
+
+        if (id === "kdh-card") {
+          mainContainer.innerHTML = ""; // Clear the container
+
+          // --- naksan Station Card ---
+          const naksanWrapper = document.createElement("div");
+          naksanWrapper.className = "card-wrapper";
+          const naksanCard = document.createElement("div");
+          naksanCard.id = "naksan-card";
+          naksanCard.className = "category-card";
+          naksanCard.style.cursor = "pointer";
+          naksanCard.style.backgroundImage = `url(${
+            supabase.storage.from("tour-images").getPublicUrl("Naksan1.jpg")
+              .data.publicUrl
+          })`;
+          naksanCard.style.backgroundSize = "cover";
+          naksanCard.style.backgroundPosition = "center";
+          const naksanLabel = document.createElement("div");
+          naksanLabel.className = "card-label";
+          naksanLabel.textContent = "낙산공원";
+          naksanWrapper.appendChild(naksanCard);
+          naksanWrapper.appendChild(naksanLabel);
+
+          // --- myeongdong Card ---
+          const myeongdongWrapper = document.createElement("div");
+          myeongdongWrapper.className = "card-wrapper";
+          const myeongdongCard = document.createElement("div");
+          myeongdongCard.id = "myeongdong-card";
+          myeongdongCard.className = "category-card";
+          myeongdongCard.style.cursor = "pointer";
+          myeongdongCard.style.backgroundImage = `url(${
+            supabase.storage.from("tour-images").getPublicUrl("Myeongdong1.jpg")
+              .data.publicUrl
+          })`;
+          myeongdongCard.style.backgroundSize = "cover";
+          myeongdongCard.style.backgroundPosition = "center";
+          const myeongdongLabel = document.createElement("div");
+          myeongdongLabel.className = "card-label";
+          myeongdongLabel.textContent = "명동거리";
+          myeongdongWrapper.appendChild(myeongdongCard);
+          myeongdongWrapper.appendChild(myeongdongLabel);
+
+          // --- Back Link ---
+          const backLink = document.createElement("div"); // Using div to make it clickable via JS
+          backLink.className = "back-link";
+          backLink.textContent = "Back to Artists";
+          backLink.style.cursor = "pointer";
+          backLink.style.width = "100%";
+          backLink.style.textAlign = "center";
+          backLink.onclick = showArtistSelection;
+
+          mainContainer.appendChild(naksanWrapper);
+          mainContainer.appendChild(myeongdongWrapper);
+          mainContainer.appendChild(backLink);
+        } else if (id === "naksan-card") {
+          showLocationModal(253, "kdh - 낙산공원 (naksan Park)");
+        } else if (id === "myeongdong-card") {
+          showLocationModal(190, "kdh - 명동거리 (Myeongdong)");
+        } else if (id === "squidgame-card") {
+          alert("Squid Game 페이지는 준비 중입니다.");
         }
       });
+
+      kdhModal.querySelector(".prev").onclick = () => showSlides(--slideIndex);
+      kdhModal.querySelector(".next").onclick = () => showSlides(++slideIndex);
+      closeButton.onclick = () => (kdhModal.style.display = "none");
+      window.onclick = (event) => {
+        if (event.target == kdhModal) kdhModal.style.display = "none";
+      };
     </script>
   </body>
 </html>
