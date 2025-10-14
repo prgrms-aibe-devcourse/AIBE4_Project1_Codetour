@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
   <head>
@@ -5,247 +6,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>K-Drama/Movie - Korea Travel Planner</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-      body {
-        box-sizing: border-box;
-        background: #444444;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 2px;
-        font-family: "KoPubBatang", serif;
-        color: var(--text-dark);
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-      }
-
-      main {
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        padding: 100px;
-        gap: 100px;
-        width: 1736px;
-        height: 1638.5px;
-      }
-
-      .category-card {
-        width: 250px;
-        height: 250px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        font-size: 1.5rem;
-        font-weight: bold;
-        cursor: pointer;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border-radius: 15px;
-        color: var(--text-dark);
-        text-decoration: none;
-      }
-
-      .card-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .card-label {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: var(--text-dark);
-        text-align: center;
-      }
-
-      .category-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-      }
-
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.6);
-      }
-
-      .modal-content {
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-        padding: 100px;
-        gap: 100px;
-        position: relative;
-        width: 2101px;
-        height: 4347.5px;
-        background: #444444;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 2px;
-      }
-
-      .close-button {
-        color: var(--text-dark);
-        position: absolute;
-        top: 1rem;
-        right: 1.5rem;
-        font-size: 2rem;
-        font-weight: bold;
-        cursor: pointer;
-      }
-
-      .slideshow-container {
-        max-width: 1000px;
-        position: relative;
-        margin: auto;
-      }
-
-      .mySlides {
-        display: none;
-      }
-
-      .mySlides img {
-        width: 100%;
-        border-radius: 10px;
-      }
-
-      .prev,
-      .next {
-        cursor: pointer;
-        position: absolute;
-        top: 50%;
-        width: auto;
-        margin-top: -22px;
-        padding: 16px;
-        color: white;
-        font-weight: bold;
-        font-size: 18px;
-        transition: 0.6s ease;
-        border-radius: 0 3px 3px 0;
-        user-select: none;
-        background-color: rgba(0, 0, 0, 0.3);
-      }
-
-      .next {
-        right: 0;
-        border-radius: 3px 0 0 3px;
-      }
-
-      .prev:hover,
-      .next:hover {
-        background-color: rgba(0, 0, 0, 0.8);
-      }
-
-      .dot {
-        cursor: pointer;
-        height: 15px;
-        width: 15px;
-        margin: 0 2px;
-        background-color: #bbb;
-        border-radius: 50%;
-        display: inline-block;
-        transition: background-color 0.6s ease;
-      }
-
-      .active,
-      .dot:hover {
-        background-color: #717171;
-      }
-
-      footer {
-        margin-top: auto;
-        width: 100%;
-        padding: 1rem 0;
-        text-align: center;
-        background-color: var(--text-dark);
-        color: var(--background-beige);
-      }
-
-      .back-link {
-        display: inline-block;
-        margin-top: 2rem;
-        padding: 0.5rem 1rem; /* This might be redundant, check usage */
-        background-color: var(--primary-blue);
-        color: var(--background-beige);
-        text-decoration: none;
-        border-radius: 5px;
-        transition: background-color 0.3s;
-      }
-
-      .back-link:hover {
-        background-color: #2a78e8;
-      }
-
-      /* Fading animation */
-      .fade {
-        animation-name: fade;
-        animation-duration: 1.5s;
-      }
-
-      @keyframes fade {
-        from {
-          opacity: 0.4;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <!-- 헤더 섹션: 페이지 제목 -->
     <header>
-      <h1>K-Drama/Movie Places</h1>
+        <div class="container">
+            <div class="logo-container">
+                <div class="logo-text">CodeTour</div>
+            </div>
+            <div class="action-container">
+                <button>로그인</button>
+                <button>회원가입</button>
+            </div>
+        </div>
+        <nav>
+            <a href="index.html">홈</a>
+            <a href="k-drama.html">콘텐츠별 여행지</a>
+            <a href="#">지역별 탐색</a>
+            <a href="#">여행 코스</a>
+            <a href="#">인기 여행 루트</a>
+            <a href="#">마이페이지</a>
+        </nav>
     </header>
 
-    <!-- 메인 콘텐츠: 아티스트/장소 카드가 동적으로 삽입되는 영역 -->
     <main>
-      <!-- Artist/Location cards will be dynamically inserted here -->
+      <div class="main-header">
+        <h1>K-Drama/Movie</h1>
+      </div>
+      <div class="card-container" id="card-container"></div>
     </main>
 
-    <!-- 푸터: 저작권 정보 -->
     <footer>
-      <p>&copy; 2025 Korea Travel Planner</p>
+      <p>&copy; Kspot</p>
     </footer>
 
-    <!-- 장소 상세 정보 표시를 위한 모달 -->
-    <div id="kdh-modal" class="modal">
-      <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <div
-          class="keywords"
-          id="modal-keywords"
-          style="margin-bottom: 1rem; color: var(--primary-pink)"
-        ></div>
-        <h2 id="modal-title"></h2>
-        <p id="modal-description">설명을 불러오는 중...</p>
-        <div
-          id="modal-details"
-          style="margin-top: 1.5rem; line-height: 1.6"
-        ></div>
-
-        <div class="slideshow-container">
-          <!-- Slides will be dynamically inserted here -->
-          <a class="prev">&#10094;</a>
-          <a class="next">&#10095;</a>
-        </div>
-        <br />
-        <div class="dot-container" style="text-align: center">
-          <!-- Dots will be dynamically inserted here -->
-        </div>
-      </div>
-    </div>
-
-    <!-- 동적 콘텐츠 로딩 및 상호작용을 위한 스크립트 -->
     <script type="module">
       let supabase;
       async function initSupabase() {
@@ -257,264 +51,64 @@
             config.supabaseUrl,
             config.supabaseKey
           );
-          showArtistSelection(); // Initial view
+          loadDramaData();
         } catch (error) {
           console.error("Error initializing Supabase:", error);
-          document.querySelector("main").innerHTML =
-            "<p>Error loading content. Please try again later.</p>";
-        }
-      }
-      initSupabase();
-
-      const mainContainer = document.querySelector("main");
-      const kdhModal = document.getElementById("kdh-modal");
-      const closeButton = kdhModal.querySelector(".close-button");
-      let slideIndex = 1;
-
-      function showSlides(n) {
-        let slides = kdhModal.getElementsByClassName("mySlides");
-        let dots = kdhModal.getElementsByClassName("dot");
-        if (n > slides.length) slideIndex = 1;
-        if (n < 1) slideIndex = slides.length;
-        for (let i = 0; i < slides.length; i++) {
-          slides[i].style.display = "none";
-        }
-        for (let i = 0; i < dots.length; i++) {
-          dots[i].className = dots[i].className.replace(" active", "");
-        }
-        if (slides.length > 0) {
-          slides[slideIndex - 1].style.display = "block";
-          dots[slideIndex - 1].className += " active";
         }
       }
 
-      async function showLocationModal(placeId, title) {
-        if (!supabase) {
-          alert("DB connection error. Please refresh.");
+      async function loadDramaData() {
+        const cardContainer = document.getElementById('card-container');
+
+        const { data: contents, error: contentsError } = await supabase
+          .from('contents')
+          .select('*')
+          .eq('contentGroup', 'K-Drama');
+
+        if (contentsError) {
+          console.error('Error fetching contents:', contentsError);
           return;
         }
-        kdhModal.querySelector("#modal-title").textContent = title;
-        const modalDescription = kdhModal.querySelector("#modal-description");
-        modalDescription.textContent = "Loading..."; // General loading text
 
-        // Fetch location details and images in parallel
-        const [locationPromise, imagesPromise] = [
-          supabase
-            .from("location")
-            .select("keyword, address, tel, subDescription, entranceFee")
-            .eq("placeId", placeId)
-            .single(),
-          supabase
-            .from("images")
-            .select("imageUrl, des") // Fetch description from images table
-            .eq("placeId", placeId),
-        ];
+        for (const content of contents) {
+          const { data: locations, error: locationsError } = await supabase
+            .from('location')
+            .select('locationId', { count: 'exact' })
+            .eq('contentId', content.contentId);
 
-        const [
-          { data: locationData, error: locationError },
-          { data: imagesData, error: imagesError },
-        ] = await Promise.all([locationPromise, imagesPromise]);
+          const locationCount = locations ? locations.length : 0;
 
-        // Handle location data
-        if (locationError) {
-          console.error("Error fetching location data:", locationError);
-          // Maybe show an error in the details section
-        } else if (locationData) {
-          const modalKeywords = kdhModal.querySelector("#modal-keywords");
-          modalKeywords.innerHTML = "";
-          if (locationData.keyword) {
-            const keywords = locationData.keyword
-              .split(",")
-              .map((k) => k.trim().replace(/"/g, ""));
-            keywords.forEach((k) => {
-              if (k) {
-                const keywordEl = document.createElement("span");
-                keywordEl.textContent = `#${k} `;
-                modalKeywords.appendChild(keywordEl);
-              }
-            });
-          }
+          const card = document.createElement('div');
+          card.classList.add('card');
 
-          const modalDetails = kdhModal.querySelector("#modal-details");
-          modalDetails.innerHTML = "";
-          if (locationData.address) {
-            const p = document.createElement("p");
-            p.innerHTML = `<strong>주소:</strong> ${locationData.address}`;
-            modalDetails.appendChild(p);
-          }
-          if (locationData.tel) {
-            const p = document.createElement("p");
-            p.innerHTML = `<strong>전화번호:</strong> ${locationData.tel}`;
-            modalDetails.appendChild(p);
-          }
-          if (locationData.subDescription) {
-            const p = document.createElement("p");
-            p.innerHTML = `<strong>운영시간:</strong> ${locationData.subDescription}`;
-            modalDetails.appendChild(p);
-          }
-          if (locationData.entranceFee) {
-            const p = document.createElement("p");
-            p.innerHTML = `<strong>입장료:</strong> ${locationData.entranceFee}`;
-            modalDetails.appendChild(p);
-          }
+          card.innerHTML = `
+            <div class="image-container">
+              <img src="${content.imageUrl}" alt="${content.title}">
+              <div class="badge">${content.contentGroup}</div>
+            </div>
+            <div class="content-container">
+              <h3>${content.title}</h3>
+              <p class="description">${content.description}</p>
+              <div class="details">
+                <span>${locationCount}개 장소</span>
+                <button class="details-button" data-content-id="${content.contentId}">자세히 보기</button>
+              </div>
+            </div>
+          `;
+
+          cardContainer.appendChild(card);
         }
 
-        // Handle images and description
-        let imageUrls = [];
-        if (imagesError) {
-          console.error("Error fetching images:", imagesError);
-          modalDescription.textContent = "Failed to load description.";
-        } else if (imagesData) {
-          // Set description from the first image, if available
-          if (imagesData.length > 0 && imagesData[0].des) {
-            modalDescription.textContent = imagesData[0].des;
-          } else {
-            modalDescription.textContent = "Description not available.";
-          }
-          imageUrls = imagesData.map((img) => img.imageUrl);
-        }
-
-        const slideshowContainer = kdhModal.querySelector(
-          ".slideshow-container"
-        );
-        const dotContainer = kdhModal.querySelector(".dot-container");
-        slideshowContainer
-          .querySelectorAll(".mySlides")
-          .forEach((el) => el.remove());
-        dotContainer.innerHTML = "";
-
-        imageUrls.forEach((url, index) => {
-          if (!url) return;
-          const slide = document.createElement("div");
-          slide.className = "mySlides fade";
-          const img = document.createElement("img");
-          img.src = url;
-          slide.appendChild(img);
-          slideshowContainer.insertBefore(
-            slide,
-            slideshowContainer.querySelector(".prev")
-          );
-          const dot = document.createElement("span");
-          dot.className = "dot";
-          dot.onclick = () => {
-            slideIndex = index + 1;
-            showSlides(slideIndex);
-          };
-          dotContainer.appendChild(dot);
+        document.querySelectorAll('.details-button').forEach(button => {
+          button.addEventListener('click', (event) => {
+            const contentId = event.target.dataset.contentId;
+            console.log('View details for contentId:', contentId);
+            // Here you can redirect to a details page or open a modal
+          });
         });
-
-        slideIndex = 1;
-        showSlides(slideIndex);
-        kdhModal.style.display = "block";
       }
 
-      function showArtistSelection() {
-        mainContainer.innerHTML = ""; // Clear the container
-
-        const kdhCard = document.createElement("div");
-        kdhCard.id = "kdh-card";
-        kdhCard.className = "category-card";
-        kdhCard.style.backgroundColor = "#ff4d8d";
-        kdhCard.style.cursor = "pointer";
-        const kdhCardDiv = document.createElement("div");
-        kdhCardDiv.textContent = "K-pop Demon Hunters";
-        kdhCard.appendChild(kdhCardDiv);
-
-        const squidgameCard = document.createElement("div");
-        squidgameCard.id = "squidgame-card";
-        squidgameCard.className = "category-card";
-        squidgameCard.style.backgroundColor = "#3a8dff";
-        squidgameCard.style.cursor = "pointer";
-        const squidgameCardDiv = document.createElement("div");
-        squidgameCardDiv.textContent = "Squid Game";
-        squidgameCard.appendChild(squidgameCardDiv);
-
-        const backLink = document.createElement("a");
-        backLink.href = "/index.html";
-        backLink.className = "back-link";
-        backLink.style.textAlign = "center";
-        backLink.style.width = "100%";
-        backLink.textContent = "Back to Main Categories";
-
-        mainContainer.appendChild(kdhCard);
-        mainContainer.appendChild(squidgameCard);
-        mainContainer.appendChild(backLink);
-      }
-
-      document.body.addEventListener("click", async (event) => {
-        const targetCard = event.target.closest(".category-card");
-        if (!targetCard) return;
-
-        const id = targetCard.id;
-
-        if (id === "kdh-card") {
-          mainContainer.innerHTML = ""; // Clear the container
-
-          // --- naksan Station Card ---
-          const naksanWrapper = document.createElement("div");
-          naksanWrapper.className = "card-wrapper";
-          const naksanCard = document.createElement("div");
-          naksanCard.id = "naksan-card";
-          naksanCard.className = "category-card";
-          naksanCard.style.cursor = "pointer";
-          naksanCard.style.backgroundImage = `url(${
-            supabase.storage.from("tour-images").getPublicUrl("Naksan1.jpg")
-              .data.publicUrl
-          })`;
-          naksanCard.style.backgroundSize = "cover";
-          naksanCard.style.backgroundPosition = "center";
-          const naksanLabel = document.createElement("div");
-          naksanLabel.className = "card-label";
-          naksanLabel.textContent = "낙산공원";
-          naksanWrapper.appendChild(naksanCard);
-          naksanWrapper.appendChild(naksanLabel);
-
-          // --- myeongdong Card ---
-          const myeongdongWrapper = document.createElement("div");
-          myeongdongWrapper.className = "card-wrapper";
-          const myeongdongCard = document.createElement("div");
-          myeongdongCard.id = "myeongdong-card";
-          myeongdongCard.className = "category-card";
-          myeongdongCard.style.cursor = "pointer";
-          myeongdongCard.style.backgroundImage = `url(${
-            supabase.storage.from("tour-images").getPublicUrl("Myeongdong1.jpg")
-              .data.publicUrl
-          })`;
-          myeongdongCard.style.backgroundSize = "cover";
-          myeongdongCard.style.backgroundPosition = "center";
-          const myeongdongLabel = document.createElement("div");
-          myeongdongLabel.className = "card-label";
-          myeongdongLabel.textContent = "명동거리";
-          myeongdongWrapper.appendChild(myeongdongCard);
-          myeongdongWrapper.appendChild(myeongdongLabel);
-
-          // --- Back Link ---
-          const backLink = document.createElement("div"); // Using div to make it clickable via JS
-          backLink.className = "back-link";
-          backLink.textContent = "Back to Artists";
-          backLink.style.cursor = "pointer";
-          backLink.style.width = "100%";
-          backLink.style.textAlign = "center";
-          backLink.onclick = showArtistSelection;
-
-          mainContainer.appendChild(naksanWrapper);
-          mainContainer.appendChild(myeongdongWrapper);
-          mainContainer.appendChild(backLink);
-        } else if (id === "naksan-card") {
-          showLocationModal(253, "kdh - 낙산공원 (naksan Park)");
-        } else if (id === "myeongdong-card") {
-          showLocationModal(190, "kdh - 명동거리 (Myeongdong)");
-        } else if (id === "squidgame-card") {
-          alert("Squid Game 페이지는 준비 중입니다.");
-        }
-      });
-
-      kdhModal.querySelector(".prev").onclick = () => showSlides(--slideIndex);
-      kdhModal.querySelector(".next").onclick = () => showSlides(++slideIndex);
-      closeButton.onclick = () => (kdhModal.style.display = "none");
-      window.onclick = (event) => {
-        if (event.target == kdhModal) kdhModal.style.display = "none";
-      };
+      initSupabase();
     </script>
   </body>
 </html>

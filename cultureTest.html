@@ -22,27 +22,31 @@
   </head>
   <body>
     <h1>문화포털 데이터 JSON 추출 예제</h1>
-    <button onclick="fetchAndDownloadJson()">
-      JSON 데이터로 추출
-    </button>
+    <button onclick="fetchAndDownloadJson()">JSON 데이터로 추출</button>
 
     <div id="dataContainer"></div>
 
     <script>
       async function fetchAndDownloadJson() {
         const container = document.getElementById("dataContainer");
-        container.textContent = "전체 데이터를 가져오는 중... 잠시만 기다려주세요.";
+        container.textContent =
+          "전체 데이터를 가져오는 중... 잠시만 기다려주세요.";
 
         try {
           // 1. 첫 페이지를 호출하여 전체 데이터 수(totalCount) 확인
-          const firstPageResponse = await fetch("http://localhost:3000/culture-api?numOfRows=1&pageNo=1");
+          const firstPageResponse = await fetch(
+            "http://localhost:3000/culture-api?numOfRows=1&pageNo=1"
+          );
           if (!firstPageResponse.ok) {
             throw new Error(`HTTP error! status: ${firstPageResponse.status}`);
           }
           const firstPageResult = await firstPageResponse.json();
-          
+
           // xml-js 라이브러리(compact: true)는 텍스트 내용을 _text 속성으로 변환합니다.
-          const totalCount = parseInt(firstPageResult.response?.body?.totalCount?._text, 10);
+          const totalCount = parseInt(
+            firstPageResult.response?.body?.totalCount?._text,
+            10
+          );
 
           if (isNaN(totalCount) || totalCount === 0) {
             alert("전체 데이터 수를 가져올 수 없거나 데이터가 없습니다.");
@@ -57,12 +61,14 @@
           // 2. 모든 페이지에 대한 요청 프로미스를 생성
           const promises = [];
           for (let pageNo = 1; pageNo <= totalPages; pageNo++) {
-            const promise = fetch(`http://localhost:3000/culture-api?numOfRows=${pageSize}&pageNo=${pageNo}`)
-              .then(res => {
+            const promise = fetch(
+              `http://localhost:3000/culture-api?numOfRows=${pageSize}&pageNo=${pageNo}`
+            )
+              .then((res) => {
                 if (!res.ok) throw new Error(`페이지 ${pageNo} 로드 실패`);
                 return res.json();
               })
-              .then(result => result.response?.body?.items?.item || []);
+              .then((result) => result.response?.body?.items?.item || []);
             promises.push(promise);
           }
 
@@ -75,13 +81,17 @@
             container.innerHTML = "";
             return;
           }
-          
-          console.log(`총 ${allData.length}개의 데이터를 성공적으로 가져왔습니다.`);
+
+          console.log(
+            `총 ${allData.length}개의 데이터를 성공적으로 가져왔습니다.`
+          );
 
           // 4. 전체 데이터를 JSON 파일로 다운로드 및 미리보기 표시
-          downloadJsonFile(allData, `culture_data_total_${allData.length}.json`);
+          downloadJsonFile(
+            allData,
+            `culture_data_total_${allData.length}.json`
+          );
           displayDataPreview(allData);
-
         } catch (error) {
           console.error("전체 데이터를 가져오는 중 오류 발생:", error);
           alert("데이터를 가져오는 중 오류가 발생했습니다. 콘솔을 확인하세요.");
@@ -97,8 +107,10 @@
       function downloadJsonFile(data, filename) {
         // JSON 데이터를 예쁘게 포맷된 문자열로 변환
         const jsonString = JSON.stringify(data, null, 2);
-        
-        const blob = new Blob([jsonString], { type: "application/json;charset=utf-8;" });
+
+        const blob = new Blob([jsonString], {
+          type: "application/json;charset=utf-8;",
+        });
 
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
@@ -126,33 +138,33 @@
         const headerRow = document.createElement("tr");
 
         const headers = Object.keys(data[0]);
-        headers.forEach(headerText => {
-            const th = document.createElement("th");
-            th.textContent = headerText;
-            headerRow.appendChild(th);
+        headers.forEach((headerText) => {
+          const th = document.createElement("th");
+          th.textContent = headerText;
+          headerRow.appendChild(th);
         });
 
         thead.appendChild(headerRow);
         table.appendChild(thead);
 
-        data.forEach(item => {
-            const row = document.createElement("tr");
-            headers.forEach(header => {
-                const cell = document.createElement("td");
-                const cellData = item[header];
+        data.forEach((item) => {
+          const row = document.createElement("tr");
+          headers.forEach((header) => {
+            const cell = document.createElement("td");
+            const cellData = item[header];
 
-                if (cellData === null || cellData === undefined) {
-                    cell.textContent = "";
-                } else if (typeof cellData === 'object') {
-                    const pre = document.createElement("pre");
-                    pre.textContent = JSON.stringify(cellData, null, 2);
-                    cell.appendChild(pre);
-                } else {
-                    cell.textContent = cellData;
-                }
-                row.appendChild(cell);
-            });
-            tbody.appendChild(row);
+            if (cellData === null || cellData === undefined) {
+              cell.textContent = "";
+            } else if (typeof cellData === "object") {
+              const pre = document.createElement("pre");
+              pre.textContent = JSON.stringify(cellData, null, 2);
+              cell.appendChild(pre);
+            } else {
+              cell.textContent = cellData;
+            }
+            row.appendChild(cell);
+          });
+          tbody.appendChild(row);
         });
 
         table.appendChild(tbody);

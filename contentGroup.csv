@@ -1,0 +1,5 @@
+id,name,imageUrl,des,category
+1,BTS,https://fmcxkqfccuevcaqkzsex.supabase.co/storage/v1/object/public/tour-images/BTS.png,전 세계에 '아미(ARMY)'라는 거대한 팬덤을 거느린 7인조 보이 그룹.,k-pop
+2,블랙 핑크,https://fmcxkqfccuevcaqkzsex.supabase.co/storage/v1/object/public/tour-images/BlackPink.png,"'예쁜 게 다가 아니다'라는 반전의 의미를 담은 이름처럼, 강렬한 음악과 퍼포먼스, 멤버들의 당당하고 매력적인 정체성으로 무장한 4인조 걸 그룹.",k-pop
+3,Kpop Demon Hunters,https://fmcxkqfccuevcaqkzsex.supabase.co/storage/v1/object/public/tour-images/KDH.png,K-팝 걸그룹 '헌트릭스'의 멤버들이 무대 위 화려한 아이돌 활동 뒤에서 악마 대장 '귀마'와 부하들로부터 사람들의 영혼을 지키기 위해 싸우는 뮤지컬 판타지 애니메이션 영화.,movie
+4,오징어 게임,https://fmcxkqfccuevcaqkzsex.supabase.co/storage/v1/object/public/tour-images/SquidGame.jpg,"빚에 시달리는 수백 명의 사람들이 456억 원의 상금이 걸린 의문의 서바이벌 게임에 참가하여, 목숨을 걸고 '무궁화 꽃이 피었습니다' 등 한국의 전통 어린이 게임을 수행하는 디스토피아 스릴러 드라마.",drama
