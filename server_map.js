@@ -15,7 +15,16 @@ const supabase = createClient(
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static("./")); // 현재 디렉토리 전체를 정적 파일로 제공
+
+// 메인 페이지
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html");
+}); // 이전: public 폴더를 같은 레벨에서 찾음
+
+app.get("/map", (req, res) => {
+  res.sendFile(__dirname + "/MAP_API/public/map_page.html");
+});
 
 // 좌표 파싱 함수
 function parseCoordinates(coordStr) {
@@ -138,14 +147,19 @@ app.get("/api/contents", async (req, res) => {
   try {
     const { data: contents, error } = await supabase
       .from("contents")
-      .select("contents_id, contents, name, location, explanation, img_url")
+      .select("contents_id, contents, name, location, explanation")
       .limit(50);
 
     console.log("📺 콘텐츠 조회 시도");
     console.log("Error:", error);
-    console.log("Data count:", contents?.length);
 
     if (error) throw error;
+
+    // 배열이 아니면 빈 배열 반환
+    if (!Array.isArray(contents)) {
+      return res.json([]);
+    }
+
     res.json(contents);
   } catch (err) {
     console.error("❌ 콘텐츠 조회 실패:", err);
