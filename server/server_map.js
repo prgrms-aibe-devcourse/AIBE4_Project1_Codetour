@@ -16,6 +16,10 @@ const aiCoursePath = path.join(
   __dirname,
   "../source/pages/aiCourse/indexBae.html"
 );
+const preferencePath = path.join(
+  __dirname,
+  "../source/pages/preference/preference.html"
+);
 
 console.log("Index 경로:", indexPath);
 console.log("Index 파일 존재:", fs.existsSync(indexPath));
@@ -71,6 +75,14 @@ app.get("/aiCourse", (req, res) => {
     return res.status(404).send("indexBae.html을 찾을 수 없습니다");
   }
   res.sendFile(aiCoursePath);
+});
+
+// 선호도 조사 페이지
+app.get("/preference", (req, res) => {
+  if (!fs.existsSync(preferencePath)) {
+    return res.status(404).send("preference.html을 찾을 수 없습니다");
+  }
+  res.sendFile(preferencePath);
 });
 // 좌표 파싱 함수
 function parseCoordinates(coordStr) {
@@ -327,6 +339,59 @@ app.delete("/api/course/:courseId", async (req, res) => {
   } catch (err) {
     console.error("❌ 코스 삭제 실패:", err);
     res.status(500).json({ success: false, error: "코스 삭제 실패" });
+  }
+});
+
+// 사용자 카테고리 선호도 저장
+app.post("/api/preferences", async (req, res) => {
+  const { userId, preferences } = req.body;
+  if (!userId || !preferences || !Array.isArray(preferences)) {
+    return res
+      .status(400)
+      .json({ error: "userId와 preferences 배열이 필요합니다" });
+  }
+
+  try {
+    // preferences: [{ category: "k-pop", preference: 1 }, { category: "drama", preference: 0 }, ...]
+    const preferencesData = preferences.map((pref) => ({
+      user_id: userId,
+      category: pref.category,
+      preference: pref.preference,
+    }));
+
+    // upsert: 이미 존재하면 업데이트, 없으면 삽입
+    const { data, error } = await supabase
+      .from("user_preferences")
+      .upsert(preferencesData, { onConflict: "user_id,category" })
+      .select();
+
+    if (error) throw error;
+
+    console.log(`✅ 사용자 ${userId}의 선호도 ${data.length}개 저장됨`);
+    res.json({ success: true, count: data.length });
+  } catch (err) {
+    console.error("❌ 선호도 저장 실패:", err);
+    res.status(500).json({ error: "선호도 저장 실패" });
+  }
+});
+
+// 사용자 카테고리 선호도 조회
+app.get("/api/preferences/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const { data: preferences, error } = await supabase
+      .from("user_preferences")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (error) throw error;
+
+    console.log(`📊 사용자 ${userId}의 선호도 조회: ${preferences.length}개`);
+    res.json(preferences);
+  } catch (err) {
+    console.error("❌ 선호도 조회 실패:", err);
+    res.status(500).json({ error: "선호도 조회 실패" });
   }
 });
 

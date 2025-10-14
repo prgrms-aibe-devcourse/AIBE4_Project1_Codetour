@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>선호도 조사 - K-SPOT</title>
+    <link rel="stylesheet" href="/source/pages/index/style.css" />
+    <style>
+      .preference-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #ff6b9d 0%, #c06fef 100%);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .preference-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+            circle at 20% 50%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 80%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%
+          );
+        animation: gradient-shift 15s ease infinite;
+      }
+
+      .preference-container::after {
+        content: "";
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.05) 1px,
+          transparent 1px
+        );
+        background-size: 50px 50px;
+        animation: moveBackground 20s linear infinite;
+      }
+
+      .preference-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 4rem 2rem;
+      }
+
+      .preference-card {
+        background: white;
+        border-radius: 24px;
+        padding: 4rem 3rem;
+        max-width: 700px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: fadeInUp 0.8s ease;
+      }
+
+      .preference-header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      .preference-logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .logo-icon {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .pin-outer {
+        position: absolute;
+        bottom: 0;
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #ff6b9d 0%, #c06fef 100%);
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
+      }
+
+      .pin-inner {
+        position: absolute;
+        bottom: 10px;
+        width: 16px;
+        height: 16px;
+        background: white;
+        border-radius: 50%;
+        z-index: 1;
+        transform: rotate(-45deg);
+      }
+
+      .logo-text {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ff6b9d 0%, #c06fef 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -1px;
+      }
+
+      .preference-header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin-bottom: 0.8rem;
+        letter-spacing: -1px;
+      }
+
+      .preference-header p {
+        font-size: 1.1rem;
+        color: var(--gray);
+        line-height: 1.6;
+      }
+
+      .user-input-section {
+        margin-bottom: 3rem;
+      }
+
+      .input-label {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.8rem;
+      }
+
+      .input-field {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-family: "Pretendard", sans-serif;
+        transition: all 0.3s ease;
+      }
+
+      .input-field:focus {
+        outline: none;
+        border-color: #ff6b9d;
+        box-shadow: 0 0 0 4px rgba(255, 107, 157, 0.1);
+      }
+
+      .input-hint {
+        color: #999;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: block;
+      }
+
+      .categories-grid {
+        display: grid;
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .category-card {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 3px solid transparent;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .category-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #ff6b9d 0%, #c06fef 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 0;
+      }
+
+      .category-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+      }
+
+      .category-card.selected {
+        border-color: #ff6b9d;
+        box-shadow: 0 8px 24px rgba(255, 107, 157, 0.3);
+        background: linear-gradient(135deg, #fff0f5 0%, #f8e8ff 100%);
+      }
+
+      .category-card.selected::before {
+        opacity: 0.08;
+      }
+
+      .category-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .category-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .category-icon {
+        font-size: 3rem;
+        line-height: 1;
+        transition: transform 0.3s ease;
+      }
+
+      .category-card:hover .category-icon {
+        transform: scale(1.1);
+      }
+
+      .category-text h3 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.3rem;
+        letter-spacing: -0.5px;
+      }
+
+      .category-text p {
+        font-size: 0.95rem;
+        color: var(--gray);
+      }
+
+      .check-icon {
+        font-size: 2rem;
+        opacity: 0;
+        transition: all 0.3s ease;
+        color: #ff6b9d;
+        transform: scale(0.5);
+      }
+
+      .category-card.selected .check-icon {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .submit-button {
+        width: 100%;
+        padding: 1.2rem;
+        background: linear-gradient(135deg, #ff6b9d 0%, #c06fef 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 16px rgba(255, 107, 157, 0.3);
+      }
+
+      .submit-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(255, 107, 157, 0.4);
+      }
+
+      .submit-button:active {
+        transform: translateY(0);
+      }
+
+      .submit-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .error-alert {
+        background: #fee;
+        color: #c33;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        margin-top: 1rem;
+        text-align: center;
+        display: none;
+        animation: shake 0.5s ease;
+      }
+
+      .error-alert.show {
+        display: block;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-10px);
+        }
+        75% {
+          transform: translateX(10px);
+        }
+      }
+
+      .home-link {
+        display: inline-block;
+        margin-top: 1.5rem;
+        text-align: center;
+        width: 100%;
+        color: var(--gray);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 0.3s ease;
+      }
+
+      .home-link:hover {
+        color: #ff6b9d;
+      }
+
+      @media (max-width: 768px) {
+        .preference-card {
+          padding: 3rem 2rem;
+        }
+
+        .preference-header h1 {
+          font-size: 2rem;
+        }
+
+        .category-icon {
+          font-size: 2.5rem;
+        }
+
+        .category-text h3 {
+          font-size: 1.3rem;
+        }
+
+        .logo-text {
+          font-size: 2rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .preference-content {
+          padding: 2rem 1rem;
+        }
+
+        .preference-card {
+          padding: 2rem 1.5rem;
+        }
+
+        .preference-header h1 {
+          font-size: 1.8rem;
+        }
+
+        .category-card {
+          padding: 1.5rem;
+        }
+
+        .category-info {
+          gap: 1rem;
+        }
+
+        .category-icon {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="preference-container">
+      <div class="preference-content">
+        <div class="preference-card">
+          <div class="preference-header">
+            <div class="preference-logo">
+              <div class="logo-icon">
+                <div class="pin-outer"></div>
+                <div class="pin-inner"></div>
+              </div>
+              <div class="logo-text">K-SPOT</div>
+            </div>
+            <h1>선호 카테고리 선택</h1>
+            <p>
+              관심있는 카테고리를 선택해주세요.<br />
+              맞춤형 여행 코스를 추천해드립니다!
+            </p>
+          </div>
+
+          <div class="user-input-section">
+            <label class="input-label" for="userId">사용자 ID</label>
+            <input
+              type="text"
+              id="userId"
+              class="input-field"
+              placeholder="UUID 형식의 사용자 ID를 입력하세요"
+              value=""
+            />
+            <small class="input-hint">
+              예시: 550e8400-e29b-41d4-a716-446655440000
+            </small>
+          </div>
+
+          <div class="categories-grid">
+            <div class="category-card" data-category="k-pop">
+              <div class="category-content">
+                <div class="category-info">
+                  <div class="category-icon">🎤</div>
+                  <div class="category-text">
+                    <h3>K-POP</h3>
+                    <p>아이돌 콘서트, 뮤직비디오 촬영지</p>
+                  </div>
+                </div>
+                <div class="check-icon">✓</div>
+              </div>
+            </div>
+
+            <div class="category-card" data-category="drama">
+              <div class="category-content">
+                <div class="category-info">
+                  <div class="category-icon">📺</div>
+                  <div class="category-text">
+                    <h3>드라마</h3>
+                    <p>인기 드라마 촬영지, 명장면 속 그곳</p>
+                  </div>
+                </div>
+                <div class="check-icon">✓</div>
+              </div>
+            </div>
+
+            <div class="category-card" data-category="movie">
+              <div class="category-content">
+                <div class="category-info">
+                  <div class="category-icon">🎬</div>
+                  <div class="category-text">
+                    <h3>영화</h3>
+                    <p>영화 촬영지, 숨은 명소</p>
+                  </div>
+                </div>
+                <div class="check-icon">✓</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="submit-button" id="submitBtn">
+            선호도 저장하기
+          </button>
+          <div class="error-alert" id="errorMessage"></div>
+
+          <a href="/" class="home-link">← 홈으로 돌아가기</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const categories = document.querySelectorAll(".category-card");
+      const submitBtn = document.getElementById("submitBtn");
+      const userIdInput = document.getElementById("userId");
+      const errorMessage = document.getElementById("errorMessage");
+
+      let selectedCategories = new Set();
+
+      // UUID 형식 검증
+      function isValidUUID(uuid) {
+        const uuidRegex =
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        return uuidRegex.test(uuid);
+      }
+
+      // 카테고리 선택/해제
+      categories.forEach((card) => {
+        card.addEventListener("click", () => {
+          const category = card.dataset.category;
+
+          if (selectedCategories.has(category)) {
+            selectedCategories.delete(category);
+            card.classList.remove("selected");
+          } else {
+            selectedCategories.add(category);
+            card.classList.add("selected");
+          }
+        });
+      });
+
+      // 선호도 저장
+      submitBtn.addEventListener("click", async () => {
+        const userId = userIdInput.value.trim();
+
+        if (!userId) {
+          showError("사용자 ID를 입력해주세요");
+          return;
+        }
+
+        if (!isValidUUID(userId)) {
+          showError("올바른 UUID 형식이 아닙니다");
+          return;
+        }
+
+        // 모든 카테고리에 대해 선호도 설정
+        const preferences = [
+          {
+            category: "k-pop",
+            preference: selectedCategories.has("k-pop") ? 1 : 0,
+          },
+          {
+            category: "drama",
+            preference: selectedCategories.has("drama") ? 1 : 0,
+          },
+          {
+            category: "movie",
+            preference: selectedCategories.has("movie") ? 1 : 0,
+          },
+        ];
+
+        try {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "저장 중...";
+
+          const response = await fetch("/api/preferences", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, preferences }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            alert("✅ 선호도가 저장되었습니다!");
+            window.location.href = "/";
+          } else {
+            showError("저장에 실패했습니다: " + data.error);
+          }
+        } catch (err) {
+          console.error(err);
+          showError("저장 중 오류가 발생했습니다");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "선호도 저장하기";
+        }
+      });
+
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.add("show");
+        setTimeout(() => {
+          errorMessage.classList.remove("show");
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>
