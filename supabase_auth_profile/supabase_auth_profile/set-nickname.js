@@ -1,7 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+import { supabase, getSafeUserInfo } from "./userStore.js";
 
 /** 경로 **/
 function basePath() {
@@ -14,13 +11,11 @@ function urlTo(p) {
   return `${location.origin}${basePath()}${p}`;
 }
 
-
 const $ = (s) => document.querySelector(s);
 const $name = $("#nickname");
 const $save = $("#saveBtn");
 const $err  = $("#err");
 const $logout = $("#logoutBtn");
-
 
 const NAME_RE = /^[A-Za-z0-9가-힣]{2,10}$/;
 
@@ -52,10 +47,10 @@ async function saveNickname() {
   const fmt = validateFormat(name);
   if (fmt) { $err.textContent = fmt; return; }
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) { $err.textContent = "로그인이 필요합니다."; return; }
+  const me = getSafeUserInfo();
+  if (!me.id) { $err.textContent = "로그인이 필요합니다."; return; }
 
-  if (await isDuplicate(name, user.id)) {
+  if (await isDuplicate(name, me.id)) {
     $err.textContent = "이미 사용 중인 닉네임입니다.";
     return;
   }
@@ -63,7 +58,7 @@ async function saveNickname() {
   const { error } = await supabase
     .from("profiles")
     .update({ display_name: name, updated_at: new Date().toISOString() })
-    .eq("id", user.id);
+    .eq("id", me.id);
 
   if (error) {
     console.error(error);

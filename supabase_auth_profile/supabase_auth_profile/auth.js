@@ -1,10 +1,7 @@
-// auth.js (single-page OAuth callback + hard logout)
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
+// auth.js (single-page OAuth callback + hard logout) — userStore 싱글톤 사용
+import { supabase, getSafeUserInfo } from "./userStore.js";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-/** URL/경로 유틸**/
+/** URL/경로 유틸 **/
 function basePath() {
   // / -> /   |  /repo/index.html -> /repo/
   return location.pathname.endsWith("/")
@@ -94,7 +91,6 @@ async function signOut() {
 
   const target = `${urlTo(PATHS.INDEX)}?signed_out=${Date.now()}`;
 
-  // SIGNED_OUT 이벤트 대기
   let redirected = false;
   const { data: sub } = supabase.auth.onAuthStateChange((event) => {
     if (event === "SIGNED_OUT" && !redirected) {
@@ -119,7 +115,7 @@ async function signOut() {
   }
 }
 
-/** 메인 UI 토글(닉네임 표시/버튼) **/
+/** 메인 UI 토글(닉네임 표시/버튼) */
 async function renderIndexUI() {
   const $greet = document.getElementById("greeting");
   const $nick  = document.getElementById("nickname");
@@ -127,9 +123,10 @@ async function renderIndexUI() {
   const $logout= document.getElementById("logoutBtn");
   if (!$greet || !$nick || !$login || !$logout) return;
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    // 비로그인 화면 구성
+  const user = getSafeUserInfo();
+
+  if (!user.id) {
+    // 비로그인 화면
     $greet.classList.add("hide");
     $nick.textContent = "";
     $logout.classList.add("hide");
@@ -137,7 +134,7 @@ async function renderIndexUI() {
     return;
   }
 
-  // 로그인 화면 구성
+  // 로그인 화면 
   const { data, error } = await supabase
     .from("profiles")
     .select("display_name")
@@ -154,15 +151,14 @@ async function renderIndexUI() {
   $logout.classList.remove("hide");
 }
 
-/** 닉네임 여부에 따른 라우팅 **/
 async function routeByProfile() {
   if (routing) return;
   routing = true;
 
   const page = currentPage();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const user = getSafeUserInfo();
 
+  if (!user.id) {
     if (page !== PATHS.INDEX) location.href = urlTo(PATHS.INDEX);
     routing = false;
     return;
@@ -184,19 +180,15 @@ async function routeByProfile() {
   routing = false;
 }
 
-
 window.addEventListener("DOMContentLoaded", async () => {
   const page = currentPage();
-
 
   const loginBtn = document.getElementById("loginBtn");
   const logoutBtn = document.getElementById("logoutBtn");
   if (loginBtn) loginBtn.onclick = signInWithGoogle;
   if (logoutBtn) logoutBtn.onclick = signOut;
 
-
   const exchanged = await handleOAuthRedirectIfNeeded();
-
 
   if (page === PATHS.INDEX) {
     await renderIndexUI();
