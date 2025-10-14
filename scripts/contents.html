@@ -34,7 +34,6 @@
         <p>좋아하는 드라마, 영화, 예능의 촬영지를 찾아보세요</p>
       </div>
 
-      <!-- 탭 메뉴 추가 -->
       <div class="tab-menu">
         <button class="tab-button active" data-category="k-pop">K-Pop</button>
         <button class="tab-button" data-category="k-drama">
@@ -45,7 +44,6 @@
         <button class="tab-button" data-category="k-ent">K-Ent</button>
       </div>
 
-      <!-- 카드 컨테이너 추가 -->
       <div class="card-container" id="card-container"></div>
     </main>
 
@@ -53,7 +51,6 @@
       <p>&copy; Kspot</p>
     </footer>
 
-    <!-- 모달 추가 -->
     <div id="modal" class="modal">
       <div class="modal-content">
         <span class="modal-close">&times;</span>
@@ -65,7 +62,7 @@
       let supabase;
       let allContents = []; // 모든 콘텐츠를 저장할 배열
 
-      // --- [추가] 모달 관련 DOM 요소 가져오기 ---
+      // --- 모달 관련 DOM 요소 가져오기 ---
       const modal = document.getElementById("modal");
       const modalBody = document.getElementById("modal-body");
       const closeModalBtn = document.querySelector(".modal-close");
@@ -126,7 +123,7 @@
               const { count: locationCount, error: countError } = await supabase
                 .from("location")
                 .select("*", { count: "exact", head: true })
-                .eq("contentId", id);
+                .eq("placeId", id);
               if (!countError) {
                 count = locationCount;
               }
@@ -138,16 +135,12 @@
           }
 
           allContents = contentsWithCount;
-          // console.log("최종 가공된 allContents 데이터:", allContents);
-
           filterByCategory("k-pop"); // 처음에는 'K-Pop' 카테고리를 표시
         } catch (error) {
           console.error("Error fetching or processing data:", error);
           cardContainer.innerHTML = `<p>데이터를 불러오는 중 오류가 발생했습니다: ${error.message}</p>`;
         }
       }
-
-      //---------------------------------------------------------
 
       /**
        * 카테고리에 따라 allContents를 필터링하고 표시하는 함수
@@ -157,14 +150,11 @@
         let filteredContents;
 
         if (category === "k-drama") {
-          // 'k-drama' 버튼은 'k-drama' 또는 'k-movie' 카테고리를 표시해야 합니다.
           filteredContents = allContents.filter(
             (content) =>
               content.category === "k-drama" || content.category === "k-movie"
           );
         } else {
-          // 다른 카테고리('k-pop', 'k-webtoon', 'k-food', 'k-ent')는 해당 카테고리만 필터링
-          // 'k-pop' 탭은 'k-pop' 카테고리를 필터링합니다.
           const filterCategory = category === "k-pop" ? "k-pop" : category;
           filteredContents = allContents.filter(
             (content) => content.category === filterCategory
@@ -180,11 +170,7 @@
         tabButtons.forEach((button) => {
           button.addEventListener("click", (event) => {
             const category = event.target.dataset.category;
-
-            // 1. 카테고리 필터링 및 카드 표시
             filterByCategory(category);
-
-            // 2. 활성 버튼 스타일 업데이트
             tabButtons.forEach((btn) => btn.classList.remove("active"));
             event.target.classList.add("active");
           });
@@ -195,8 +181,6 @@
       function displayItems(contents) {
         const cardContainer = document.getElementById("card-container");
         cardContainer.innerHTML = "";
-
-        // console.log("displayItems 함수로 전달된 데이터:", contents);
 
         if (!contents || contents.length === 0) {
           cardContainer.innerHTML = "<p>해당 카테고리의 데이터가 없습니다.</p>";
@@ -213,7 +197,8 @@
                 <div class="image-container">
                   <img src="${content.imageUrl || ""}" alt="${
             content.title || "이미지 없음"
-          }" onerror="this.style.display='none'">
+          }"
+                  onerror="this.style.display='none'">
                   <div class="badge">${content.category}</div>
                 </div>
                 <div class="content-container">
@@ -222,7 +207,6 @@
                     content.des || "설명이 없습니다."
                   }</p>
                   <div class="details">
-
                     <button class="details-button" data-content-id="${
                       content.id
                     }">자세히 보기</button>
@@ -233,7 +217,6 @@
           cardContainer.appendChild(card);
         }
 
-        // '자세히 보기' 버튼 이벤트 리스너 추가
         document.querySelectorAll(".details-button").forEach((button) => {
           button.addEventListener("click", (event) => {
             const contentId = event.target.dataset.contentId;
@@ -244,54 +227,60 @@
 
       // --- 모달을 열고 상세 정보를 표시하는 함수 ---
       async function openModal(contentId) {
-        modal.style.display = "block"; // 모달을 보이게 함
+        modal.style.display = "flex"; // 모달을 보이게 함
         modalBody.innerHTML = "<p>상세 정보를 불러오는 중입니다...</p>";
 
         try {
-          // 1. 클릭한 콘텐츠의 기본 정보를 allContents 배열에서 찾기
           const contentInfo = allContents.find((c) => c.id == contentId);
+          console.log("contentInfo:", contentInfo);
 
-          // 2. 해당 콘텐츠에 속한 장소(location) 목록을 Supabase에서 조회
           const { data: locations, error } = await supabase
             .from("location")
+            .select("*");
+
+          const { data: contents, contentsError } = await supabase
+            .from("contents")
             .select("*")
-            .eq("contentId", contentId);
+            .eq("contentGroup", contentInfo.name);
 
           if (error) throw error;
+          if (contentsError) throw contentsError;
 
-          // 3. 조회한 데이터를 바탕으로 모달에 표시할 HTML 생성
-          let html = `<h2>${contentInfo.name}</h2>`;
-          html += `<p>${contentInfo.des}</p>`;
+          console.log("locations:", locations);
+          console.log("contents:", contents);
+
+          let html = `<img src="${contentInfo.imageUrl}" alt="${contentInfo.name}">`;
+          html += `<h2>${contentInfo.name}</h2>`;
           html += "<hr><h3>관련 촬영지 정보</h3>";
 
-          if (locations && locations.length > 0) {
+          if (contents && contents.length > 0) {
             html += "<ul>";
-            locations.forEach((loc) => {
-              // location 테이블에 name과 address 컬럼이 있다고 가정
-              html += `<li><strong>${loc.name}</strong>: ${loc.address}</li>`;
+            contents.forEach((loc) => {
+              const postCode = loc.name ? `[${loc.name}]` : "";
+              html += `<li>${postCode} ${
+                loc.location || "주소 정보 없음"
+              }</li>`;
             });
             html += "</ul>";
           } else {
             html += "<p>관련된 장소 정보가 없습니다.</p>";
           }
 
-          modalBody.innerHTML = html; // 생성된 HTML을 모달 내부에 삽입
+          modalBody.innerHTML = html;
         } catch (error) {
           modalBody.innerHTML = `<p>상세 정보를 불러오는 데 실패했습니다: ${error.message}</p>`;
         }
       }
 
-      // --- [새 함수 추가] 모달을 닫는 함수 ---
+      // --- 모달을 닫는 함수 ---
       function closeModal() {
-        modal.style.display = "none"; // 모달을 숨김
+        modal.style.display = "none";
       }
 
-      // --- [새 함수 추가] 모달 닫기 이벤트 리스너를 설정하는 함수 ---
+      // ---모달 닫기 이벤트 리스너를 설정하는 함수 ---
       function setupModalListeners() {
-        // 'X' 버튼 클릭 시 모달 닫기
         closeModalBtn.addEventListener("click", closeModal);
 
-        // 모달 바깥 영역(배경) 클릭 시 모달 닫기
         window.addEventListener("click", (event) => {
           if (event.target == modal) {
             closeModal();
@@ -299,7 +288,7 @@
         });
       }
 
-      initSupabase(); // 페이지 로드 시 Supabase 초기화 및 데이터 로딩 시작
+      initSupabase();
     </script>
   </body>
 </html>
