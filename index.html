@@ -6,18 +6,12 @@
     <title>Ksopt</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-      @import url("https://webfontworld.github.io/kopus/KoPubBatang.css");
-
-      :root {
-        --primary-pink: #ff4d8d;
-        --primary-blue: #3a8dff;
-        --background-beige: #f5e6d3;
-        --text-dark: #1a1a1a;
-      }
-
       body {
+        box-sizing: border-box;
+        background: #444444;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
         font-family: "KoPubBatang", serif;
-        background-color: var(--background-beige);
         color: var(--text-dark);
         margin: 0;
         padding: 0;
@@ -27,29 +21,14 @@
         min-height: 100vh;
       }
 
-      header {
-        width: 100%;
-        padding: 2rem 0;
-        text-align: center;
-        background-color: var(--text-dark);
-        color: var(--background-beige);
-      }
-
-      header h1 {
-        margin: 0;
-        font-size: 2.5rem;
-        letter-spacing: 2px;
-      }
-
       main {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 2rem;
-        padding: 4rem 2rem;
-        width: 100%;
-        max-width: 1200px;
-        box-sizing: border-box;
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 100px;
+        gap: 100px;
+        width: 1720.8px;
+        height: 2673.6px;
       }
 
       .category-card {
@@ -66,34 +45,6 @@
         border-radius: 15px;
         color: var(--text-dark);
         text-decoration: none;
-      }
-
-      .back-link {
-        display: inline-block;
-        margin-top: 2rem;
-        padding: 0.5rem 1rem;
-        background-color: var(--primary-blue);
-        color: var(--background-beige);
-        text-decoration: none;
-      }
-
-      .card-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .card-label {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: var(--text-dark);
-        text-align: center;
-      }
-
-      .category-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
       }
 
       #k-pop {
@@ -120,28 +71,15 @@
         background-color: var(--text-dark);
         color: var(--background-beige);
       }
-
-      /* Fading animation */
-      .fade {
-        animation-name: fade;
-        animation-duration: 1.5s;
-      }
-
-      @keyframes fade {
-        from {
-          opacity: 0.4;
-        }
-        to {
-          opacity: 1;
-        }
-      }
     </style>
   </head>
   <body>
+    <!-- 헤더 섹션: 페이지 제목 -->
     <header>
       <h1>Plan Your Korean Adventure</h1>
     </header>
 
+    <!-- 메인 콘텐츠: 카테고리 카드 링크 -->
     <main>
       <a href="k-pop.html" id="k-pop" class="category-card">
         <div>K-Pop</div>
@@ -157,10 +95,12 @@
       </a>
     </main>
 
+    <!-- 푸터: 저작권 정보 -->
     <footer>
       <p>&copy; Kspot</p>
     </footer>
 
+    <!-- 데이터베이스 연동을 위한 스크립트 -->
     <script type="module">
       let supabase;
       async function initSupabase() {

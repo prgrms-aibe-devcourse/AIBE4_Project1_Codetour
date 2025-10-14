@@ -6,18 +6,12 @@
     <title>K-Drama/Movie - Korea Travel Planner</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-      @import url("https://webfontworld.github.io/kopus/KoPubBatang.css");
-
-      :root {
-        --primary-pink: #ff4d8d;
-        --primary-blue: #3a8dff;
-        --background-beige: #f5e6d3;
-        --text-dark: #1a1a1a;
-      }
-
       body {
+        box-sizing: border-box;
+        background: #444444;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
         font-family: "KoPubBatang", serif;
-        background-color: var(--background-beige);
         color: var(--text-dark);
         margin: 0;
         padding: 0;
@@ -27,36 +21,14 @@
         min-height: 100vh;
       }
 
-      header {
-        width: 100%;
-        padding: 2rem 0;
-        text-align: center;
-        background-color: var(--text-dark);
-        color: var(--background-beige);
-      }
-
-      header h1 {
-        margin: 0;
-        font-size: 2.5rem;
-        letter-spacing: 2px;
-      }
-
       main {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 2rem;
-        padding: 4rem 2rem;
-        width: 100%;
-        max-width: 1200px;
-        box-sizing: border-box;
-      }
-
-      main {
-        padding: 4rem 2rem;
-        width: 100%;
-        max-width: 900px;
-        box-sizing: border-box;
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 100px;
+        gap: 100px;
+        width: 1736px;
+        height: 1638.5px;
       }
 
       .category-card {
@@ -107,13 +79,18 @@
       }
 
       .modal-content {
-        background-color: var(--background-beige);
-        margin: 10% auto;
-        padding: 2rem;
-        border-radius: 15px;
-        width: 90%;
-        max-width: 800px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 100px;
+        gap: 100px;
         position: relative;
+        width: 2101px;
+        height: 4347.5px;
+        background: #444444;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
       }
 
       .close-button {
@@ -225,18 +202,22 @@
     </style>
   </head>
   <body>
+    <!-- 헤더 섹션: 페이지 제목 -->
     <header>
       <h1>K-Drama/Movie Places</h1>
     </header>
 
+    <!-- 메인 콘텐츠: 아티스트/장소 카드가 동적으로 삽입되는 영역 -->
     <main>
       <!-- Artist/Location cards will be dynamically inserted here -->
     </main>
 
+    <!-- 푸터: 저작권 정보 -->
     <footer>
       <p>&copy; 2025 Korea Travel Planner</p>
     </footer>
 
+    <!-- 장소 상세 정보 표시를 위한 모달 -->
     <div id="kdh-modal" class="modal">
       <div class="modal-content">
         <span class="close-button">&times;</span>
@@ -264,6 +245,7 @@
       </div>
     </div>
 
+    <!-- 동적 콘텐츠 로딩 및 상호작용을 위한 스크립트 -->
     <script type="module">
       let supabase;
       async function initSupabase() {

@@ -6,19 +6,13 @@
     <title>K-Pop - Korea Travel Planner</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-      @import url("https://webfontworld.github.io/kopus/KoPubBatang.css");
-
-      :root {
-        --primary-pink: #ff4d8d;
-        --primary-blue: #3a8dff;
-        --background-beige: #f5e6d3;
-        --text-dark: #1a1a1a;
-      }
-
       body {
-        font-family: "KoPubBatang", serif;
-        background-color: var(--background-beige);
-        color: var(--text-dark);
+        box-sizing: border-box;
+        background: #444444;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        font-family: "Noto Sans KR", sans-serif;
+        color: var(--text-light);
         margin: 0;
         padding: 0;
         display: flex;
@@ -27,36 +21,14 @@
         min-height: 100vh;
       }
 
-      header {
-        width: 100%;
-        padding: 2rem 0;
-        text-align: center;
-        background-color: var(--text-dark);
-        color: var(--background-beige);
-      }
-
-      header h1 {
-        margin: 0;
-        font-size: 2.5rem;
-        letter-spacing: 2px;
-      }
-
       main {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 2rem;
-        padding: 4rem 2rem;
-        width: 100%;
-        max-width: 1200px;
-        box-sizing: border-box;
-      }
-
-      main {
-        padding: 4rem 2rem;
-        width: 100%;
-        max-width: 900px;
-        box-sizing: border-box;
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 100px;
+        gap: 100px;
+        width: 1736px;
+        height: 1638.5px;
       }
 
       .category-card {
@@ -66,64 +38,98 @@
         justify-content: center;
         align-items: center;
         text-align: center;
-        font-size: 1.5rem;
-        font-weight: bold;
+        font-size: 1.8rem;
+        font-weight: 700;
         cursor: pointer;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border-radius: 15px;
-        color: var(--text-dark);
+        color: var(--text-light);
         text-decoration: none;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .category-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        transition: background 0.3s ease;
+      }
+
+      .category-card:hover::before {
+        background: rgba(0, 0, 0, 0.7);
+      }
+
+      .category-card div {
+        position: relative;
+        z-index: 1;
       }
 
       .card-wrapper {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.5rem;
+        gap: 1rem;
       }
 
       .card-label {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: var(--text-dark);
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-light);
         text-align: center;
       }
 
       .category-card:hover {
         transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px var(--primary-pink);
       }
 
       .modal {
         display: none;
         position: fixed;
-        z-index: 1;
+        z-index: 1000;
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
         overflow: auto;
-        background-color: rgba(0, 0, 0, 0.6);
+        background-color: rgba(0, 0, 0, 0.8);
       }
 
       .modal-content {
-        background-color: var(--background-beige);
-        margin: 10% auto;
-        padding: 2rem;
-        border-radius: 15px;
-        width: 90%;
-        max-width: 800px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 100px;
+        gap: 100px;
         position: relative;
+        width: 2101px;
+        height: 4347.5px;
+        background: #444444;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
       }
 
       .close-button {
-        color: var(--text-dark);
+        color: var(--text-light);
         position: absolute;
         top: 1rem;
         right: 1.5rem;
-        font-size: 2rem;
+        font-size: 2.5rem;
         font-weight: bold;
         cursor: pointer;
+        transition: color 0.3s ease;
+      }
+
+      .close-button:hover {
+        color: var(--primary-pink);
       }
 
       .slideshow-container {
@@ -155,7 +161,7 @@
         transition: 0.6s ease;
         border-radius: 0 3px 3px 0;
         user-select: none;
-        background-color: rgba(0, 0, 0, 0.3);
+        background-color: rgba(0, 0, 0, 0.5);
       }
 
       .next {
@@ -165,7 +171,7 @@
 
       .prev:hover,
       .next:hover {
-        background-color: rgba(0, 0, 0, 0.8);
+        background-color: var(--primary-pink);
       }
 
       .dot {
@@ -173,7 +179,7 @@
         height: 15px;
         width: 15px;
         margin: 0 2px;
-        background-color: #bbb;
+        background-color: #717171;
         border-radius: 50%;
         display: inline-block;
         transition: background-color 0.6s ease;
@@ -181,31 +187,34 @@
 
       .active,
       .dot:hover {
-        background-color: #717171;
+        background-color: var(--primary-pink);
       }
 
       footer {
         margin-top: auto;
         width: 100%;
-        padding: 1rem 0;
+        padding: 1.5rem 0;
         text-align: center;
-        background-color: var(--text-dark);
-        color: var(--background-beige);
+        background-color: var(--card-dark);
+        color: var(--text-light);
+        border-top: 2px solid var(--primary-pink);
       }
 
       .back-link {
         display: inline-block;
         margin-top: 2rem;
-        padding: 0.5rem 1rem; /* This might be redundant, check usage */
+        padding: 0.8rem 1.5rem;
         background-color: var(--primary-blue);
-        color: var(--background-beige);
+        color: var(--text-light);
         text-decoration: none;
-        border-radius: 5px;
-        transition: background-color 0.3s;
+        border-radius: 8px;
+        transition: background-color 0.3s, transform 0.3s;
+        font-weight: 700;
       }
 
       .back-link:hover {
         background-color: #2a78e8;
+        transform: translateY(-3px);
       }
 
       /* Fading animation */
@@ -225,18 +234,22 @@
     </style>
   </head>
   <body>
+    <!-- 헤더 섹션: 페이지 제목 -->
     <header>
       <h1>K-Pop Places</h1>
     </header>
 
+    <!-- 메인 콘텐츠: 아티스트/장소 카드가 동적으로 삽입되는 영역 -->
     <main>
       <!-- Artist/Location cards will be dynamically inserted here -->
     </main>
 
+    <!-- 푸터: 저작권 정보 -->
     <footer>
       <p>&copy; 2025 Korea Travel Planner</p>
     </footer>
 
+    <!-- 장소 상세 정보 표시를 위한 모달 -->
     <div id="bts-modal" class="modal">
       <div class="modal-content">
         <span class="close-button">&times;</span>
@@ -261,6 +274,7 @@
       </div>
     </div>
 
+    <!-- 동적 콘텐츠 로딩 및 상호작용을 위한 스크립트 -->
     <script type="module">
       let supabase;
       async function initSupabase() {
