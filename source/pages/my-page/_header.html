@@ -1,8 +1,10 @@
-<div class="logo">KSpot</div>
+<div class="logo"><a href="/" style="text-decoration: none; color: inherit;">KSpot</a></div>
 <div class="header-actions">
   <select class="header-btn">
     <option>한국</option>
   </select>
-  <button class="header-btn">로그인</button>
-  <button class="header-btn create-btn">회원가입</button>
+  <button class="header-btn" id="loginBtn">로그인</button>
+  <button class="header-btn" id="logoutBtn" style="display: none;">로그아웃</button>
+  <span id="greeting" style="display: none; margin-right: 10px;">안녕하세요, <span id="nickname"></span>님</span>
 </div>
+<script type="module" src="/auth/auth.js"></script>
