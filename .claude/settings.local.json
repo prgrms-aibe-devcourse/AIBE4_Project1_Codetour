@@ -5,7 +5,8 @@
       "Bash(node server_map.js)",
       "Bash(taskkill:*)",
       "Bash(tasklist)",
-      "Bash(findstr \"node\")"
+      "Bash(findstr \"node\")",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

@@ -533,10 +533,7 @@
         <!-- 저장된 코스 -->
         <div class="section saved-section">
           <h3 data-i18n="section.savedCourses">💎 저장된 코스</h3>
-          <select id="userSelect">
-            <option value="" data-i18n="option.selectUser">사용자 선택...</option>
-          </select>
-          <button id="loadCoursesBtn" data-i18n="btn.load">불러오기</button>
+          <button id="loadCoursesBtn" data-i18n="btn.load">내 코스 불러오기</button>
           <div id="savedCourses"></div>
         </div>
       </div>
@@ -547,6 +544,52 @@
     </div>
 
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
+    <script type="module">
+      // Supabase Auth 연동
+      import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+      const supabase = createClient(
+        "https://fmcxkqfccuevcaqkzsex.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtY3hrcWZjY3VldmNhcWt6c2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNzk3MzcsImV4cCI6MjA3NDk1NTczN30.IZ47Juv0ypiX4sWTb1vo54hcMI0yBQol1VhUm37vs7M"
+      );
+
+      window.supabase = supabase;
+      window.currentUser = null;
+
+      // 로그인 상태 확인
+      async function checkAuth() {
+        const { data: { user } } = await supabase.auth.getUser();
+        window.currentUser = user;
+
+        // 로그인 버튼 표시/숨김
+        const headerRight = document.querySelector('.header-right');
+        if (user) {
+          // 로그인된 상태 - 사용자 정보 표시
+          const userInfo = document.createElement('span');
+          userInfo.style.cssText = 'color: white; margin-right: 10px; font-weight: 600;';
+          userInfo.textContent = `${user.email}`;
+          headerRight.insertBefore(userInfo, headerRight.firstChild);
+
+          const logoutBtn = document.createElement('button');
+          logoutBtn.className = 'home-btn';
+          logoutBtn.textContent = '로그아웃';
+          logoutBtn.onclick = async () => {
+            await supabase.auth.signOut();
+            window.location.reload();
+          };
+          headerRight.appendChild(logoutBtn);
+        } else {
+          // 로그인 안 된 상태 - 로그인 버튼 표시
+          const loginBtn = document.createElement('a');
+          loginBtn.href = '/auth';
+          loginBtn.className = 'home-btn';
+          loginBtn.textContent = '로그인';
+          headerRight.insertBefore(loginBtn, headerRight.firstChild);
+        }
+      }
+
+      checkAuth();
+    </script>
 
     <script>
       // 다국어 번역 데이터
@@ -692,35 +735,6 @@
 
       let currentSearchMode = "place";
       let contentsData = [];
-      let profilesData = [];
-
-      // 프로필 목록 로드
-      async function loadProfiles() {
-        try {
-          const res = await fetch("/api/profiles");
-          profilesData = await res.json();
-
-          const select = document.getElementById("userSelect");
-          // 기존 옵션 유지 (사용자 선택...)
-          select.innerHTML = '<option value="">' + t('option.selectUser') + '</option>';
-
-          profilesData.forEach((profile) => {
-            const option = document.createElement("option");
-            option.value = profile.id;
-            option.textContent = profile.display_name || `User ${profile.id.substring(0, 8)}`;
-            select.appendChild(option);
-          });
-
-          // 첫 번째 프로필을 기본 선택
-          if (profilesData.length > 0) {
-            select.value = profilesData[0].id;
-          }
-
-          console.log(`👥 ${profilesData.length}명의 프로필 로드 완료`);
-        } catch (err) {
-          console.error("프로필 로드 실패:", err);
-        }
-      }
 
       // 검색 모드 전환
       window.switchSearchMode = function (mode) {
@@ -779,9 +793,6 @@
           center: new kakao.maps.LatLng(37.5665, 126.978),
           level: 5,
         });
-
-        // 프로필 로드
-        loadProfiles();
 
         let markers = [];
         let myCourse = [];
@@ -1060,9 +1071,18 @@
 
         // 코스 저장
         document.getElementById("saveBtn").onclick = async function () {
+          // 로그인 체크
+          if (!window.currentUser) {
+            if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+              window.location.href = '/auth';
+            }
+            return;
+          }
+
           if (myCourse.length === 0)
             return alert(t('alert.addPlaces'));
-          const userId = document.getElementById("userSelect").value;
+
+          const userId = window.currentUser.id; // 로그인한 사용자 ID 사용
           const name = prompt(t('alert.courseNamePrompt'), t('alert.courseNameDefault'));
           if (!name) return;
 
@@ -1088,10 +1108,16 @@
 
         // 저장된 코스 불러오기
         document.getElementById("loadCoursesBtn").onclick = async function () {
-          const userId = document.getElementById("userSelect").value;
-          if (!userId) {
-            return alert(t('alert.selectUser'));
+          // 로그인 체크
+          if (!window.currentUser) {
+            if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+              window.location.href = '/auth';
+            }
+            return;
           }
+
+          const userId = window.currentUser.id; // 로그인한 사용자 ID 사용
+
           try {
             const res = await fetch(`/api/course/${userId}`);
             const courses = await res.json();

@@ -20,6 +20,10 @@ const preferencePath = path.join(
   __dirname,
   "../source/pages/preference/preference.html"
 );
+const authPath = path.join(
+  __dirname,
+  "../source/pages/supabase_auth_profile/auth-index.html"
+);
 
 console.log("Index 경로:", indexPath);
 console.log("Index 파일 존재:", fs.existsSync(indexPath));
@@ -51,6 +55,10 @@ app.use(
 app.use(
   "/aiCourse",
   express.static(path.join(__dirname, "../source/pages/aiCourse"))
+);
+app.use(
+  "/auth",
+  express.static(path.join(__dirname, "../source/pages/supabase_auth_profile"))
 );
 // Bootstrap과 jQuery를 루트 경로에서 제공
 app.use("/bootstrap", express.static(path.join(__dirname, "../bootstrap")));
@@ -86,6 +94,14 @@ app.get("/preference", (req, res) => {
     return res.status(404).send("preference.html을 찾을 수 없습니다");
   }
   res.sendFile(preferencePath);
+});
+
+// 로그인 페이지
+app.get("/auth", (req, res) => {
+  if (!fs.existsSync(authPath)) {
+    return res.status(404).send("auth-index.html을 찾을 수 없습니다");
+  }
+  res.sendFile(authPath);
 });
 
 // CSP 헤더 설정
