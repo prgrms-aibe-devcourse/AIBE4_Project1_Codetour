@@ -115,20 +115,20 @@ const UserManager = (function () {
 
 const userManager = UserManager.getInstance();
 
-//테스트용
-function testCode() {
-  if (!userManager.getIsLoggedIn() && !userManager.getIsInitialized()) {
-    console.log("테스트 코드 실행");
-    const userData = {
-      id: "3a1e2ae0-71e6-4618-a2bc-ed5ccbdc3e74",
-      email: "user@example.com",
-      nickname: "1013test",
-      profile_image_url: "https://example.com/profile.jpg",
-      bio: null,
-    };
-    userManager.setLoggedInUser(userData);
-    userManager.setIsInitialized(true);
-  }
-}
+// //테스트용
+// function testCode() {
+//   if (!userManager.getIsLoggedIn() && !userManager.getIsInitialized()) {
+//     console.log("테스트 코드 실행");
+//     const userData = {
+//       id: "3a1e2ae0-71e6-4618-a2bc-ed5ccbdc3e74",
+//       email: "user@example.com",
+//       nickname: "1013test",
+//       profile_image_url: "https://example.com/profile.jpg",
+//       bio: null,
+//     };
+//     userManager.setLoggedInUser(userData);
+//     userManager.setIsInitialized(true);
+//   }
+// }
 
-testCode();
+// testCode();
