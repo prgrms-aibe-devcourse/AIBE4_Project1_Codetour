@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title>K-콘텐츠 지도</title>
+    <link rel="stylesheet" href="../index/style.css" />
     <style>
       * {
         margin: 0;
@@ -16,7 +17,7 @@
         min-height: 100vh;
       }
 
-      header {
+      header:not(.header) {
         background: linear-gradient(135deg, #ff4d8d 0%, #3a8dff 100%);
         color: white;
         padding: 20px 30px;
@@ -66,11 +67,11 @@
         color: #ff4d8d;
       }
 
-      .lang-select {
-        background: rgba(255, 255, 255, 0.2);
+      header:not(.header) .lang-select {
+        background: rgba(255, 255, 255, 0.1);
         color: white;
         border: 2px solid white;
-        padding: 10px 15px;
+        padding: 10px 10px;
         border-radius: 8px;
         cursor: pointer;
         font-weight: 600;
@@ -78,13 +79,23 @@
         transition: all 0.3s ease;
       }
 
-      .lang-select:hover {
-        background: rgba(255, 255, 255, 0.3);
+      header:not(.header) .lang-select:hover {
+        background: rgba(255, 255, 255, 0.1);
       }
 
-      .lang-select option {
+      header:not(.header) .lang-select option {
         background: #ff4d8d;
         color: white;
+      }
+
+      .header .lang-select {
+        background: white !important;
+        color: #333 !important;
+      }
+
+      .header .lang-select option {
+        background: white !important;
+        color: #333 !important;
       }
 
       .container {
@@ -449,27 +460,113 @@
           max-width: 100%;
         }
       }
+     .header {
+        background: rgba(255, 255, 255, 0.95) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1000 !important;
+        padding: 0 !important;
+      }
+      
+      .header .container {
+        max-width: 1280px !important;
+        margin: 0 auto !important;
+        padding: 0 2rem !important;
+        display: block !important;
+      }
+      
+      .header-top {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 12px 0 !important;
+        border-bottom: 1px solid #eee !important;
+      }
+      
+      .header .nav {
+        display: flex !important;
+        justify-content: space-evenly !important;
+        align-items: center !important;
+        padding: 12px 0 !important;
+      }
+      
+      .header .nav-link {
+        text-decoration: none !important;
+        color: #2d3748 !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        padding: 8px 0 !important;
+        border-bottom: 3px solid transparent !important;
+      }
+      
+      .header .nav-link.active {
+        color: #E91E8C !important;
+        border-bottom-color: #E91E8C !important;
+      }
+      
+      .header .logo svg {
+        height: 45px !important;
+        width: 180px !important;
+      }
+      
+      .header #loginBtn {
+        background: #E91E8C !important;
+        color: white !important;
+        padding: 0 16px !important;
+        height: 40px !important;
+        border: none !important;
+        border-radius: 8px !important;
+      }
+
+      .header .home-btn {
+        display: none !important;
+      }
     </style>
   </head>
   <body>
-    <header>
-      <div class="header-content">
-        <div>
-          <h1 data-i18n="header.title">🇰🇷 K-콘텐츠 여행 지도</h1>
-          <p data-i18n="header.subtitle">
-            한류 콘텐츠와 함께하는 특별한 여행 코스를 만들어보세요
-          </p>
-        </div>
-        <div class="header-right">
-          <select class="lang-select" id="languageSelector">
-            <option value="ko">한국어</option>
-            <option value="en">English</option>
-          </select>
-          <a href="/" class="home-btn" data-i18n="btn.home">홈으로</a>
+  <header class="header">
+    <div class="container">
+      <div class="header-top">
+        <a href="/source/pages/index/index.html" class="logo">
+          <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color: #e91e8c; stop-opacity: 1" />
+                <stop offset="100%" style="stop-color: #ff6b9d; stop-opacity: 1" />
+              </linearGradient>
+              <style>
+                .logo-text { font-family: "Pretendard", sans-serif; font-weight: 800; font-size: 40px; fill: url(#logoGradient); letter-spacing: -1px; }
+              </style>
+            </defs>
+            <text x="0" y="37" class="logo-text">K</text>
+            <text x="30" y="37" class="logo-text">-</text>
+            <text x="44" y="37" class="logo-text">S</text>
+            <text x="70" y="37" class="logo-text">P</text>
+            <g transform="translate(95.5, 4) scale(0.93)">
+              <path d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z" fill="url(#logoGradient)"/>
+              <circle cx="18" cy="13" r="8" fill="white"/>
+            </g>
+            <text x="128" y="37" class="logo-text">T</text>
+          </svg>
+        </a>
+        <div class="header-right" style="display: flex; gap: 4px; align-items: center">
+          <select class="lang-select"><option value="ko">한국어</option><option value="en">English</option></select>
+          <button class="btn-search">🔍</button>
+          <button id="loginBtn">로그인</button>
         </div>
       </div>
-    </header>
 
+        <nav class="nav">
+          <a href="/source/pages/index/index.html" class="nav-link">홈</a>
+          <a href="#content" class="nav-link">콘텐츠별 여행지</a>
+          <a href="/source/pages/aiCourse/aiSchedule.html" class="nav-link">AI 코스 추천</a>
+          <a href="/source/pages/map/map_page.html" class="nav-link active">K-콘텐츠 여행 지도</a>
+          <a href="#routes" class="nav-link">인기 여행 루트</a>
+          <a href="/source/pages/my-page/my-page.html" class="nav-link">마이페이지</a>
+        </nav>
+      </div>
+    </header>
     <div class="container">
       <div class="left-panel">
         <!-- 장소 검색 -->

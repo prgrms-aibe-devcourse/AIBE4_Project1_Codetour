@@ -28,6 +28,73 @@
       rel="stylesheet"
       href="https://unpkg.com/swiper@7/swiper-bundle.min.css"
     />
+    <link rel="stylesheet" href="../index/style.css" />
+    <style>
+      .header {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1000 !important;
+        padding: 0 !important;
+      }
+      
+      .header .container {
+        max-width: 1280px !important;
+        margin: 0 auto !important;
+        padding: 0 2rem !important;
+        display: block !important;
+      }
+      
+      .header-top {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 12px 0 !important;
+        border-bottom: 1px solid #eee !important;
+      }
+      
+      .header .nav {
+        display: flex !important;
+        justify-content: space-evenly !important;
+        align-items: center !important;
+        padding: 12px 0 !important;
+      }
+      
+      .header .nav-link {
+        text-decoration: none !important;
+        color: #2d3748 !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        padding: 8px 0 !important;
+        border-bottom: 3px solid transparent !important;
+      }
+      
+      .header .nav-link:hover,
+      .header .nav-link.active {
+        color: #E91E8C !important;
+        border-bottom-color: #E91E8C !important;
+      }
+      
+      .header-right {
+        display: flex !important;
+        gap: 12px !important;
+        align-items: center !important;
+      }
+      
+      .lang-select, .btn-search, #loginBtn, #logoutBtn {
+        height: 40px !important;
+        border-radius: 8px !important;
+      }
+      
+      #loginBtn {
+        background: #E91E8C !important;
+        color: white !important;
+        padding: 0 16px !important;
+        border: none !important;
+      }
+    </style>
   </head>
 
   <body>
@@ -42,66 +109,129 @@
       </div>
     </div>
 
-    <div class="sub-header">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-8 col-md-8">
-            <ul class="info">
-              <li><i class="fa fa-envelope"></i> yeong0586@gmail.com</li>
-              <li>
-                <i class="fa fa-map"></i> 서울특별시 서초구 반포대로 45, 4층
+   <!-- 헤더 -->
+    <header class="header">
+    <div class="container">
+        <div class="header-top">
+          <a href="/source/pages/index/index.html" class="logo">
+            <svg
+              width="200"
+              height="50"
+              viewBox="0 0 200 50"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient
+                  id="logoGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
+                  <stop
+                    offset="0%"
+                    style="stop-color: #e91e8c; stop-opacity: 1"
+                  />
+                  <stop
+                    offset="100%"
+                    style="stop-color: #ff6b9d; stop-opacity: 1"
+                  />
+                </linearGradient>
+                <style>
+                  .logo-text {
+                    font-family: "Pretendard", sans-serif;
+                    font-weight: 800;
+                    font-size: 40px;
+                    fill: url(#logoGradient);
+                    letter-spacing: -1px;
+                  }
+                </style>
+              </defs>
+              <text x="0" y="37" class="logo-text">K</text>
+              <text x="30" y="37" class="logo-text">-</text>
+              <text x="44" y="37" class="logo-text">S</text>
+              <text x="70" y="37" class="logo-text">P</text>
+              <g class="logo-pin" transform="translate(95.5, 4) scale(0.93)">
+                <path d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z" 
+                      fill="url(#logoGradient)"/>
+                <circle cx="18" cy="13" r="8" fill="white"/>
+              </g>
+              <text x="128" y="37" class="logo-text">T</text>
+            </svg>
+          </a>
 
-              </li>
-            </ul>
-          </div>
-          <div class="col-lg-4 col-md-4">
-            <ul class="social-links">
-              <li>
-                <a href="#"><i class="fab fa-facebook"></i></a>
-              </li>
-              <li>
-                <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
-              </li>
-              <li>
-                <a href="#"><i class="fab fa-linkedin"></i></a>
-              </li>
-              <li>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-              </li>
-            </ul>
+          <div class="header-right" style="display: flex; gap: 8px; align-items: center">
+            <select class="lang-select" id="languageSelector">
+              <option value="ko">한국어</option>
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+            </select>
+
+            <button class="btn-search" id="searchToggle">🔍</button>
+
+            <span id="greeting" class="hide"
+              >안녕하세요, <span id="nickname"></span>님</span
+            >
+            <button id="loginBtn">로그인</button>
+            <button id="logoutBtn" class="hide">로그아웃</button>
           </div>
         </div>
+
+        <nav class="nav">
+          <a href="/source/pages/index/index.html"
+            class="nav-link"
+            data-i18n="nav.home"
+            >홈</a>
+          <a href="#content" class="nav-link" data-i18n="nav.content"
+            >콘텐츠별 여행지</a>
+          
+          <a href="/source/pages/aiCourse/aiSchedule.html"
+            class="nav-link active"
+            data-i18n="nav.ai"
+            >AI 코스 추천</a>
+          
+          <a href="/source/pages/map/map_page.html"
+            class="nav-link"
+            data-i18n="nav.region"
+            >K-콘텐츠 여행 지도</a>
+          <a href="#routes" class="nav-link" data-i18n="nav.routes"
+            >인기 여행 루트</a>
+          
+          <a href="/source/pages/my-page/my-page.html"
+            class="nav-link"
+            data-i18n="nav.mypage"
+            >마이페이지</a>
+        </nav>
       </div>
-    </div>
 
-    <!--  Header 파트 움직임  -->
-    <header class="header-area header-sticky">
-      <div class="container">
-        <div class="row">
-          <div class="col-12">
-            <nav class="main-nav">
-              <!-- 로고 -->
-              <a href="indexBae.html" class="logo">
-                <h1>KSPOT</h1>
-              </a>
-              <!-- 로고 끝  -->
-              <!--  메뉴 시작  -->
-              <ul class="nav">
-                <li><a href="aiSchedule.html">AI일정추천</a></li>
-                <li>
-                  <a href="#"><i class="fa fa-calendar"></i>빠른 일정짜기</a>
-                </li>
-              </ul>
-              <a class="menu-trigger">
-                <span>Menu</span>
-              </a>
-              <!--  메뉴 끝  -->
-            </nav>
-          </div>
+      <div class="header-search-wrap" id="headerSearchWrap">
+        <div class="header-search-inner">
+          <input
+            type="text"
+            class="header-search-input"
+            id="searchInput"
+            placeholder="드라마, 영화, 장소를 검색하세요..."
+            autocomplete="off"
+          />
+          <button class="header-search-btn" id="searchDo">검색</button>
+          <button class="header-search-close" id="searchClose">닫기</button>
         </div>
+
+        <div class="header-content-suggest">
+          <div
+            id="contentSuggestTitle"
+            class="content-suggest-title"
+            style="display: none"
+          >
+            추천 콘텐츠
+          </div>
+          <div id="contentSuggestRail" class="card-carousel"></div>
+        </div>
+
+        <div class="header-search-results" id="searchResults"></div>
       </div>
     </header>
-    <!--  Header 이동거리 End  -->
+
 
 
     <div class="page-heading header-text">
