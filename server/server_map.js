@@ -20,10 +20,7 @@ const preferencePath = path.join(
   __dirname,
   "../source/pages/preference/preference.html"
 );
-const authPath = path.join(
-  __dirname,
-  "../source/pages/supabase_auth_profile/auth-index.html"
-);
+const authPath = path.join(__dirname, "../public/auth/login-demo.html");
 
 console.log("Index 경로:", indexPath);
 console.log("Index 파일 존재:", fs.existsSync(indexPath));
@@ -42,6 +39,15 @@ setSupabase(supabase);
 app.use(cors());
 app.use(express.json());
 
+// CSP 헤더 설정을 먼저
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://esm.sh https://dapi.kakao.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; connect-src 'self' https: wss:; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:;"
+  );
+  next();
+});
+
 // 정적 파일 제공
 app.use(express.static(path.join(__dirname, "../public")));
 app.use(
@@ -56,10 +62,7 @@ app.use(
   "/aiCourse",
   express.static(path.join(__dirname, "../source/pages/aiCourse"))
 );
-app.use(
-  "/auth",
-  express.static(path.join(__dirname, "../source/pages/supabase_auth_profile"))
-);
+app.use("/auth", express.static(path.join(__dirname, "../public/auth")));
 // Bootstrap과 jQuery를 루트 경로에서 제공
 app.use("/bootstrap", express.static(path.join(__dirname, "../bootstrap")));
 app.use("/jquery", express.static(path.join(__dirname, "../jquery")));
@@ -102,15 +105,6 @@ app.get("/auth", (req, res) => {
     return res.status(404).send("auth-index.html을 찾을 수 없습니다");
   }
   res.sendFile(authPath);
-});
-
-// CSP 헤더 설정
-app.use((req, res, next) => {
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https:"
-  );
-  next();
 });
 
 // API 라우트 연결
