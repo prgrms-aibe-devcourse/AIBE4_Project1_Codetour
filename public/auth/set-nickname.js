@@ -7,8 +7,16 @@ function basePath() {
   return p;
 }
 function urlTo(p) {
-  return `${location.origin}${basePath()}${p}`;
+  if (!p) return `${location.origin}${basePath()}`;
+  if (/^https?:\/\//i.test(p)) return p;                 
+  if (p.startsWith("/")) return `${location.origin}${p}`; 
+  return `${location.origin}${basePath()}${p}`;         
 }
+
+const PATHS = window.AUTH_PATHS ?? {
+  INDEX: "index.html",
+  SET_NICK: "set-nickname.html",
+};
 
 const $ = (s) => document.querySelector(s);
 const $name = $("#nickname");
