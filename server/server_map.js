@@ -43,7 +43,7 @@ app.use(express.json());
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://esm.sh https://dapi.kakao.com https://t1.daumcdn.net http://t1.daumcdn.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; connect-src 'self' https: wss:; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: http:;"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://esm.sh https://dapi.kakao.com https://t1.daumcdn.net http://t1.daumcdn.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; connect-src 'self' http://localhost:3000 https: wss:; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: http:;"
   );
   next();
 });
