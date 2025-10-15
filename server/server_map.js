@@ -6,6 +6,7 @@ const axios = require("axios");
 const { createClient } = require("@supabase/supabase-js");
 const path = require("path");
 const fs = require("fs");
+const { router: mapRouter, setSupabase } = require("./routes/map");
 
 const app = express();
 app.disable("x-powered-by");
@@ -16,6 +17,9 @@ const PORT = process.env.PORT || 3000;
 const indexPath = path.join(__dirname, "../source/pages/index/index.html");
 const mapPath = path.join(__dirname, "../source/pages/map/map_page.html");
 const myPagePath = path.join(__dirname, "../source/pages/my-page/my-page.html");
+const authPath = path.join(__dirname, "../public/auth/login-demo.html");
+const aiCoursePath = path.join(__dirname, "../source/pages/aiCourse/aiSchedule.html");
+const preferencePath = path.join(__dirname, "../source/pages/preference/preference.html");
 
 console.log("Index 경로:", indexPath, "존재:", fs.existsSync(indexPath));
 console.log("Map   경로:", mapPath, "존재:", fs.existsSync(mapPath));
@@ -25,6 +29,9 @@ const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_KEY
 );
+
+// Map 라우터에 supabase 클라이언트 주입
+setSupabase(supabase);
 
 // ---------- 공통 미들웨어 ----------
 app.use(cors());
@@ -194,19 +201,31 @@ app.get("/api/contents", async (_req, res) => {
   }
 });
 
+// aiCourse 페이지
+app.get("/aiCourse", (_req, res) => {
+  if (!fs.existsSync(aiCoursePath))
+    return res.status(404).send("aiSchedule.html을 찾을 수 없습니다");
+  res.sendFile(aiCoursePath);
+});
+
+// 선호도 조사 페이지
+app.get("/preference", (_req, res) => {
+  if (!fs.existsSync(preferencePath))
+    return res.status(404).send("preference.html을 찾을 수 없습니다");
+  res.sendFile(preferencePath);
+});
+
 // 로그인 페이지
-app.get("/auth", (req, res) => {
-  if (!fs.existsSync(authPath)) {
-    return res.status(404).send("auth-index.html을 찾을 수 없습니다");
-  }
+app.get("/auth", (_req, res) => {
+  if (!fs.existsSync(authPath))
+    return res.status(404).send("login-demo.html을 찾을 수 없습니다");
   res.sendFile(authPath);
 });
 
 // 마이페이지
-app.get("/my-page", (req, res) => {
-  if (!fs.existsSync(myPagePath)) {
+app.get("/my-page", (_req, res) => {
+  if (!fs.existsSync(myPagePath))
     return res.status(404).send("my-page.html을 찾을 수 없습니다");
-  }
   res.sendFile(myPagePath);
 });
 
