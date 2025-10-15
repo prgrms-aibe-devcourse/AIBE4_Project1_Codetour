@@ -1,126 +1,194 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <title>로그인</title>
-  <link rel="stylesheet" href="/style.css">
+  <head>
+    <meta charset="UTF-8" />
+    <title>로그인</title>
+    <link rel="stylesheet" href="/style.css" />
 
-  <style>
-    .auth-page {
-      min-height: 100vh;
-      background: #f1f6f4; /* 은은한 초록톤 배경 */
-      display: grid;
-      place-items: center;
-      padding: 40px 16px;
-      font-family: 'Pretendard', system-ui, -apple-system, sans-serif;
-    }
-    .auth-card {
-      width: 100%;
-      max-width: 560px;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.08);
-      padding: 32px 28px;
-    }
-    .brand {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
-      justify-content: center;
-    }
-    .brand-badge {
-      width: 44px; height: 44px; border-radius: 12px;
-      display: grid; place-items: center; color: #0f5132; background: #e6f0ec;
-      font-size: 22px; font-weight: 800;
-    }
-    .brand-title {
-      font-weight: 800; font-size: 26px; color: #123b2a; letter-spacing: -.4px;
-    }
-    .brand-desc {
-      text-align: center; color: #546a61; margin-bottom: 24px; font-size: 14px;
-    }
-    .tab {
-      display: grid; grid-template-columns: 1fr 1fr;
-      background: #f3f6f5; border-radius: 999px; overflow: hidden; margin: 8px auto 24px; max-width: 360px;
-    }
-    .tab button {
-      border: none; padding: 10px 0; cursor: default; background: transparent; font-weight: 700; color: #5c6f67;
-    }
-    .tab button.active { background: #dfe9e6; color: #0f5132; }
-    .field {
-      display: flex; flex-direction: column; gap: 8px; margin: 16px 0 0;
-    }
-    .divider {
-      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px;
-      color: #8aa298; font-size: 12px; margin: 16px 0;
-    }
-    .divider::before, .divider::after { content: ""; height: 1px; background: #e3ece8; }
-    .btn {
-      width: 100%; height: 48px; border-radius: 12px; border: 0; cursor: pointer;
-      font-weight: 700;
-    }
-    .btn-google {
-      background: #fff; border: 1px solid #e6e6e6; display: flex; align-items: center; justify-content: center; gap: 10px;
-    }
-    .btn-google:hover { background: #f8f8f8; }
-    .btn-logout {
-      background: #0f5132; color: #fff;
-    }
-    .meta-top {
-      display:flex; justify-content:flex-end; margin-bottom: 12px;
-    }
-    .greet { color:#123b2a; font-weight: 600; }
-    .hide { display: none; }
-    .helper {
-      text-align: right; margin-top: 8px; font-size: 13px; color:#6a8077;
-    }
-    .google-icon {
-      width: 18px; height: 18px; display:inline-block;
-      background: url('https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg') center/contain no-repeat;
-    }
-  </style>
-</head>
-<body>
-  <main class="auth-page">
-    <section class="auth-card">
+    <style>
+      .auth-page {
+        min-height: 100vh;
+        background: #f1f6f4; /* 은은한 초록톤 배경 */
+        display: grid;
+        place-items: center;
+        padding: 40px 16px;
+        font-family: "Pretendard", system-ui, -apple-system, sans-serif;
+      }
+      .auth-card {
+        width: 100%;
+        max-width: 560px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        padding: 32px 28px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        justify-content: center;
+      }
+      .brand-badge {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        color: #0f5132;
+        background: #e6f0ec;
+        font-size: 22px;
+        font-weight: 800;
+      }
+      .brand-title {
+        font-weight: 800;
+        font-size: 26px;
+        color: #123b2a;
+        letter-spacing: -0.4px;
+      }
+      .brand-desc {
+        text-align: center;
+        color: #546a61;
+        margin-bottom: 24px;
+        font-size: 14px;
+      }
+      .tab {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: #f3f6f5;
+        border-radius: 999px;
+        overflow: hidden;
+        margin: 8px auto 24px;
+        max-width: 360px;
+      }
+      .tab button {
+        border: none;
+        padding: 10px 0;
+        cursor: default;
+        background: transparent;
+        font-weight: 700;
+        color: #5c6f67;
+      }
+      .tab button.active {
+        background: #dfe9e6;
+        color: #0f5132;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin: 16px 0 0;
+      }
+      .divider {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 10px;
+        color: #8aa298;
+        font-size: 12px;
+        margin: 16px 0;
+      }
+      .divider::before,
+      .divider::after {
+        content: "";
+        height: 1px;
+        background: #e3ece8;
+      }
+      .btn {
+        width: 100%;
+        height: 48px;
+        border-radius: 12px;
+        border: 0;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .btn-google {
+        background: #fff;
+        border: 1px solid #e6e6e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+      .btn-google:hover {
+        background: #f8f8f8;
+      }
+      .btn-logout {
+        background: #0f5132;
+        color: #fff;
+      }
+      .meta-top {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 12px;
+      }
+      .greet {
+        color: #123b2a;
+        font-weight: 600;
+      }
+      .hide {
+        display: none;
+      }
+      .helper {
+        text-align: right;
+        margin-top: 8px;
+        font-size: 13px;
+        color: #6a8077;
+      }
+      .google-icon {
+        width: 18px;
+        height: 18px;
+        display: inline-block;
+        background: url("https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg")
+          center/contain no-repeat;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="auth-page">
+      <section class="auth-card">
+        <div class="brand">
+          <div class="brand-badge">✈️</div>
+          <div class="brand-title">K-SPOT</div>
+        </div>
+        <p class="brand-desc">한국 드라마와 영화 속 여행지를 찾아보세요</p>
 
-      <div class="brand">
-        <div class="brand-badge">✈️</div>
-        <div class="brand-title">K-SPOT</div>
-      </div>
-      <p class="brand-desc">한국 드라마와 영화 속 여행지를 찾아보세요</p>
+        <div class="meta-top">
+          <button id="logoutBtn" class="btn btn-logout hide">로그아웃</button>
+        </div>
 
-      <div class="meta-top">
-        <button id="logoutBtn" class="btn btn-logout hide">로그아웃</button>
-      </div>
+        <div style="text-align: center; margin-bottom: 8px">
+          <span id="greeting" class="greet hide"
+            >안녕하세요, <span id="nickname"></span>님</span
+          >
+        </div>
 
-      <div style="text-align:center; margin-bottom: 8px;">
-        <span id="greeting" class="greet hide">안녕하세요, <span id="nickname"></span>님</span>
-      </div>
+        <div class="field">
+          <button id="loginBtn" class="btn btn-google">
+            <span class="google-icon" aria-hidden="true"></span>
+            구글로 로그인
+          </button>
+        </div>
 
-      <div class="field">
-        <button id="loginBtn" class="btn btn-google">
-          <span class="google-icon" aria-hidden="true"></span>
-          구글로 로그인
-        </button>
-      </div>
+        <div class="divider">또는</div>
 
-      <div class="divider">또는</div>
+        <div class="helper">
+          <a
+            href="./set-nickname.html"
+            style="color: #2f6e57; text-decoration: none"
+            >닉네임 설정/변경</a
+          >
+        </div>
+      </section>
+    </main>
 
-      <div class="helper">
-        <a href="./set-nickname.html" style="color:#2f6e57; text-decoration:none;">닉네임 설정/변경</a>
-      </div>
-    </section>
-  </main>
+    <script>
+      window.AUTH_PATHS = {
+        INDEX: "/",
+        SET_NICK: "/auth/set-nickname.html",
+      };
+    </script>
 
-
-  <script src="/libs/user-manager.js"></script>
-
-  <script>
-  window.AUTH_PATHS = {
-    INDEX: "/",
-    SET_NICK: "/auth/set-nickname.html"
-  };
-  </script>
- 
-  <script type="module" src="./auth.js"></script>
-</body>
+    <script type="module" src="./auth.js"></script>
+  </body>
 </html>

@@ -1,10 +1,10 @@
 {
-  "name": "251001_phase1",
+  "name": "aibe4_project1_codetour",
   "version": "1.0.0",
   "description": "1.",
-  "main": "index.js",
+  "main": "server/server_map.js",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon server/server_map.js"
   },
   "repository": {
     "type": "git",

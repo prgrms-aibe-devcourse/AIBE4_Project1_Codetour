@@ -3,18 +3,101 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kspot-여행 선호도 설정</title>
+    <title>K-Spot - 여행 선호도 설정</title>
     <link rel="stylesheet" href="my-page.css" />
+    <script src="/libs/config.js"></script>
     <script src="/libs/include.js" defer></script>
+    <style>
+      :root {
+        --primary-gradient: linear-gradient(135deg, #ff6b9d 0%, #c06fef 100%);
+        --dark: #1a1a2e;
+        --gray: #4a4a5e;
+        --light-gray: #f8f9fa;
+        --white: #ffffff;
+        --border-radius: 20px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* Rely on my-page.css for base body styles */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      }
+
+      /* Add back-btn style for completeness, assuming it might not be in my-page.css */
+      .back-btn {
+        background: none;
+        border: none;
+        color: #666;
+        font-size: 14px;
+        cursor: pointer;
+        padding: 8px 0;
+        margin-bottom: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .preference-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-bottom: 3rem;
+        margin-top: 2rem; /* Spacing from header */
+      }
+
+      .preference-item {
+        padding: 1rem 1.5rem;
+        background: var(--light-gray);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        color: var(--dark);
+        border: 2px solid transparent;
+        text-align: center;
+      }
+
+      .preference-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      }
+
+      .preference-item.selected {
+        background: var(--primary-gradient);
+        color: var(--white);
+        font-weight: 600;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      }
+
+      .save-btn {
+        padding: 1rem 3rem;
+        background-color: #ff6b9d; /* Changed from gradient to solid color */
+        color: var(--white);
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        display: block;
+        margin: 2rem auto 0;
+      }
+
+      .save-btn:hover {
+        background-color: #e91e8c; /* Darker pink for hover */
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      }
+    </style>
   </head>
   <body>
     <header>
       <!-- Header content will be loaded by include.js -->
     </header>
 
-    <nav>
-      <!-- Navigation content will be loaded by include.js -->
-    </nav>
     <main>
       <div class="page-header">
         <button class="back-btn" onclick="location.href='my-page.html'">
@@ -25,6 +108,108 @@
           여행 선호도를 설정해 맞춤 컨텐츠를 추천받아보세요.
         </p>
       </div>
+
+      <div id="preferences-container">
+        <div class="preference-grid" id="preference-grid"></div>
+        <button class="save-btn" id="save-preferences">저장하기</button>
+      </div>
     </main>
+
+    <script type="module">
+      import { getUserId, initAuthListener } from "/libs/user-manager.js";
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        initAuthListener();
+        const userId = getUserId();
+
+        if (!userId) {
+          alert("로그인이 필요합니다.");
+          window.location.href = "/auth";
+          return;
+        }
+
+        const categories = [
+          "movie", "kpop", "drama", "variety", "history",
+          "romance", "action", "thriller",
+        ];
+        const grid = document.getElementById("preference-grid");
+
+        // Create preference items as buttons
+        categories.forEach((category) => {
+          const item = document.createElement("div");
+          item.className = "preference-item";
+          item.textContent = category;
+          item.dataset.category = category; // Store category value in data attribute
+          grid.appendChild(item);
+        });
+
+        // Add click event listener to the grid for delegation
+        grid.addEventListener("click", (e) => {
+          if (e.target && e.target.classList.contains("preference-item")) {
+            e.target.classList.toggle("selected");
+          }
+        });
+
+        // Fetch and apply user's existing preferences
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/api/preferences/${userId}`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            const userCategories = data.categories || [];
+            userCategories.forEach((category) => {
+              const item = grid.querySelector(`[data-category='${category}']`);
+              if (item) {
+                item.classList.add("selected");
+              }
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching preferences:", error);
+        }
+
+        // Handle save button click
+        const saveButton = document.getElementById("save-preferences");
+        saveButton.addEventListener("click", async () => {
+          const currentUserId = getUserId();
+          if (!currentUserId) {
+            alert("로그인이 필요합니다. 다시 로그인해주세요.");
+            window.location.href = "/auth";
+            return;
+          }
+
+          const selectedCategories = [];
+          document
+            .querySelectorAll(".preference-item.selected")
+            .forEach((item) => {
+              selectedCategories.push(item.dataset.category);
+            });
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/api/preferences`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                userId: currentUserId,
+                categories: selectedCategories,
+              }),
+            });
+
+            if (response.ok) {
+              alert("선호도가 저장되었습니다.");
+            } else {
+              const errorData = await response.json().catch(() => ({}));
+              alert(`저장에 실패했습니다: ${errorData.error || 'Unknown error'}`);
+            }
+          } catch (error) {
+            console.error("Error saving preferences:", error);
+            alert("저장 중 오류가 발생했습니다.");
+          }
+        });
+      });
+    </script>
   </body>
 </html>

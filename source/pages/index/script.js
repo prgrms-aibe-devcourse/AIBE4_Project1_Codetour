@@ -590,20 +590,24 @@ function setupSearchModal() {
   const searchClose = document.getElementById("searchClose");
   const searchInput = document.getElementById("searchInput");
 
-  searchButton.addEventListener("click", () => {
-    searchModal.classList.add("active");
-    setTimeout(() => searchInput.focus(), 100);
-  });
+  if (searchButton !== null) {
+    searchButton.addEventListener("click", () => {
+      searchModal.classList.add("active");
+      setTimeout(() => searchInput.focus(), 100);
+    });
+  }
 
   searchClose.addEventListener("click", () => {
     searchModal.classList.remove("active");
   });
 
-  searchModal.addEventListener("click", (e) => {
-    if (e.target === searchModal) {
-      searchModal.classList.remove("active");
-    }
-  });
+  if (searchModal !== null) {
+    searchModal.addEventListener("click", (e) => {
+      if (e.target === searchModal) {
+        searchModal.classList.remove("active");
+      }
+    });
+  }
 
   // ESC 키로 모달 닫기
   document.addEventListener("keydown", (e) => {
@@ -631,20 +635,19 @@ function setupEventListeners() {
       document.querySelector("#content").scrollIntoView({ behavior: "smooth" })
     );
   document
-    .querySelectorAll(".btn-login, .btn-login-large")
+    .querySelectorAll(".btn-login, .btn-login-large, .loginBtn")
     .forEach((btn) =>
-      btn.addEventListener("click", () =>
-        window.location.href = '/auth'
-      )
+      btn.addEventListener("click", () => (window.location.href = "/auth"))
     );
-  document
-    .querySelector(".btn-signup")
-    .addEventListener("click", () =>
-      alert(translations[currentLang].btn.signup)
-    );
+  if (document.querySelector(".btn-signup") !== null) {
+    document
+      .querySelector(".btn-signup")
+      .addEventListener("click", () =>
+        alert(translations[currentLang].btn.signup)
+      );
+  }
   document.querySelectorAll(".nav-link").forEach((link) => {
     link.addEventListener("click", (e) => {
-      
       const target = link.getAttribute("href");
       if (target.startsWith("#")) {
         const element = document.querySelector(target);

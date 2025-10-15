@@ -4,10 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kspot-mypage</title>
-    <link rel="stylesheet" href="../index/style.css" />
     <link rel="stylesheet" href="my-page.css" />
-    <script src="/libs/include.js" defer></script>
+    <link rel="stylesheet" href="/source/pages/index/style.css" />
+    <script src="/libs/include.js"></script>
     <style>
+      /* 마이 페이지 스타일 */
       h1 {
         font-size: 32px;
         margin-bottom: 8px;
@@ -89,48 +90,7 @@
     </style>
   </head>
   <body>
-    <header class="header">
-      <div class="container">
-        <div class="header-top">
-          <a href="/source/pages/index/index.html" class="logo">
-            <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style="stop-color: #e91e8c; stop-opacity: 1" />
-                  <stop offset="100%" style="stop-color: #ff6b9d; stop-opacity: 1" />
-                </linearGradient>
-                <style>
-                  .logo-text { font-family: "Pretendard", sans-serif; font-weight: 800; font-size: 40px; fill: url(#logoGradient); letter-spacing: -1px; }
-                </style>
-              </defs>
-              <text x="0" y="37" class="logo-text">K</text>
-              <text x="30" y="37" class="logo-text">-</text>
-              <text x="44" y="37" class="logo-text">S</text>
-              <text x="70" y="37" class="logo-text">P</text>
-              <g transform="translate(95.5, 4) scale(0.93)">
-                <path d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z" fill="url(#logoGradient)"/>
-                <circle cx="18" cy="13" r="8" fill="white"/>
-              </g>
-              <text x="128" y="37" class="logo-text">T</text>
-            </svg>
-          </a>
-          <div class="header-right" style="display: flex; gap: 8px; align-items: center">
-            <select class="lang-select"><option value="ko">한국어</option><option value="en">English</option></select>
-            <button class="btn-search">🔍</button>
-            <button id="loginBtn">로그인</button>
-          </div>
-        </div>
-        
-        <nav class="nav">
-          <a href="/source/pages/index/index.html" class="nav-link">홈</a>
-          <a href="#content" class="nav-link">콘텐츠별 여행지</a>
-          <a href="/source/pages/aiCourse/aiSchedule.html" class="nav-link">AI 코스 추천</a>
-          <a href="/source/pages/map/map_page.html" class="nav-link">K-콘텐츠 여행 지도</a>
-          <a href="#routes" class="nav-link">인기 여행 루트</a>
-          <a href="/source/pages/my-page/my-page.html" class="nav-link active">마이페이지</a>
-        </nav>
-      </div>
-    </header>
+    <header></header>
     <main>
       <div id="mypage-home">
         <h1>마이페이지</h1>
@@ -171,54 +131,30 @@
         </div>
       </div>
     </main>
-    <script src="/libs/user-manager.js"></script>
     <script type="module">
-      import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+      import {
+        initAuthListener,
+        getIsLoggedIn,
+        getUserNickname,
+        getUserId,
+      } from "/libs/user-manager.js";
 
-      const supabase = createClient(
-        "https://fmcxkqfccuevcaqkzsex.supabase.co",
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtY3hrcWZjY3VldmNhcWt6c2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MDA5OTYsImV4cCI6MjA1MDE3Njk5Nn0.pWGr6o9t1JCVJp6aaLYCEyeXRvEGnvR7CtGUNrzpZHs"
-      );
+      function updateUserGreeting() {
+        initAuthListener();
+        console.log(
+          `Update user greeting : ${getIsLoggedIn()},${getUserNickname()}`
+        );
+        const userId = getUserId();
 
-      async function updateUserGreeting() {
-        console.log("Update user greeting");
-        const userManager = UserManager.getInstance();
-
-        // Supabase에서 현재 사용자 확인
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-
-        if (user) {
-          // 프로필에서 닉네임 가져오기
-          let displayName = user.email?.split("@")[0] || "사용자";
-          try {
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("display_name")
-              .eq("id", user.id)
-              .maybeSingle();
-
-            if (profile?.display_name) {
-              displayName = profile.display_name;
-            }
-          } catch (e) {
-            console.warn("프로필 로드 실패:", e);
-          }
-
-          // UserManager 업데이트
-          userManager.setLoggedInUser({
-            id: user.id,
-            email: user.email,
-            nickname: displayName,
-            profile_image_url: user.user_metadata?.avatar_url || "",
-            bio: "",
-          });
-
-          // 화면에 표시
+        if (!userId) {
+          alert("로그인이 필요합니다.");
+          window.location.href = "/auth";
+          return;
+        } else {
+          const nickname = getUserNickname();
           const welcomeElement = document.querySelector(".subtitle .highlight");
           if (welcomeElement) {
-            welcomeElement.textContent = displayName;
+            welcomeElement.textContent = nickname;
           }
         }
       }

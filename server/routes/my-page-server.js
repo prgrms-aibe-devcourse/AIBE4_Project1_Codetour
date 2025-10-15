@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const multer = require("multer");
-const supabase = require("../public/libs/supabase-client");
+const supabase = require("../../public/libs/supabase-client");
 
 dotenv.config();
 
@@ -51,7 +51,7 @@ app.get("/api/profiles/:id", async (req, res) => {
 // Update user profile ->multer 수정
 app.post("/api/profiles/:id", upload.single("avatar"), async (req, res) => {
   const { id } = req.params;
-  const { display_name, bio, avatar_url } = req.body;
+  const { display_name, bio } = req.body;
 
   if (!id) {
     return res.status(400).json({ error: "User ID is required" });
@@ -60,15 +60,48 @@ app.post("/api/profiles/:id", upload.single("avatar"), async (req, res) => {
   const updates = {
     display_name,
     bio,
-    // req.file -> 실제 이미지 업로드로 수정 후 avatar_url 새로운 path로 변환
-    // 일단 body로
-    avatar_url,
   };
 
-  // Filter undefined values
+  // Handle file upload if a file is provided
+  if (req.file) {
+    const file = req.file;
+    const fileName = `${id}-${Date.now()}`;
+    const bucketName = "profile-avatars";
+
+    try {
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(bucketName)
+        .upload(fileName, file.buffer, {
+          contentType: file.mimetype,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(fileName);
+
+      if (urlData) {
+        updates.avatar_url = urlData.publicUrl;
+      }
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      return res.status(500).json({ error: "Failed to upload avatar" });
+    }
+  }
+
+  // Filter out undefined values
   Object.keys(updates).forEach(
     (key) => updates[key] === undefined && delete updates[key]
   );
+
+  // Check if there's anything to update
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ error: "No update data provided" });
+  }
 
   try {
     const { data, error } = await supabase
