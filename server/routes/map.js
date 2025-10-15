@@ -312,4 +312,32 @@ router.get("/preferences/:userId", async (req, res) => {
   }
 });
 
+// 프로필 목록 조회
+router.get("/profiles", async (req, res) => {
+  try {
+    console.log("🔍 프로필 조회 시도...");
+    const { data: profiles, error } = await supabase
+      .from("profiles")
+      .select("id, display_name, avatar_url")
+      .order("created_at", { ascending: true });
+
+    console.log("프로필 조회 결과:");
+    console.log("  - Error:", error);
+    console.log("  - Data:", profiles);
+    console.log("  - Data type:", Array.isArray(profiles) ? "배열" : typeof profiles);
+    console.log("  - Count:", profiles?.length);
+
+    if (error) {
+      console.error("❌ Supabase 에러:", error);
+      throw error;
+    }
+
+    console.log(`👥 프로필 조회: ${profiles?.length || 0}개`);
+    res.json(profiles || []);
+  } catch (err) {
+    console.error("❌ 프로필 조회 실패:", err);
+    res.status(500).json({ error: "프로필 조회 실패", details: err.message });
+  }
+});
+
 module.exports = { router, setSupabase };

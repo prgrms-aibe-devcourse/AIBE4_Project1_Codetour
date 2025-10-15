@@ -534,9 +534,7 @@
         <div class="section saved-section">
           <h3 data-i18n="section.savedCourses">💎 저장된 코스</h3>
           <select id="userSelect">
-            <option value="550e8400-e29b-41d4-a716-446655440000" data-i18n="user.user1">사용자 1</option>
-            <option value="550e8400-e29b-41d4-a716-446655440001" data-i18n="user.user2">사용자 2</option>
-            <option value="550e8400-e29b-41d4-a716-446655440002" data-i18n="user.user3">사용자 3</option>
+            <option value="" data-i18n="option.selectUser">사용자 선택...</option>
           </select>
           <button id="loadCoursesBtn" data-i18n="btn.load">불러오기</button>
           <div id="savedCourses"></div>
@@ -563,6 +561,7 @@
           "placeholder.placeSearch": "장소명, 주소 검색...",
           "btn.search": "검색",
           "option.selectContent": "콘텐츠 선택...",
+          "option.selectUser": "사용자 선택...",
           "section.myCourse": "📍 나만의 여행 코스",
           "hint.dragOrder": "드래그로 순서를 변경할 수 있어요",
           "btn.saveCourse": "💾 코스 저장하기",
@@ -577,6 +576,7 @@
           "alert.enterSearch": "검색어를 입력해주세요 😊",
           "alert.noResults": "검색 결과가 없습니다 😢",
           "alert.selectContent": "콘텐츠를 선택해주세요 😊",
+          "alert.selectUser": "사용자를 선택해주세요 😊",
           "alert.noLocations": "해당 콘텐츠의 촬영지가 없습니다 😢",
           "alert.deleteCourse": "이 코스를 삭제하시겠습니까? 🗑️",
           "alert.courseDeleted": "✅ 코스가 삭제되었습니다!",
@@ -607,6 +607,7 @@
           "placeholder.placeSearch": "Search place name, address...",
           "btn.search": "Search",
           "option.selectContent": "Select content...",
+          "option.selectUser": "Select user...",
           "section.myCourse": "📍 My Travel Course",
           "hint.dragOrder": "You can change the order by dragging",
           "btn.saveCourse": "💾 Save Course",
@@ -621,6 +622,7 @@
           "alert.enterSearch": "Please enter a search term 😊",
           "alert.noResults": "No results found 😢",
           "alert.selectContent": "Please select content 😊",
+          "alert.selectUser": "Please select a user 😊",
           "alert.noLocations": "No filming locations for this content 😢",
           "alert.deleteCourse": "Do you want to delete this course? 🗑️",
           "alert.courseDeleted": "✅ Course deleted!",
@@ -690,6 +692,35 @@
 
       let currentSearchMode = "place";
       let contentsData = [];
+      let profilesData = [];
+
+      // 프로필 목록 로드
+      async function loadProfiles() {
+        try {
+          const res = await fetch("/api/profiles");
+          profilesData = await res.json();
+
+          const select = document.getElementById("userSelect");
+          // 기존 옵션 유지 (사용자 선택...)
+          select.innerHTML = '<option value="">' + t('option.selectUser') + '</option>';
+
+          profilesData.forEach((profile) => {
+            const option = document.createElement("option");
+            option.value = profile.id;
+            option.textContent = profile.display_name || `User ${profile.id.substring(0, 8)}`;
+            select.appendChild(option);
+          });
+
+          // 첫 번째 프로필을 기본 선택
+          if (profilesData.length > 0) {
+            select.value = profilesData[0].id;
+          }
+
+          console.log(`👥 ${profilesData.length}명의 프로필 로드 완료`);
+        } catch (err) {
+          console.error("프로필 로드 실패:", err);
+        }
+      }
 
       // 검색 모드 전환
       window.switchSearchMode = function (mode) {
@@ -748,6 +779,9 @@
           center: new kakao.maps.LatLng(37.5665, 126.978),
           level: 5,
         });
+
+        // 프로필 로드
+        loadProfiles();
 
         let markers = [];
         let myCourse = [];
@@ -1055,6 +1089,9 @@
         // 저장된 코스 불러오기
         document.getElementById("loadCoursesBtn").onclick = async function () {
           const userId = document.getElementById("userSelect").value;
+          if (!userId) {
+            return alert(t('alert.selectUser'));
+          }
           try {
             const res = await fetch(`/api/course/${userId}`);
             const courses = await res.json();
