@@ -118,10 +118,12 @@
             <text x="30" y="37" class="logo-text">-</text>
             <text x="44" y="37" class="logo-text">S</text>
             <text x="70" y="37" class="logo-text">P</text>
-            <g class="logo-pin" transform="translate(95.5, 4) scale(0.93)">
-              <path d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z" 
-                    fill="url(#logoGradient)"/>
-              <circle cx="18" cy="13" r="8" fill="white"/>
+            <g transform="translate(95.5, 4) scale(0.93)">
+              <path
+                d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z"
+                fill="url(#logoGradient)"
+              />
+              <circle cx="18" cy="13" r="8" fill="white" />
             </g>
             <text x="128" y="37" class="logo-text">T</text>
           </svg>
@@ -137,12 +139,7 @@
           <a href="#content" class="nav-link" data-i18n="nav.content"
             >콘텐츠별 여행지</a
           >
-          <a
-            href="/source/pages/aiCourse/aiSchedule.html"
-            class="nav-link"
-            data-i18n="nav.ai"
-            >AI 코스 추천</a
-          >
+          <a href="/aiCourse" class="nav-link" data-i18n="nav.ai">AI 코스 추천</a>
           <a
             href="/source/pages/map/map_page.html"
             class="nav-link"
@@ -152,12 +149,7 @@
           <a href="#routes" class="nav-link" data-i18n="nav.routes"
             >인기 여행 루트</a
           >
-          <a
-            href="/source/pages/my-page/my-page.html"
-            class="nav-link"
-            data-i18n="nav.mypage"
-            >마이페이지</a
-          >
+          <a href="/my-page" class="nav-link" data-i18n="nav.mypage">마이페이지</a>
         </nav>
 
         <div
@@ -175,7 +167,7 @@
           <span id="greeting" class="hide"
             >안녕하세요, <span id="nickname"></span>님</span
           >
-          <button id="loginBtn" onclick="window.location.href='/auth'">로그인</button>
+          <button id="loginBtn">로그인</button>
           <button id="logoutBtn" class="hide">로그아웃</button>
         </div>
       </div>
@@ -380,16 +372,15 @@
 
     <script src="/source/pages/index/script.js"></script>
 
-    <script src="/public/libs/userManager.js"></script>
-
+    <script src="/libs/userManager.js"></script>
     <script>
       window.AUTH_PATHS = {
-        INDEX: "/",
+        INDEX: "/source/pages/index/index.html",
         SET_NICK: "/auth/set-nickname.html",
       };
     </script>
+    <script type="module" src="/auth/auth.js"></script>
 
-    <script type="module" src="/public/auth/auth.js"></script>
 
     <!-- 헤더 인라인 검색 + 팀 카드 렌더러 어댑터 -->
     <script type="module">
