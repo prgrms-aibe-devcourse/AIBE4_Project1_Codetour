@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KSpot-리뷰 관리</title>
+    <link rel="stylesheet" href="my-page.css" />
+    <script src="/public/libs/user-manager.js"></script>
+    <script src="/public/libs/include.js" defer></script>
+    <style>
+      .image-upload-container {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        cursor: pointer;
+      }
+      .image-preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+      }
+      .add-image-btn {
+        width: 100%;
+        height: 100%;
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 40px;
+        color: #aaa;
+        background-color: #f9f9f9;
+      }
+      .add-image-btn:hover {
+        background-color: #f0f0f0;
+        border-color: #ccc;
+      }
+      .fixed-text {
+        padding: 8px 0;
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <!-- Header content will be loaded by include.js -->
+    </header>
+
+    <nav>
+      <!-- Navigation content will be loaded by include.js -->
+    </nav>
+
+    <main>
+      <div class="page-header">
+        <button class="back-btn" onclick="history.back()">← 뒤로가기</button>
+        <h1>리뷰 관리</h1>
+        <p class="subtitle">
+          내가 작성한 여행지 리뷰를 확인하고 수정할 수 있습니다
+        </p>
+      </div>
+
+      <div class="review-stats">
+        <div class="stat-card">
+          <div class="stat-number">0</div>
+          <div class="stat-label">총 리뷰</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">0.0</div>
+          <div class="stat-label">평균 평점</div>
+        </div>
+      </div>
+
+      <div class="filter-section">
+        <div class="filter-group">
+          <select class="filter-select">
+            <option>모든 리뷰</option>
+            <option>최신순</option>
+            <option>평점 높은순</option>
+            <option>평점 낮은순</option>
+          </select>
+        </div>
+        <div class="search-box">
+          <input type="text" placeholder="리뷰 검색..." />
+          <span class="search-icon">🔍</span>
+        </div>
+      </div>
+
+      <div class="review-list">
+        <!-- 동적으로 리뷰 추가 -->
+      </div>
+    </main>
+
+    <!-- 리뷰 수정 모달 -->
+    <div id="edit-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>리뷰 수정</h2>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <form class="edit-form">
+          <div class="form-group">
+            <label>리뷰 사진</label>
+            <div id="image-upload-container" class="image-upload-container">
+              <!-- 이미지 또는 + 버튼 동적 생성 -->
+            </div>
+            <input
+              type="file"
+              id="modal-review-image-upload"
+              accept="image/*"
+              style="display: none"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>여행지</label>
+            <p id="modal-location-name" class="fixed-text"></p>
+          </div>
+
+          <div class="form-group">
+            <label>평점</label>
+            <div class="rating-input" id="modal-rating-input">
+              <span class="star" data-rating="1">⭐</span>
+              <span class="star" data-rating="2">⭐</span>
+              <span class="star" data-rating="3">⭐</span>
+              <span class="star" data-rating="4">⭐</span>
+              <span class="star" data-rating="5">⭐</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>리뷰 내용</label>
+            <textarea
+              id="modal-review-content"
+              rows="6"
+              maxlength="300"
+              placeholder="여행 경험을 자세히 작성해주세요..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>태그</label>
+            <p id="modal-tags" class="fixed-text"></p>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel" onclick="closeModal()">
+              취소
+            </button>
+            <button type="submit" class="btn-save">저장하기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const apiURL = "http://localhost:3000";
+      let userReviews = []; // 페이지의 모든 리뷰를 저장하는 변수
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const userManager = UserManager.getInstance();
+        if (!userManager.getIsLoggedIn()) {
+          alert("로그인 정보가 없습니다. 마이페이지로 돌아갑니다.");
+          window.location.href = "my-page.html";
+          return;
+        }
+        fetchReviews();
+
+        const searchInput = document.querySelector(".search-box input");
+        const sortSelect = document.querySelector(".filter-select");
+
+        searchInput.addEventListener("input", () => applyFiltersAndSort());
+        sortSelect.addEventListener("change", () => applyFiltersAndSort());
+      });
+
+      function renderReviews(reviews) {
+        const reviewList = document.querySelector(".review-list");
+        reviewList.innerHTML = "";
+
+        if (!reviews || reviews.length === 0) {
+          reviewList.innerHTML =
+            '<p style="text-align: center; padding: 40px;">해당하는 리뷰가 없습니다.</p>';
+          return;
+        }
+
+        reviews.forEach((review) => {
+          const reviewCard = createReviewCard(review);
+          reviewList.appendChild(reviewCard);
+        });
+      }
+
+      function applyFiltersAndSort() {
+        const searchTerm =
+          document.querySelector(".search-box input").value.toLowerCase() || "";
+        const sortBy = document.querySelector(".filter-select").value;
+
+        // 1. Filter by search term
+        let processedReviews = userReviews.filter((review) => {
+          const placeName = (review.location && review.location.placeName) || "";
+          return placeName.toLowerCase().includes(searchTerm);
+        });
+
+        // 2. Sort the filtered reviews
+        switch (sortBy) {
+          case "최신순":
+            // Per user feedback, this is now oldest-first
+            processedReviews.sort(
+              (a, b) => new Date(a.created_at) - new Date(b.created_at)
+            );
+            break;
+          case "평점 높은순":
+            processedReviews.sort((a, b) => b.rating - a.rating);
+            break;
+          case "평점 낮은순":
+            processedReviews.sort((a, b) => a.rating - b.rating);
+            break;
+          case "모든 리뷰":
+          default:
+            // The default server order is newest-first.
+            processedReviews.sort(
+              (a, b) => new Date(b.created_at) - new Date(a.created_at)
+            );
+            break;
+        }
+
+        renderReviews(processedReviews);
+      }
+
+      async function fetchReviews() {
+        const userManager = UserManager.getInstance();
+        const userId = userManager.getUserId();
+
+        try {
+          const response = await fetch(`${apiURL}/api/reviews/${userId}`);
+          if (!response.ok) {
+            throw new Error("Failed to fetch reviews");
+          }
+          userReviews = await response.json(); // 리뷰 데이터를 전역 변수에 저장
+
+          const totalReviews = userReviews.length;
+          const averageRating =
+            totalReviews > 0
+              ? userReviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews
+              : 0;
+          updateStats(totalReviews, averageRating);
+
+          // Initial render
+          applyFiltersAndSort();
+        } catch (error) {
+          console.error("Error fetching reviews:", error);
+          const reviewList = document.querySelector(".review-list");
+          reviewList.innerHTML =
+            '<p style="text-align: center; padding: 40px;">리뷰를 불러오는 중 오류가 발생했습니다.</p>';
+        }
+      }
+
+      function updateStats(total, avg) {
+        const totalEl = document.querySelector(
+          ".review-stats .stat-card:nth-child(1) .stat-number"
+        );
+        const avgEl = document.querySelector(
+          ".review-stats .stat-card:nth-child(2) .stat-number"
+        );
+        if (totalEl) totalEl.textContent = total;
+        if (avgEl) avgEl.textContent = avg.toFixed(1);
+      }
+
+      function createReviewCard(review) {
+        const div = document.createElement("div");
+        div.className = "review-card";
+
+        const locationName = review.location
+          ? review.location.placeName
+          : "알 수 없는 장소";
+        const locationAddress = review.location
+          ? review.location.address
+          : "주소 정보 없음";
+
+        const createStars = (rating) => {
+          let stars = "";
+          const fullStars = Math.floor(rating);
+          for (let i = 0; i < 5; i++) {
+            stars += i < fullStars ? "⭐" : "☆";
+          }
+          return stars;
+        };
+
+        div.innerHTML = `
+          <div class="review-image">
+            <img src="${
+              review.review_image ||
+              "https://via.placeholder.com/400x300.png?text=No+Image"
+            }" alt="${locationName}" />
+          </div>
+          <div class="review-content">
+            <div class="review-header">
+              <div class="review-title-section">
+                <h3>${locationName}</h3>
+                <span class="review-location">📍 ${locationAddress}</span>
+              </div>
+              <div class="review-rating">
+                <span class="stars">${createStars(review.rating)}</span>
+                <span class="rating-number">${review.rating.toFixed(1)}</span>
+              </div>
+            </div>
+            <p class="review-text">${review.comment || ""}</p>
+            <div class="review-actions">
+              <button class="btn-edit" onclick="editReview('${
+                review.id
+              }')">수정</button>
+              <button class="btn-delete" onclick="deleteReview('${
+                review.id
+              }')">삭제</button>
+            </div>
+          </div>
+        `;
+        return div;
+      }
+
+      function editReview(reviewId) {
+        const review = userReviews.find((r) => r.id === reviewId);
+        if (!review) {
+          alert("리뷰를 찾을 수 없습니다.");
+          return;
+        }
+
+        document.querySelector(".edit-form").dataset.reviewId = reviewId;
+
+        const imageContainer = document.getElementById(
+          "image-upload-container"
+        );
+        const fileInput = document.getElementById("modal-review-image-upload");
+
+        const renderImage = (src) => {
+          if (src) {
+            imageContainer.innerHTML = `<img src="${src}" alt="리뷰 사진" class="image-preview" />`;
+          } else {
+            imageContainer.innerHTML = '<div class="add-image-btn">+</div>';
+          }
+        };
+
+        renderImage(review.review_image);
+
+        imageContainer.onclick = () => fileInput.click();
+
+        fileInput.onchange = (event) => {
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => renderImage(e.target.result);
+            reader.readAsDataURL(file);
+          }
+        };
+
+        document.getElementById("modal-location-name").textContent =
+          review.location ? review.location.placeName : "알 수 없는 장소";
+        document.getElementById("modal-review-content").value =
+          review.comment || "";
+        document.getElementById("modal-tags").textContent = review.location
+          ? review.location.keyword
+          : "";
+
+        const ratingInput = document.getElementById("modal-rating-input");
+        const stars = ratingInput.querySelectorAll(".star");
+        stars.forEach((star) => {
+          const starRating = parseInt(star.getAttribute("data-rating"));
+          star.classList.toggle("active", starRating <= review.rating);
+        });
+
+        document.getElementById("edit-modal").style.display = "flex";
+      }
+
+      function closeModal() {
+        document.getElementById("edit-modal").style.display = "none";
+      }
+
+      async function deleteReview(id) {
+        if (confirm("정말로 이 리뷰를 삭제하시겠습니까?")) {
+          try {
+            const response = await fetch(`${apiURL}/api/reviews/${id}`, {
+              method: "DELETE",
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Unknown server error");
+            }
+
+            alert("리뷰가 삭제되었습니다.");
+            fetchReviews(); // Refresh reviews
+          } catch (error) {
+            console.error("Error deleting review:", error);
+            alert(`리뷰 삭제에 실패했습니다: ${error.message}`);
+          }
+        }
+      }
+
+      document.querySelectorAll(".star").forEach((star) => {
+        star.addEventListener("click", function () {
+          const rating = this.getAttribute("data-rating");
+          const parent = this.parentElement;
+          parent.querySelectorAll(".star").forEach((s) => {
+            s.classList.remove("active");
+          });
+          for (let i = 1; i <= rating; i++) {
+            parent
+              .querySelector(`.star[data-rating="${i}"]`)
+              .classList.add("active");
+          }
+        });
+      });
+
+      window.onclick = function (event) {
+        const modal = document.getElementById("edit-modal");
+        if (event.target === modal) {
+          closeModal();
+        }
+      };
+
+      document
+        .querySelector(".edit-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const form = e.target;
+          const reviewId = form.dataset.reviewId;
+
+          if (!reviewId) {
+            alert("리뷰 ID를 찾을 수 없습니다.");
+            return;
+          }
+
+          const rating = form.querySelectorAll(
+            "#modal-rating-input .star.active"
+          ).length;
+          const comment = document.getElementById("modal-review-content").value;
+          const imagePreview = document.querySelector(
+            "#image-upload-container .image-preview"
+          );
+          const review_image = imagePreview ? imagePreview.src : null;
+
+          const updatedReview = {
+            rating,
+            comment,
+            review_image,
+          };
+
+          try {
+            const response = await fetch(`${apiURL}/api/reviews/${reviewId}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(updatedReview),
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Unknown server error");
+            }
+
+            alert("리뷰가 성공적으로 수정되었습니다!");
+            closeModal();
+            fetchReviews(); // Refresh reviews
+          } catch (error) {
+            console.error("Error updating review:", error);
+            alert(`리뷰 수정에 실패했습니다: ${error.message}`);
+          }
+        });
+    </script>
+  </body>
+</html>

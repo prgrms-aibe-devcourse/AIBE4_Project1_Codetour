@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kspot-mypage</title>
+    <link rel="stylesheet" href="my-page.css" />
+    <script src="/public/libs/include.js" defer></script>
+    <style>
+      h1 {
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 40px;
+      }
+
+      .subtitle .highlight {
+        color: #00a896;
+        font-weight: 600;
+      }
+
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 24px;
+      }
+
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 32px 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+
+      .card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+      }
+
+      .card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+
+      .card-icon.teal {
+        background-color: #e0f5f3;
+        color: #00a896;
+      }
+
+      .card-icon.blue {
+        background-color: #e3f2fd;
+        color: #2196f3;
+      }
+
+      .card-icon.pink {
+        background-color: #fce4ec;
+        color: #e91e63;
+      }
+
+      .card-icon.purple {
+        background-color: #f3e5f5;
+        color: #9c27b0;
+      }
+
+      .card h3 {
+        font-size: 18px;
+        margin-bottom: 12px;
+        color: #222;
+      }
+
+      .card p {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <!-- Header content will be loaded by include.js -->
+    </header>
+
+    <nav>
+      <!-- Navigation content will be loaded by include.js -->
+    </nav>
+
+    <main>
+      <div id="mypage-home">
+        <h1>마이페이지</h1>
+        <p class="subtitle">
+          안녕하세요, <span class="highlight">김여행</span>님!
+        </p>
+
+        <div class="card-grid">
+          <div class="card" onclick="location.href='my-page-profile.html'">
+            <div class="card-icon teal">👤</div>
+            <h3>개인정보 관리</h3>
+            <p>프로필, 이메일, 비밀번호 변경</p>
+          </div>
+
+          <div class="card" onclick="location.href='my-page-preference.html'">
+            <div class="card-icon blue">⚙️</div>
+            <h3>여행 선호도 설정</h3>
+            <p>관심 태그, 여행, 여행 스타일 설정</p>
+          </div>
+
+          <div class="card" onclick="location.href='my-page-favorite.html'">
+            <div class="card-icon pink">❤️</div>
+            <h3>관심 콘텐츠 관리</h3>
+            <p>좋아요한 컨텐츠, 여행지, 코스 보기</p>
+          </div>
+
+          <div class="card" onclick="location.href='my-page-course.html'">
+            <div class="card-icon purple">📑</div>
+            <h3>나의 여행 코스</h3>
+            <p>생성 및 저장된 여행 코스</p>
+          </div>
+
+          <div class="card" onclick="location.href='my-page-review.html'">
+            <div class="card-icon teal">💬</div>
+            <h3>리뷰 관리</h3>
+            <p>작성한 리뷰 및 평점 관리</p>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script src="/public/libs/user-manager.js"></script>
+    <script>
+      function updateUserGreeting() {
+        console.log("Update user greeting");
+        const userManager = UserManager.getInstance();
+        const isLoggedIn = userManager.getIsLoggedIn();
+
+        if (isLoggedIn) {
+          const nickname = userManager.getUserNickname();
+          const welcomeElement = document.querySelector(".subtitle .highlight");
+          if (welcomeElement) {
+            welcomeElement.textContent = nickname;
+          }
+        } else {
+          console.log("로그 아웃 상태");
+          // 여기서 로그인 페이지로 넘어가야 함
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", updateUserGreeting);
+    </script>
+  </body>
+</html>
