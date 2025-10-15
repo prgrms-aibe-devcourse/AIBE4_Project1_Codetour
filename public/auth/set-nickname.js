@@ -9,12 +9,10 @@ function basePath() {
 }
 function urlTo(p) {
   if (!p) return `${location.origin}${basePath()}`;
-  if (/^https?:\/\//i.test(p)) return p;                 // full URL
-  if (p.startsWith("/")) return `${location.origin}${p}`; // absolute
-  return `${location.origin}${basePath()}${p}`;           // relative
-}
+  if (/^https?:\/\//i.test(p)) return p;        
+  if (p.startsWith("/")) return `${location.origin}${p}`; 
+  return `${location.origin}${basePath()}${p}`;        
 
-// 팀 홈/닉설정 경로
 const PATHS = window.AUTH_PATHS ?? {
   INDEX: "index.html",
   SET_NICK: "set-nickname.html",
@@ -35,9 +33,10 @@ function goHome() {
 }
 
 const $ = (s) => document.querySelector(s);
-const $name   = $("#nickname");
-const $save   = $("#saveBtn");
-const $err    = $("#err");
+const $$ = (s) => Array.from(document.querySelectorAll(s));
+const $name = $("#nickname");
+const $save = $("#saveBtn");
+const $err  = $("#err");
 const $logout = $("#logoutBtn");
 
 const NAME_RE = /^[A-Za-z0-9가-힣]{2,10}$/;
@@ -48,6 +47,39 @@ function validateFormat(name) {
   return "";
 }
 
+function getSelectedCategories() {
+  return $$(".prefs input[name='pref']:checked").map(el => el.value);
+}
+
+async function loadInitial() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    $err.textContent = "로그인이 필요합니다.";
+    return;
+  }
+
+  const { data: prof } = await supabase
+    .from("profiles")
+    .select("display_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (prof?.display_name) $name.value = prof.display_name;
+
+  const { data: pref } = await supabase
+    .from("user_preferences")
+    .select("categories")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (pref?.categories && Array.isArray(pref.categories)) {
+    const set = new Set(pref.categories);
+    $$(".prefs input[name='pref']").forEach(el => {
+      el.checked = set.has(el.value);
+    });
+  }
+}
+
 async function isDuplicate(name, myId) {
   const { data, error } = await supabase
     .from("profiles")
@@ -55,11 +87,22 @@ async function isDuplicate(name, myId) {
     .eq("display_name", name)
     .neq("id", myId)
     .limit(1);
+
   if (error) {
-    console.warn("중복 검사 중 RLS/오류:", error);
+    console.error("중복 검사 실패:", error);
     return false;
   }
   return !!(data && data.length > 0);
+}
+
+async function savePreferences(userId, categories) {
+  const { error } = await supabase
+    .from("user_preferences")
+    .upsert(
+      { user_id: userId, categories: categories ?? [], updated_at: new Date().toISOString() },
+      { onConflict: "user_id" }
+    );
+  if (error) throw error;
 }
 
 async function saveNickname(e) {
@@ -67,34 +110,45 @@ async function saveNickname(e) {
   e?.stopPropagation?.();
 
   $err.textContent = "";
-  const name = ($name.value || "").trim();
 
+  const name = ($name.value || "").trim();
   const fmt = validateFormat(name);
   if (fmt) { $err.textContent = fmt; return; }
 
   const me = getSafeUserInfo();
   if (!me.id) { $err.textContent = "로그인이 필요합니다."; return; }
 
-  const { error } = await supabase
-    .from("profiles")
-    .upsert(
-      { id: me.id, display_name: name, updated_at: new Date().toISOString() },
-      { onConflict: "id" }
-    );
+  if (await isDuplicate(name, me.id)) {
+    $err.textContent = "이미 사용 중인 닉네임입니다.";
+    return;
+  }
 
-  if (error) {
-    console.error(error);
+  const { error: e1 } = await supabase
+    .from("profiles")
+    .update({ display_name: name, updated_at: new Date().toISOString() })
+    .eq("id", me.id);
+  if (e1) {
+    console.error(e1);
     $err.textContent = "닉네임 저장 중 오류가 발생했습니다.";
     return;
   }
 
-  alert("닉네임이 설정되었습니다");
+  try {
+    const cats = getSelectedCategories();
+    await savePreferences(me.id, cats);
+  } catch (e2) {
+    console.error(e2);
+    $err.textContent = "선호 카테고리 저장 중 오류가 발생했습니다.";
+    return;
+  }
+
+  alert("저장되었습니다. 홈으로 이동합니다.");
   goHome();
 }
 
-$save?.addEventListener("click", saveNickname);
+$save.addEventListener("click", saveNickname);
 
-$logout?.addEventListener("click", async (e) => {
+$logout.addEventListener("click", async (e) => {
   e?.preventDefault?.();
   e?.stopPropagation?.();
   try {
@@ -105,3 +159,5 @@ $logout?.addEventListener("click", async (e) => {
     goHome();
   }
 });
+
+loadInitial().catch(console.error);
