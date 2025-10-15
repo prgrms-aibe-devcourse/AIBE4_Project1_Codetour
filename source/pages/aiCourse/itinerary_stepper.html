@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>맞춤 여행 코스 만들기 (프로토타입)</title>
+<style>
+  :root{
+    --brand:#22c55e;
+    --ink:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --card:#ffffff;
+    --bg:#f8fafc;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:ui-sans-serif, system-ui, Apple SD Gothic Neo, Malgun Gothic, Nanum Gothic, sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+  }
+  .wrap{width:min(1100px,94vw); margin:32px auto 80px;}
+  header h1{margin:0 0 6px; font-size:28px}
+  header p{margin:0; color:var(--muted)}
+  .grid{display:grid; grid-template-columns:320px 1fr; gap:18px; align-items:start}
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 8px 30px rgba(0,0,0,.04);
+  }
+
+  /* Stepper */
+  .steps{display:flex; gap:8px; flex-wrap:wrap; margin:14px 0 12px}
+  .chip{
+    display:flex; align-items:center; gap:10px;
+    padding:8px 12px; border-radius:999px; border:1px solid var(--line);
+    background:#fff; font-weight:700; cursor:pointer; color:#0f172a;
+  }
+  .chip .num{width:24px; height:24px; border-radius:999px; background:#e2e8f0; display:grid; place-items:center; font-size:12px}
+  .chip.active{background:var(--brand); color:#fff; border-color:var(--brand)}
+  .step{display:none} .step.active{display:block}
+  .control{display:flex; gap:10px; align-items:center; margin:8px 0 12px}
+  .control label{min-width:90px; color:#334155; font-weight:700}
+  .control input[type="number"],
+  .control input[type="text"],
+  .control select{width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:#fff}
+  .pills{display:flex; flex-wrap:wrap; gap:8px}
+  .pill{padding:8px 12px; border:1px solid var(--line); border-radius:999px; cursor:pointer; background:#fff}
+  .pill.active{background:#0ea5e9; border-color:#0ea5e9; color:#fff}
+  .aside-title{font-size:15px; color:#0f172a; font-weight:800; margin:8px 0 6px}
+  .divider{margin:14px 0; height:1px; background:var(--line)}
+
+  /* Itinerary */
+  .tabs{display:flex; gap:8px; margin:0 0 10px; flex-wrap:wrap}
+  .tab{padding:8px 14px; border-radius:999px; background:#e2e8f0; border:1px solid var(--line); font-weight:700; cursor:pointer}
+  .tab.active{background:#111827; color:#fff; border-color:#111827}
+  .pane{display:none} .pane.active{display:block}
+  .item{
+    display:flex; gap:14px; align-items:flex-start;
+    background:#fff; border:1px solid var(--line);
+    border-radius:14px; padding:14px; margin:10px 0; position:relative;
+  }
+  .num{width:28px; height:28px; border-radius:999px; background:#ecfeff; color:#0ea5e9; display:grid; place-items:center; font-weight:800}
+  .thumb{width:64px; height:48px; border-radius:10px; background:#dbeafe; display:grid; place-items:center; color:#334155; font-weight:800}
+  .title{font-size:18px; font-weight:800}
+  .meta{font-size:12px; color:#64748b; margin-top:2px}
+  .rec{font-size:13px; margin-top:6px; color:#334155}
+  .tags{margin-top:6px; display:flex; gap:6px; flex-wrap:wrap}
+  .tg{font-size:11px; padding:4px 8px; border-radius:999px; background:#f1f5f9; border:1px solid var(--line)}
+  .actions{position:absolute; right:10px; top:10px; display:flex; gap:6px}
+  .btn{
+    border:1px solid var(--line); background:#fff; border-radius:10px; padding:8px 12px; cursor:pointer; font-weight:700;
+  }
+  .btn.primary{background:var(--brand); color:#fff; border-color:var(--brand)}
+  .btn.ghost{background:#f8fafc}
+  .cta{position:sticky; bottom:18px; display:flex; justify-content:center; margin-top:18px}
+  .muted{color:var(--muted)}
+
+  /* Add form */
+  details.addform{margin-top:10px}
+  details.addform summary{cursor:pointer; list-style:none; font-weight:800}
+  details.addform form{margin-top:8px; display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  details.addform form textarea{grid-column:1/-1; height:60px; padding:10px; border:1px solid var(--line); border-radius:10px}
+  .hl{background:#fefce8; border:1px dashed #fde68a; padding:8px 10px; border-radius:12px; font-size:13px; color:#854d0e}
+
+  @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>나만의 여행 코스 만들기</h1>
+      <p class="muted">기간·이동수단·예산·동행자를 고르면, 현재 추천 일정이 필터에 맞게 재구성됩니다.</p>
+    </header>
+
+    <div class="grid">
+      <!-- Left: Stepper -->
+      <aside class="panel">
+        <div class="steps" id="steps"></div>
+
+        <div id="step-1" class="step active">
+          <div class="aside-title">1) 기간 선택</div>
+          <div class="control">
+            <label for="days">여행일수</label>
+            <input id="days" type="number" min="1" max="10" value="3"> 
+          </div>
+          <p class="hl">Tip: 날짜가 늘어나면 각 날짜당 방문 수를 자동으로 분배해 드려요.</p>
+        </div>
+
+        <div id="step-2" class="step">
+          <div class="aside-title">2) 이동수단</div>
+          <div class="pills" id="transport-pills"></div>
+        </div>
+
+        <div id="step-3" class="step">
+          <div class="aside-title">3) 예산</div>
+          <div class="control">
+            <label for="budget">1일 예산(₩)</label>
+            <select id="budget">
+              <option value="low">저예산(≤ 3만원)</option>
+              <option value="mid" selected>중간(3~8만원)</option>
+              <option value="high">여유(8만원+)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="step-4" class="step">
+          <div class="aside-title">4) 동행자</div>
+          <div class="pills" id="companions-pills"></div>
+        </div>
+
+        <div id="step-5" class="step">
+          <div class="aside-title">5) 상세추천</div>
+          <p class="muted">버튼을 누르면 현재 일정이 필터에 맞게 조정됩니다. 어떤 규칙으로 바뀌는지도 카드에 표시돼요.</p>
+          <button class="btn primary" id="apply">상세추천 적용</button>
+          <button class="btn ghost" id="reset" style="margin-left:8px">되돌리기</button>
+          <div class="divider"></div>
+          <details class="addform">
+            <summary>+ 직접 장소 추가</summary>
+            <form id="add-form">
+              <input required placeholder="장소명" id="add-title">
+              <input placeholder="주소" id="add-addr">
+              <select id="add-cost">
+                <option value="1">비용 1(저렴)</option>
+                <option value="2" selected>비용 2</option>
+                <option value="3">비용 3(비쌈)</option>
+              </select>
+              <input placeholder="태그(쉼표로 구분: cafe, kids, couple…)" id="add-tags">
+              <textarea placeholder="추천/설명" id="add-desc"></textarea>
+              <button class="btn primary" type="submit">추가</button>
+            </form>
+          </details>
+        </div>
+      </aside>
+
+      <!-- Right: Itinerary preview -->
+      <main class="panel">
+        <div style="height:260px; border:1px solid var(--line); border-radius:16px; display:grid; place-items:center; background:#eff6ff; color:#334155; margin-bottom:12px">(지도 연동 영역)</div>
+        <div class="tabs" id="tabs"></div>
+        <section id="itinerary"></section>
+        <div class="cta"><button class="btn primary" onclick="alert('내 일정에 담겼습니다(샘플).')">내 일정으로 담기</button></div>
+      </main>
+    </div>
+  </div>
+
+<script>
+// ---------- Data ----------
+const baseItems = [
+  {id:'a1', title:'101번지 남산돈까스 본점', addr:'중구 소파로 101', rec:'김종국이 방문', cost:2, tags:['food','friends','couple'], day:1},
+  {id:'a2', title:'10꼬르소꼬모 카페 청담점', addr:'강남구 압구정로 416', rec:'아이돌 핫플', cost:3, tags:['cafe','couple','friends'], day:1},
+  {id:'a3', title:'17 피자', addr:'동대문구 회기로21길 22', rec:'골목식당', cost:1, tags:['food','family','friends'], day:1},
+  {id:'a4', title:'1953연남서서갈비', addr:'마포구 희우정로 84', rec:'드라마 촬영지', cost:2, tags:['bbq','friends'], day:1},
+  {id:'b1', title:'29펍 Tokyo Elegant', addr:'강남구 강남대로110길 14', rec:'바/야간', cost:3, tags:['nightlife','friends','couple'], day:2},
+  {id:'b2', title:'32파르페 홍대점', addr:'마포구 잔다리로6길 39', rec:'롱아이스크림', cost:1, tags:['dessert','family','kids'], day:2},
+  {id:'b3', title:'3rd뮤지엄', addr:'마포구 잔다리로3길 4', rec:'컨셉뮤지엄', cost:2, tags:['indoor','friends','solo'], day:2},
+  {id:'c1', title:'63스퀘어', addr:'영등포구 63로 50', rec:'전망/수족관', cost:3, tags:['view','couple','family'], day:3},
+  {id:'c2', title:'60계 치킨 압구정점', addr:'강남구 압구정로42길 36', rec:'치킨 맛집', cost:2, tags:['food','friends','family'], day:3},
+  {id:'d1', title:'8810 리스트레토 바', addr:'마포구 월드컵북로6길 88-10', rec:'연남동 카페', cost:2, tags:['cafe','solo','couple'], day:4},
+  {id:'e1', title:'BBQ 헬리오시티점', addr:'송파구 송파대로37길 78', rec:'치킨', cost:1, tags:['food','family','friends'], day:5}
+];
+let items = JSON.parse(JSON.stringify(baseItems)); // working copy
+
+// ---------- State ----------
+const state = {
+  days: 3,
+  transport: 'subway',
+  budget: 'mid',
+  companions: new Set()
+};
+
+// ---------- UI init ----------
+const stepsConfig = [
+  {id:'step-1', label:'기간 선택'},
+  {id:'step-2', label:'이동수단'},
+  {id:'step-3', label:'예산 설정'},
+  {id:'step-4', label:'동행자'},
+  {id:'step-5', label:'상세추천'}
+];
+const stepsEl = document.getElementById('steps');
+stepsConfig.forEach((s, i)=>{
+  const el = document.createElement('button');
+  el.className = 'chip' + (i===0? ' active':'');
+  el.dataset.target = s.id;
+  el.innerHTML = `<span class="num">${i+1}</span>${s.label}`;
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.step').forEach(p=>p.classList.remove('active'));
+    document.getElementById(s.id).classList.add('active');
+  });
+  stepsEl.appendChild(el);
+});
+
+// transport pills
+['도보 중심','대중교통','택시/렌터카'].forEach((label, idx)=>{
+  const key = ['walk','subway','car'][idx];
+  const p = document.createElement('button');
+  p.className = 'pill' + (key==='subway' ? ' active':'');
+  p.textContent = label;
+  p.addEventListener('click', ()=>{
+    document.querySelectorAll('#transport-pills .pill').forEach(x=>x.classList.remove('active'));
+    p.classList.add('active');
+    state.transport = key;
+  });
+  document.getElementById('transport-pills').appendChild(p);
+});
+
+// companions pills
+['혼자','커플','가족','친구','아이동반'].forEach((label, idx)=>{
+  const key = ['solo','couple','family','friends','kids'][idx];
+  const p = document.createElement('button');
+  p.className = 'pill';
+  p.textContent = label;
+  p.addEventListener('click', ()=>{
+    if(state.companions.has(key)){ state.companions.delete(key); p.classList.remove('active'); }
+    else{ state.companions.add(key); p.classList.add('active'); }
+  });
+  document.getElementById('companions-pills').appendChild(p);
+});
+
+document.getElementById('days').addEventListener('change', (e)=>{
+  state.days = Math.max(1, Math.min(10, parseInt(e.target.value || '1',10)));
+  renderTabs();
+  renderItinerary();
+});
+document.getElementById('budget').addEventListener('change', (e)=> state.budget = e.target.value);
+
+// Apply & Reset
+document.getElementById('apply').addEventListener('click', ()=>{
+  applyFilters();
+  renderItinerary(true);
+  alert('상세추천을 적용했어요. (프로토타입 로직)');
+});
+document.getElementById('reset').addEventListener('click', ()=>{
+  items = JSON.parse(JSON.stringify(baseItems));
+  renderTabs(); renderItinerary();
+});
+
+// Add place
+document.getElementById('add-form').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const title = document.getElementById('add-title').value.trim();
+  const addr = document.getElementById('add-addr').value.trim();
+  const cost = parseInt(document.getElementById('add-cost').value,10);
+  const tags = document.getElementById('add-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const rec = document.getElementById('add-desc').value.trim();
+  const day = Math.min(state.days, 1 + (items.length % state.days));
+  items.push({id: 'user-'+Date.now(), title, addr, rec, cost, tags, day});
+  e.target.reset();
+  renderItinerary();
+});
+
+// ---------- Render ----------
+const tabsEl = document.getElementById('tabs');
+const itineraryEl = document.getElementById('itinerary');
+
+function renderTabs(){
+  tabsEl.innerHTML = '';
+  for(let d=1; d<=state.days; d++){
+    const b = document.createElement('button');
+    b.className = 'tab' + (d===1? ' active':'');
+    b.dataset.day = d;
+    b.textContent = `Day ${d}`;
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+      b.classList.add('active');
+      document.querySelector(`.pane[data-day="${d}"]`).classList.add('active');
+    });
+    tabsEl.appendChild(b);
+  }
+}
+
+function renderItinerary(scrollTop=false){
+  itineraryEl.innerHTML='';
+  for(let d=1; d<=state.days; d++){
+    const pane = document.createElement('section');
+    pane.className = 'pane' + (d===1? ' active':'');
+    pane.dataset.day = d;
+    const list = items.filter(it=>it.day===d);
+    if(list.length===0){
+      pane.innerHTML = `<p class="muted">이 날에는 아직 일정이 없어요. 좌측에서 상세추천을 적용하거나, 아래에서 직접 추가하세요.</p>`;
+    } else {
+      list.forEach((it, idx)=> pane.appendChild(renderItem(it, idx+1)));
+    }
+    itineraryEl.appendChild(pane);
+  }
+  if(scrollTop){ window.scrollTo({top:0, behavior:'smooth'}); }
+}
+
+function renderItem(it, order){
+  const el = document.createElement('div');
+  el.className = 'item';
+  el.innerHTML = `
+    <div class="num">${order}</div>
+    <div class="thumb" aria-hidden="true">${it.title.slice(0,1)}</div>
+    <div class="content">
+      <div class="title">${it.title}</div>
+      <div class="meta">${it.addr ? it.addr : ''}</div>
+      <div class="rec">${it.rec || ''}</div>
+      <div class="tags">
+        <span class="tg">비용:${it.cost}</span>
+        ${ (it.tags||[]).map(t=>`<span class="tg">#${t}</span>`).join('') }
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" title="위로" aria-label="위로">↑</button>
+      <button class="btn" title="아래로" aria-label="아래로">↓</button>
+      <button class="btn" title="삭제" aria-label="삭제">−</button>
+    </div>
+  `;
+  // actions
+  const [up, down, del] = el.querySelectorAll('.actions .btn');
+  up.addEventListener('click', ()=>moveItem(it.id, -1));
+  down.addEventListener('click', ()=>moveItem(it.id, +1));
+  del.addEventListener('click', ()=>removeItem(it.id));
+  return el;
+}
+
+function moveItem(id, delta){
+  const idx = items.findIndex(x=>x.id===id);
+  if(idx<0) return;
+  // swap within the same day
+  const day = items[idx].day;
+  const sameDay = items.filter(x=>x.day===day);
+  const order = sameDay.findIndex(x=>x.id===id);
+  const targetOrder = order + delta;
+  if(targetOrder<0 || targetOrder>=sameDay.length) return;
+  const otherId = sameDay[targetOrder].id;
+  const j = items.findIndex(x=>x.id===otherId);
+  [items[idx], items[j]] = [items[j], items[idx]];
+  renderItinerary();
+}
+
+function removeItem(id){
+  items = items.filter(x=>x.id!==id);
+  renderItinerary();
+}
+
+// ---------- Filter logic (simple prototype) ----------
+function applyFilters(){
+  // 1) Trim expensive items if budget is low, and add budget-friendly alternatives.
+  const budgetMap = {low:1, mid:2, high:3};
+  const maxCost = budgetMap[state.budget];
+  items = items.filter(it => it.cost <= maxCost || state.budget==='high');
+
+  // 2) If walking, reduce long-distance spread: prefer tags 'cafe','food','indoor' and avoid 'view' far venues.
+  if(state.transport==='walk'){
+    items = items.filter(it => (it.tags||[]).some(t=>['cafe','food','indoor'].includes(t)) || it.cost<=2);
+  }
+
+  // 3) Companions preference: keep items matching at least one tag if any selected.
+  if(state.companions.size>0){
+    items = items.filter(it => it.tags && it.tags.some(t => state.companions.has(t)));
+  }
+
+  // 4) Redistribute by chosen days (round-robin)
+  const days = state.days;
+  items.forEach((it, i)=> it.day = (i % days) + 1);
+
+  // 5) Ensure each day has up to 6 stops (sample). Extra are trimmed softly.
+  const bucketed = [];
+  for(let d=1; d<=days; d++){
+    const dayItems = items.filter(x=>x.day===d).slice(0,6);
+    bucketed.push(...dayItems);
+  }
+  items = bucketed;
+}
+
+// ---------- Boot ----------
+renderTabs();
+renderItinerary();
+</script>
+</body>
+</html>

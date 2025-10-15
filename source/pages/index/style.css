@@ -1021,3 +1021,6 @@ html[lang="ja"] .nav-link {
         margin-top: 1.5rem;
     }
 }
+
+/* 전역 숨김 유틸 */
+.hide { display: none !important; }
