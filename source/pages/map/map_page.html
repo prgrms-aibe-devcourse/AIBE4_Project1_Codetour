@@ -527,6 +527,7 @@
           <ul id="courseList"></ul>
           <button id="saveBtn" data-i18n="btn.saveCourse">💾 코스 저장하기</button>
           <button id="showRouteBtn" data-i18n="btn.showRoute">🚗 경로 확인하기</button>
+          <button id="aiRecommendBtn" data-i18n="btn.aiRecommend" style="width: 100%; background: linear-gradient(135deg, #ff6b9d 0%, #ffa07a 100%); color: white; border: none; padding: 14px; font-size: 15px; margin: 5px;">🤖 AI 추천받기</button>
           <div id="routeInfo"></div>
         </div>
 
@@ -609,6 +610,7 @@
           "hint.dragOrder": "드래그로 순서를 변경할 수 있어요",
           "btn.saveCourse": "💾 코스 저장하기",
           "btn.showRoute": "🚗 경로 확인하기",
+          "btn.aiRecommend": "🤖 AI 추천받기",
           "section.savedCourses": "💎 저장된 코스",
           "user.user1": "사용자 1",
           "user.user2": "사용자 2",
@@ -655,6 +657,7 @@
           "hint.dragOrder": "You can change the order by dragging",
           "btn.saveCourse": "💾 Save Course",
           "btn.showRoute": "🚗 Show Route",
+          "btn.aiRecommend": "🤖 AI Recommend",
           "section.savedCourses": "💎 Saved Courses",
           "user.user1": "User 1",
           "user.user2": "User 2",
@@ -1237,6 +1240,11 @@
 
           alert(t('alert.courseLoaded', { name: course.name }));
         }
+
+        // AI 추천받기
+        document.getElementById("aiRecommendBtn").onclick = function () {
+          window.location.href = '/aiCourse';
+        };
 
         // 경로 보기
         document.getElementById("showRouteBtn").onclick = async function () {
