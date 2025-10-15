@@ -456,7 +456,9 @@
       <div class="header-content">
         <div>
           <h1 data-i18n="header.title">🇰🇷 K-콘텐츠 여행 지도</h1>
-          <p data-i18n="header.subtitle">한류 콘텐츠와 함께하는 특별한 여행 코스를 만들어보세요</p>
+          <p data-i18n="header.subtitle">
+            한류 콘텐츠와 함께하는 특별한 여행 코스를 만들어보세요
+          </p>
         </div>
         <div class="header-right">
           <select class="lang-select" id="languageSelector">
@@ -476,10 +478,18 @@
 
           <!-- 탭 선택 -->
           <div class="search-tabs">
-            <button class="tab-btn active" onclick="switchSearchMode('place')" data-i18n="tab.place">
+            <button
+              class="tab-btn active"
+              onclick="switchSearchMode('place')"
+              data-i18n="tab.place"
+            >
               장소 검색
             </button>
-            <button class="tab-btn" onclick="switchSearchMode('content')" data-i18n="tab.content">
+            <button
+              class="tab-btn"
+              onclick="switchSearchMode('content')"
+              data-i18n="tab.content"
+            >
               콘텐츠 검색
             </button>
           </div>
@@ -500,7 +510,9 @@
           <!-- 콘텐츠 검색 모드 -->
           <div id="contentSearchMode" style="display: none">
             <select id="contentSelect">
-              <option value="" data-i18n="option.selectContent">콘텐츠 선택...</option>
+              <option value="" data-i18n="option.selectContent">
+                콘텐츠 선택...
+              </option>
             </select>
             <button
               id="searchContentBtn"
@@ -521,20 +533,43 @@
         <!-- 현재 코스 -->
         <div class="section course-section">
           <h3 data-i18n="section.myCourse">📍 나만의 여행 코스</h3>
-          <p style="font-size: 13px; color: #666; margin-bottom: 10px" data-i18n="hint.dragOrder">
+          <p
+            style="font-size: 13px; color: #666; margin-bottom: 10px"
+            data-i18n="hint.dragOrder"
+          >
             드래그로 순서를 변경할 수 있어요
           </p>
           <ul id="courseList"></ul>
-          <button id="saveBtn" data-i18n="btn.saveCourse">💾 코스 저장하기</button>
-          <button id="showRouteBtn" data-i18n="btn.showRoute">🚗 경로 확인하기</button>
-          <button id="aiRecommendBtn" data-i18n="btn.aiRecommend" style="width: 100%; background: linear-gradient(135deg, #ff6b9d 0%, #ffa07a 100%); color: white; border: none; padding: 14px; font-size: 15px; margin: 5px;">🤖 AI 추천받기</button>
+          <button id="saveBtn" data-i18n="btn.saveCourse">
+            💾 코스 저장하기
+          </button>
+          <button id="showRouteBtn" data-i18n="btn.showRoute">
+            🚗 경로 확인하기
+          </button>
+          <button
+            id="aiRecommendBtn"
+            data-i18n="btn.aiRecommend"
+            style="
+              width: 100%;
+              background: linear-gradient(135deg, #ff6b9d 0%, #ffa07a 100%);
+              color: white;
+              border: none;
+              padding: 14px;
+              font-size: 15px;
+              margin: 5px;
+            "
+          >
+            🤖 AI 추천받기
+          </button>
           <div id="routeInfo"></div>
         </div>
 
         <!-- 저장된 코스 -->
         <div class="section saved-section">
           <h3 data-i18n="section.savedCourses">💎 저장된 코스</h3>
-          <button id="loadCoursesBtn" data-i18n="btn.load">내 코스 불러오기</button>
+          <button id="loadCoursesBtn" data-i18n="btn.load">
+            내 코스 불러오기
+          </button>
           <div id="savedCourses"></div>
         </div>
       </div>
@@ -559,21 +594,24 @@
 
       // 로그인 상태 확인
       async function checkAuth() {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         window.currentUser = user;
 
         // 로그인 버튼 표시/숨김
-        const headerRight = document.querySelector('.header-right');
+        const headerRight = document.querySelector(".header-right");
         if (user) {
           // 로그인된 상태 - 사용자 정보 표시
-          const userInfo = document.createElement('span');
-          userInfo.style.cssText = 'color: white; margin-right: 10px; font-weight: 600;';
+          const userInfo = document.createElement("span");
+          userInfo.style.cssText =
+            "color: white; margin-right: 10px; font-weight: 600;";
           userInfo.textContent = `${user.email}`;
           headerRight.insertBefore(userInfo, headerRight.firstChild);
 
-          const logoutBtn = document.createElement('button');
-          logoutBtn.className = 'home-btn';
-          logoutBtn.textContent = '로그아웃';
+          const logoutBtn = document.createElement("button");
+          logoutBtn.className = "home-btn";
+          logoutBtn.textContent = "로그아웃";
           logoutBtn.onclick = async () => {
             await supabase.auth.signOut();
             window.location.reload();
@@ -581,10 +619,10 @@
           headerRight.appendChild(logoutBtn);
         } else {
           // 로그인 안 된 상태 - 로그인 버튼 표시
-          const loginBtn = document.createElement('a');
-          loginBtn.href = '/auth';
-          loginBtn.className = 'home-btn';
-          loginBtn.textContent = '로그인';
+          const loginBtn = document.createElement("a");
+          loginBtn.href = "/auth";
+          loginBtn.className = "home-btn";
+          loginBtn.textContent = "로그인";
           headerRight.insertBefore(loginBtn, headerRight.firstChild);
         }
       }
@@ -597,7 +635,8 @@
       const translations = {
         ko: {
           "header.title": "🇰🇷 K-콘텐츠 여행 지도",
-          "header.subtitle": "한류 콘텐츠와 함께하는 특별한 여행 코스를 만들어보세요",
+          "header.subtitle":
+            "한류 콘텐츠와 함께하는 특별한 여행 코스를 만들어보세요",
           "btn.home": "홈으로",
           "section.search": "🔍 검색",
           "tab.place": "장소 검색",
@@ -631,8 +670,9 @@
           "alert.courseSaved": "🎉 저장 완료!\n코스 ID: ",
           "alert.saveFailed": "저장에 실패했습니다 😢",
           "alert.noSavedCourses": "저장된 코스가 없습니다 📭",
-          "alert.courseLoaded": "✨ \"{name}\" 코스를 불러왔습니다!",
-          "alert.minTwoPlaces": "경로를 보려면 최소 2개 이상의 장소가 필요합니다 🗺️",
+          "alert.courseLoaded": '✨ "{name}" 코스를 불러왔습니다!',
+          "alert.minTwoPlaces":
+            "경로를 보려면 최소 2개 이상의 장소가 필요합니다 🗺️",
           "alert.routeFailed": "경로 검색에 실패했습니다 😢",
           "alert.added": "✨ {name}이(가) 코스에 추가되었습니다!",
           "route.totalDistance": "📏 총 거리: ",
@@ -640,11 +680,12 @@
           "route.info": "🚗 경로 정보",
           "text.places": "개 장소",
           "text.km": " km",
-          "text.min": " 분"
+          "text.min": " 분",
         },
         en: {
           "header.title": "🇰🇷 K-Content Travel Map",
-          "header.subtitle": "Create your special travel course with Korean Wave content",
+          "header.subtitle":
+            "Create your special travel course with Korean Wave content",
           "btn.home": "Home",
           "section.search": "🔍 Search",
           "tab.place": "Search Place",
@@ -678,7 +719,7 @@
           "alert.courseSaved": "🎉 Saved!\nCourse ID: ",
           "alert.saveFailed": "Failed to save 😢",
           "alert.noSavedCourses": "No saved courses 📭",
-          "alert.courseLoaded": "✨ Loaded \"{name}\" course!",
+          "alert.courseLoaded": '✨ Loaded "{name}" course!',
           "alert.minTwoPlaces": "At least 2 places needed to show route 🗺️",
           "alert.routeFailed": "Failed to search route 😢",
           "alert.added": "✨ {name} has been added to the course!",
@@ -687,51 +728,53 @@
           "route.info": "🚗 Route Info",
           "text.places": " places",
           "text.km": " km",
-          "text.min": " min"
-        }
+          "text.min": " min",
+        },
       };
 
       // 현재 언어 (기본값: 한국어)
-      let currentLang = localStorage.getItem('language') || 'ko';
+      let currentLang = localStorage.getItem("language") || "ko";
 
       // 언어 변경 함수
       function changeLanguage(lang) {
         currentLang = lang;
-        localStorage.setItem('language', lang);
+        localStorage.setItem("language", lang);
 
         // 모든 data-i18n 속성을 가진 요소 번역
-        document.querySelectorAll('[data-i18n]').forEach(element => {
-          const key = element.getAttribute('data-i18n');
+        document.querySelectorAll("[data-i18n]").forEach((element) => {
+          const key = element.getAttribute("data-i18n");
           if (translations[lang] && translations[lang][key]) {
             element.textContent = translations[lang][key];
           }
         });
 
         // placeholder 번역
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
-          const key = element.getAttribute('data-i18n-placeholder');
-          if (translations[lang] && translations[lang][key]) {
-            element.placeholder = translations[lang][key];
-          }
-        });
+        document
+          .querySelectorAll("[data-i18n-placeholder]")
+          .forEach((element) => {
+            const key = element.getAttribute("data-i18n-placeholder");
+            if (translations[lang] && translations[lang][key]) {
+              element.placeholder = translations[lang][key];
+            }
+          });
       }
 
       // 번역 함수 (alert 등에서 사용)
       function t(key, params = {}) {
         let text = translations[currentLang][key] || key;
-        Object.keys(params).forEach(param => {
+        Object.keys(params).forEach((param) => {
           text = text.replace(`{${param}}`, params[param]);
         });
         return text;
       }
 
       // 페이지 로드 시 저장된 언어로 설정
-      document.addEventListener('DOMContentLoaded', () => {
-        const langSelector = document.getElementById('languageSelector');
+      document.addEventListener("DOMContentLoaded", () => {
+        const langSelector = document.getElementById("languageSelector");
         langSelector.value = currentLang;
         changeLanguage(currentLang);
 
-        langSelector.addEventListener('change', (e) => {
+        langSelector.addEventListener("change", (e) => {
           changeLanguage(e.target.value);
         });
       });
@@ -893,7 +936,7 @@
             currentInfoWindow = null;
           }
 
-          alert(t('alert.added', { name }));
+          alert(t("alert.added", { name }));
         };
 
         window.closeInfoWindow = function () {
@@ -904,7 +947,7 @@
         };
 
         window.deleteCourse = async function (courseId) {
-          if (!confirm(t('alert.deleteCourse'))) return;
+          if (!confirm(t("alert.deleteCourse"))) return;
 
           try {
             const res = await fetch(`/api/course/${courseId}`, {
@@ -913,7 +956,7 @@
             const data = await res.json();
 
             if (data.success) {
-              alert(t('alert.courseDeleted'));
+              alert(t("alert.courseDeleted"));
               // 코스 목록 새로고침
               document.getElementById("loadCoursesBtn").click();
             } else {
@@ -921,14 +964,14 @@
             }
           } catch (err) {
             console.error(err);
-            alert(t('alert.saveFailed'));
+            alert(t("alert.saveFailed"));
           }
         };
 
         // 장소 검색 기능
         document.getElementById("searchBtn").onclick = async function () {
           const query = document.getElementById("searchInput").value;
-          if (!query) return alert(t('alert.enterSearch'));
+          if (!query) return alert(t("alert.enterSearch"));
 
           try {
             const res = await fetch(
@@ -940,7 +983,7 @@
             markers = [];
 
             if (data.documents.length === 0) {
-              alert(t('alert.noResults'));
+              alert(t("alert.noResults"));
               return;
             }
 
@@ -990,7 +1033,7 @@
             );
           } catch (err) {
             console.error(err);
-            alert(t('alert.routeFailed'));
+            alert(t("alert.routeFailed"));
           }
         };
 
@@ -998,7 +1041,7 @@
         document.getElementById("searchContentBtn").onclick =
           async function () {
             const contentName = document.getElementById("contentSelect").value;
-            if (!contentName) return alert(t('alert.selectContent'));
+            if (!contentName) return alert(t("alert.selectContent"));
 
             try {
               const res = await fetch(
@@ -1010,7 +1053,7 @@
               markers = [];
 
               if (data.documents.length === 0) {
-                alert(t('alert.noLocations'));
+                alert(t("alert.noLocations"));
                 return;
               }
 
@@ -1059,7 +1102,7 @@
               }
             } catch (err) {
               console.error(err);
-              alert(t('alert.routeFailed'));
+              alert(t("alert.routeFailed"));
             }
           };
 
@@ -1076,17 +1119,21 @@
         document.getElementById("saveBtn").onclick = async function () {
           // 로그인 체크
           if (!window.currentUser) {
-            if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
-              window.location.href = '/auth';
+            if (
+              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
+            ) {
+              window.location.href = "/auth";
             }
             return;
           }
 
-          if (myCourse.length === 0)
-            return alert(t('alert.addPlaces'));
+          if (myCourse.length === 0) return alert(t("alert.addPlaces"));
 
           const userId = window.currentUser.id; // 로그인한 사용자 ID 사용
-          const name = prompt(t('alert.courseNamePrompt'), t('alert.courseNameDefault'));
+          const name = prompt(
+            t("alert.courseNamePrompt"),
+            t("alert.courseNameDefault")
+          );
           if (!name) return;
 
           try {
@@ -1097,15 +1144,15 @@
             });
             const data = await res.json();
             if (data.success) {
-              alert(t('alert.courseSaved') + data.courseId);
+              alert(t("alert.courseSaved") + data.courseId);
               myCourse = [];
               renderCourseList();
             } else {
-              alert(t('alert.saveFailed'));
+              alert(t("alert.saveFailed"));
             }
           } catch (err) {
             console.error(err);
-            alert(t('alert.saveFailed'));
+            alert(t("alert.saveFailed"));
           }
         };
 
@@ -1113,8 +1160,10 @@
         document.getElementById("loadCoursesBtn").onclick = async function () {
           // 로그인 체크
           if (!window.currentUser) {
-            if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
-              window.location.href = '/auth';
+            if (
+              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
+            ) {
+              window.location.href = "/auth";
             }
             return;
           }
@@ -1129,8 +1178,9 @@
             container.innerHTML = "";
 
             if (courses.length === 0) {
-              container.innerHTML =
-                `<p style='text-align:center; color:#999; padding:20px;'>${t('alert.noSavedCourses')}</p>`;
+              container.innerHTML = `<p style='text-align:center; color:#999; padding:20px;'>${t(
+                "alert.noSavedCourses"
+              )}</p>`;
               return;
             }
 
@@ -1154,17 +1204,17 @@
             });
           } catch (err) {
             console.error(err);
-            alert(t('alert.saveFailed'));
+            alert(t("alert.saveFailed"));
           }
         };
 
         // 커스텀 마커 생성 함수
         function createCustomMarker(position, label, isStart, isEnd) {
-          let bgColor = '#3A8DFF'; // 기본 파란색
-          if (isStart) bgColor = '#4CAF50'; // 출발: 초록색
-          if (isEnd) bgColor = '#FF4D8D'; // 도착: 분홍색
+          let bgColor = "#3A8DFF"; // 기본 파란색
+          if (isStart) bgColor = "#4CAF50"; // 출발: 초록색
+          if (isEnd) bgColor = "#FF4D8D"; // 도착: 분홍색
 
-          const content = document.createElement('div');
+          const content = document.createElement("div");
           content.style.cssText = `
             position: relative;
             width: 36px;
@@ -1184,13 +1234,13 @@
           `;
 
           content.innerHTML = label;
-          content.onmouseover = () => content.style.transform = 'scale(1.2)';
-          content.onmouseout = () => content.style.transform = 'scale(1)';
+          content.onmouseover = () => (content.style.transform = "scale(1.2)");
+          content.onmouseout = () => (content.style.transform = "scale(1)");
 
           const customOverlay = new kakao.maps.CustomOverlay({
             position: position,
             content: content,
-            yAnchor: 0.5
+            yAnchor: 0.5,
           });
 
           return customOverlay;
@@ -1238,18 +1288,18 @@
             );
           }
 
-          alert(t('alert.courseLoaded', { name: course.name }));
+          alert(t("alert.courseLoaded", { name: course.name }));
         }
 
         // AI 추천받기
         document.getElementById("aiRecommendBtn").onclick = function () {
-          window.location.href = '/aiCourse';
+          window.location.href = "/aiCourse";
         };
 
         // 경로 보기
         document.getElementById("showRouteBtn").onclick = async function () {
           if (myCourse.length < 2) {
-            return alert(t('alert.minTwoPlaces'));
+            return alert(t("alert.minTwoPlaces"));
           }
 
           // 기존 마커 제거 후 커스텀 마커로 재생성
@@ -1351,7 +1401,7 @@
             `;
           } catch (err) {
             console.error("경로 검색 에러:", err);
-            alert(t('alert.routeFailed'));
+            alert(t("alert.routeFailed"));
           }
         };
       });
