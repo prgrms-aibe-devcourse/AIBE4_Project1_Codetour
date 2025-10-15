@@ -138,11 +138,11 @@
     </main>
     <script src="/libs/user-manager.js"></script>
     <script type="module">
-      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+      import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
       const supabase = createClient(
-        'https://fmcxkqfccuevcaqkzsex.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtY3hrcWZjY3VldmNhcWt6c2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MDA5OTYsImV4cCI6MjA1MDE3Njk5Nn0.pWGr6o9t1JCVJp6aaLYCEyeXRvEGnvR7CtGUNrzpZHs'
+        "https://fmcxkqfccuevcaqkzsex.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtY3hrcWZjY3VldmNhcWt6c2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MDA5OTYsImV4cCI6MjA1MDE3Njk5Nn0.pWGr6o9t1JCVJp6aaLYCEyeXRvEGnvR7CtGUNrzpZHs"
       );
 
       async function updateUserGreeting() {
@@ -150,23 +150,25 @@
         const userManager = UserManager.getInstance();
 
         // Supabase에서 현재 사용자 확인
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
         if (user) {
           // 프로필에서 닉네임 가져오기
-          let displayName = user.email?.split('@')[0] || '사용자';
+          let displayName = user.email?.split("@")[0] || "사용자";
           try {
             const { data: profile } = await supabase
-              .from('profiles')
-              .select('display_name')
-              .eq('id', user.id)
+              .from("profiles")
+              .select("display_name")
+              .eq("id", user.id)
               .maybeSingle();
 
             if (profile?.display_name) {
               displayName = profile.display_name;
             }
           } catch (e) {
-            console.warn('프로필 로드 실패:', e);
+            console.warn("프로필 로드 실패:", e);
           }
 
           // UserManager 업데이트
@@ -174,8 +176,8 @@
             id: user.id,
             email: user.email,
             nickname: displayName,
-            profile_image_url: user.user_metadata?.avatar_url || '',
-            bio: ''
+            profile_image_url: user.user_metadata?.avatar_url || "",
+            bio: "",
           });
 
           // 화면에 표시
@@ -183,11 +185,6 @@
           if (welcomeElement) {
             welcomeElement.textContent = displayName;
           }
-        } else {
-          console.log("로그아웃 상태");
-          // returnUrl 저장하고 로그인 페이지로 이동
-          sessionStorage.setItem('returnUrl', window.location.pathname);
-          window.location.href = '/auth';
         }
       }
 
