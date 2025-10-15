@@ -21,6 +21,10 @@ const preferencePath = path.join(
   "../source/pages/preference/preference.html"
 );
 const authPath = path.join(__dirname, "../public/auth/login-demo.html");
+const myPagePath = path.join(
+  __dirname,
+  "../source/pages/my-page/my-page.html"
+);
 
 console.log("Index 경로:", indexPath);
 console.log("Index 파일 존재:", fs.existsSync(indexPath));
@@ -63,6 +67,10 @@ app.use(
   express.static(path.join(__dirname, "../source/pages/aiCourse"))
 );
 app.use("/auth", express.static(path.join(__dirname, "../public/auth")));
+app.use(
+  "/my-page",
+  express.static(path.join(__dirname, "../source/pages/my-page"))
+);
 // Bootstrap과 jQuery를 루트 경로에서 제공
 app.use("/bootstrap", express.static(path.join(__dirname, "../bootstrap")));
 app.use("/jquery", express.static(path.join(__dirname, "../jquery")));
@@ -105,6 +113,14 @@ app.get("/auth", (req, res) => {
     return res.status(404).send("auth-index.html을 찾을 수 없습니다");
   }
   res.sendFile(authPath);
+});
+
+// 마이페이지
+app.get("/my-page", (req, res) => {
+  if (!fs.existsSync(myPagePath)) {
+    return res.status(404).send("my-page.html을 찾을 수 없습니다");
+  }
+  res.sendFile(myPagePath);
 });
 
 // API 라우트 연결
