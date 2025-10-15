@@ -65,7 +65,7 @@ app.use((req, res, next) => {
       "img-src 'self' https: http: data: blob:",
 
       // OAuth/지도 등 외부 프레임 대비
-      "frame-src https:"
+      "frame-src https:",
     ].join("; ")
   );
   next();
@@ -437,10 +437,14 @@ app.get("/api/courses/:userId", async (req, res) => {
 // Delete a course
 app.delete("/api/courses/:courseId", async (req, res) => {
   const { courseId } = req.params;
-  if (!courseId) return res.status(400).json({ error: "Course ID is required" });
+  if (!courseId)
+    return res.status(400).json({ error: "Course ID is required" });
 
   try {
-    const { error } = await supabase.from("courses").delete().eq("id", courseId);
+    const { error } = await supabase
+      .from("courses")
+      .delete()
+      .eq("id", courseId);
     if (error) throw error;
     res.status(200).json({ message: "Course deleted successfully" });
   } catch (error) {
