@@ -13,7 +13,7 @@ body {
 }
 
 /* 헤더 스타일 */
-header {
+header:not(.header) {
   background-color: white;
   border-bottom: 1px solid #e0e0e0;
   padding: 16px 24px;
@@ -30,11 +30,6 @@ header {
   font-weight: 600;
 }
 
-.logo::before {
-  content: "©";
-  color: #00a896;
-  font-size: 20px;
-}
 
 .header-actions {
   display: flex;
@@ -593,4 +588,65 @@ main {
   .btn-save {
     width: 100%;
   }
+}
+
+.header {
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  padding: 0 !important;
+  border-bottom: none !important;
+}
+
+.header .container {
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 2rem !important;
+  display: block !important;
+}
+
+.header-top {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 12px 0 !important;
+  border-bottom: 1px solid #eee !important;
+}
+
+.header .nav {
+  display: flex !important;
+  justify-content: space-evenly !important;
+  align-items: center !important;
+  padding: 12px 0 !important;
+  border-bottom: none !important;
+}
+
+.header .nav-link {
+  text-decoration: none !important;
+  color: #2d3748 !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  padding: 8px 0 !important;
+  border-bottom: 3px solid transparent !important;
+}
+
+.header .nav-link.active {
+  color: #E91E8C !important;
+  border-bottom-color: #E91E8C !important;
+}
+
+.header .logo svg {
+  height: 45px !important;
+  width: 180px !important;
+}
+
+.header #loginBtn {
+  background: #E91E8C !important;
+  color: white !important;
+  padding: 0 16px !important;
+  height: 40px !important;
+  border: none !important;
+  border-radius: 8px !important;
 }
