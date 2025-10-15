@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node replace_alerts.js)",
+      "Bash(node server_map.js)",
+      "Bash(taskkill:*)",
+      "Bash(tasklist)",
+      "Bash(findstr \"node\")",
+      "Bash(node:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
