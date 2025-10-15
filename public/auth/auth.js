@@ -206,11 +206,14 @@ window.addEventListener("DOMContentLoaded", async () => {
   if (page === PATHS.INDEX) {
     await renderIndexUI();
 
-    if (exchanged) await routeByProfile();
+    await routeByProfile();
 
     supabase.auth.onAuthStateChange(async (event) => {
       if (["SIGNED_IN", "TOKEN_REFRESHED", "SIGNED_OUT"].includes(event)) {
         await renderIndexUI();
+          if (event !== "SIGNED_OUT") {
+            await routeByProfile();
+        }
       }
     });
   }
