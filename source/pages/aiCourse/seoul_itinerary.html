@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>서울 추천일정</title>
+    <style>
+      :root {
+        --brand: #3b82f6;
+        --txt: #0f172a;
+        --muted: #64748b;
+        --bg: #fff;
+        --card: #fff;
+        --line: #e2e8f0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, Apple SD Gothic Neo,
+          Malgun Gothic, Nanum Gothic, sans-serif;
+        background: var(--bg);
+        color: var(--txt);
+      }
+      .wrap {
+        width: min(980px, 92vw);
+        margin: 36px auto 64px;
+      }
+      header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        line-height: 1.2;
+      }
+      header p {
+        margin: 0 0 18px;
+        color: var(--muted);
+      }
+      .mapbox {
+        height: 300px;
+        background: #eef2ff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        color: #334155;
+        margin: 8px 0 18px;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin: 12px 0 8px;
+        flex-wrap: wrap;
+      }
+      .tab {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #f1f5f9;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .tab.active {
+        background: var(--brand);
+        color: white;
+        border-color: var(--brand);
+      }
+      .pane {
+        display: none;
+      }
+      .pane.active {
+        display: block;
+      }
+      .item {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        margin: 10px 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+      }
+      .num {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+      }
+      .thumb {
+        width: 64px;
+        height: 48px;
+        border-radius: 10px;
+        background: #e2e8f0;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        color: #475569;
+      }
+      .content .title {
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 2px;
+      }
+      .content .meta {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .content .rec {
+        font-size: 14px;
+        color: #334155;
+      }
+      .cta {
+        position: sticky;
+        bottom: 18px;
+        display: flex;
+        justify-content: center;
+        margin-top: 22px;
+      }
+      .cta button {
+        background: var(--brand);
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 12px 20px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header style="text-align: center">
+        <h1>
+          서울, 맞춤 <span style="color: var(--brand)">추천일정</span>입니다.
+        </h1>
+        <p>단계별로 여행 계획을 세워보세요.</p>
+      </header>
+      <div class="mapbox">(지도 연동 영역)</div>
+      <div class="tabs">
+        <button class="tab active" data-day="1">Day 1</button
+        ><button class="tab" data-day="2">Day 2</button
+        ><button class="tab" data-day="3">Day 3</button
+        ><button class="tab" data-day="4">Day 4</button
+        ><button class="tab" data-day="5">Day 5</button>
+      </div>
+
+      <section class="pane active" data-day="1">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb" aria-hidden="true">
+            <img
+              src="https://www.hallyutrail.com/blog/wp-content/uploads/2020/11/Namsan-Tower-Autumn.jpg"
+              alt="남산타워"
+              style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 10px;
+              "
+            />
+          </div>
+          <div class="content">
+            <div class="title">101번지 남산돈까스 본점</div>
+            <div class="meta">
+              show · <span class="addr">(04630)서울특별시 중구 소파로 101</span>
+            </div>
+            <div class="rec">추천 김종국이 춘뚱형제와 방문한 돈가스집</div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb" aria-hidden="true">1</div>
+          <div class="content">
+            <div class="title">10꼬르소꼬모 카페 청담점</div>
+            <div class="meta">
+              k-pop ·
+              <span class="addr">(06015)서울특별시 강남구 압구정로 416</span>
+            </div>
+            <div class="rec">
+              추천 태양이 민효린과 공개 데이트 한 곳 | 젠틀맨 뮤비의 전반부가
+              촬영된 장소 | &quot;발칙한 동거&quot;에서 진영, 혜연, 피오가 간 곳
+              | 제니가 인스타그램에 올린 레스토랑 겸 카페 | 유리와 티아라 효민이
+              함께 방문한 카페
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb" aria-hidden="true">1</div>
+          <div class="content">
+            <div class="title">17 피자</div>
+            <div class="meta">
+              show ·
+              <span class="addr">(02453)서울특별시 동대문구 회기로21길 22</span>
+            </div>
+            <div class="rec">추천 백종원의골목식당 53회 피자 맛집</div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb" aria-hidden="true">1</div>
+          <div class="content">
+            <div class="title">1953연남서서갈비</div>
+            <div class="meta">
+              drama ·
+              <span class="addr">(04017)서울특별시 마포구 희우정로 84</span>
+            </div>
+            <div class="rec">
+              추천 5회에서 차종현(문성근)은 오랜 친구이자 운전사
+              남명식(고창석)과 함께 술 한 잔을 하게 된다.
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb" aria-hidden="true">1</div>
+          <div class="content">
+            <div class="title">1인1상</div>
+            <div class="meta">
+              drama ·
+              <span class="addr">(03308)서울특별시 은평구 연서로 534</span>
+            </div>
+            <div class="rec">
+              추천 5회에서 권정록(이동욱)이 목격자와 만나는 곳이 바로 이 장소
+              3층이다.
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">6</div>
+          <div class="thumb" aria-hidden="true">2</div>
+          <div class="content">
+            <div class="title">21세기문구</div>
+            <div class="meta">
+              drama ·
+              <span class="addr">(03500)서울특별시 은평구 증산서길 62</span>
+            </div>
+            <div class="rec">
+              추천 최강수(고경표)의 엄마 가게이다. 최강수는 11회에서 좋은
+              친구(나중에 이복형제임을 알게 됨)를 방문하기 위해 이곳에 왔다.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pane" data-day="2">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb" aria-hidden="true">2</div>
+          <div class="content">
+            <div class="title">29펍 Tokyo Elegant 4호점</div>
+            <div class="meta">
+              drama ·
+              <span class="addr"
+                >(06123)서울특별시 강남구 강남대로110길 14</span
+              >
+            </div>
+            <div class="rec">
+              추천 11회에서 백수영(유인영)과 오세기(하준)가 이 술집에서 만나
+              술을 마신다.
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb" aria-hidden="true">3</div>
+          <div class="content">
+            <div class="title">32파르페 홍대점</div>
+            <div class="meta">
+              k-pop ·
+              <span class="addr">(04039)서울특별시 마포구 잔다리로6길 39</span>
+            </div>
+            <div class="rec">
+              추천 더보이즈 에릭이 32cm 롱아이스크림을 먹은 곳
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb" aria-hidden="true">3</div>
+          <div class="content">
+            <div class="title">3rd뮤지엄</div>
+            <div class="meta">
+              drama ·
+              <span class="addr">(04043)서울특별시 마포구 잔다리로3길 4</span>
+            </div>
+            <div class="rec">
+              추천 10회에서 강력범죄3팀은 이 가게를 몰래 찾아오는
+              &#x27;스네이크헤드&#x27;라는 수배범을 잡기 위해 이 가게를
+              측설합니다.
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb" aria-hidden="true">3</div>
+          <div class="content">
+            <div class="title">3대삼계장인</div>
+            <div class="meta">
+              show ·
+              <span class="addr"
+                >(06646)서울특별시 서초구 반포대로28길 56-3 1층</span
+              >
+            </div>
+            <div class="rec">
+              추천 맛있는녀석들 355회 잣삼계탕, 녹두삼계탕, 수비드닭볶음탕 맛집
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb" aria-hidden="true">5</div>
+          <div class="content">
+            <div class="title">508shop</div>
+            <div class="meta">
+              drama ·
+              <span class="addr"
+                >(03098)서울특별시 종로구 낙산성곽서1길 15</span
+              >
+            </div>
+            <div class="rec">
+              추천 4회에서 이 가게에서 술을 사고 난 뒤, 공주창(김선호)
+              차동탁(조정석)의 몸은 바로 앞 공원에서 마신다.
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">6</div>
+          <div class="thumb" aria-hidden="true">5</div>
+          <div class="content">
+            <div class="title">5500012카페</div>
+            <div class="meta">
+              drama ·
+              <span class="addr">(02747)서울특별시 성북구 장월로 23</span>
+            </div>
+            <div class="rec">
+              추천 3화에서 시목은 카페를 찾기 위한 사냥을 시작한다.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pane" data-day="3">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb" aria-hidden="true">5</div>
+          <div class="content">
+            <div class="title">57th카페</div>
+            <div class="meta">
+              drama ·
+              <span class="addr">(03062)서울특별시 종로구 율곡로3길 17</span>
+            </div>
+            <div class="rec">
+              추천 차동탁(조정석)과 송지안(혜리)이 여기에 와서 이야기를
+              나눕니다.
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb" aria-hidden="true">6</div>
+          <div class="content">
+            <div class="title">60계 치킨 압구정점</div>
+            <div class="meta">
+              show ·
+              <span class="addr"
+                >(06017)서울특별시 강남구 압구정로42길 36 1층 104호</span
+              >
+            </div>
+            <div class="rec">추천 전지적참견시점 19회 치킨 맛집</div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb" aria-hidden="true">6</div>
+          <div class="content">
+            <div class="title">63스퀘어</div>
+            <div class="meta">
+              drama ·
+              <span class="addr">(07345)서울특별시 영등포구 63로 50</span>
+            </div>
+            <div class="rec">
+              추천 3회에서 심청(지안나 준)은 허준재(이민호)를 만나러 수족관에서
+              수영을 한다. | 2회에서 DN그룹은 이 곳 홀에서 기념일 축하연을 열고,
+              차지헌(지성 분)이 공황발작으로 방을 떠나야 할 때까지 자신을 새로운
+              최고재무책임자로 소개한다. | 3화에서 서건우(임주환)는
+              김보라(성유리)를 데려온다. | 16회에서 이별 만찬을 위해 공명은
+              이곳에 박하나(박하선)를 데려갑니다. | 한이안(남주혁)은 이 건물 밖
+              공원에서 솜사탕을 산다. | 남수리(박규선)는 한강에서 이 건물을 보고
+              정면에 금덩어리가 들어있다고 생각하고 하백(박규선)과 합체시키려
+              한다. | 10회에서 허임(김남길)과 오하라(노정의)의 데이트장면에서
+              나온다. | 1회에서 이은비(김소현)와 한이안(남주혁)은 이 건물 밖
+              공원에서 솜사탕을 산다. | 8회에서 은소현(선우선)이 운영합니다. |
+              8화에서 주유린(이다해)는 설공찬(이동욱)과 함께 전망대로 천문대를
+              방문하는 장면으로 등장. 16회에서는 두 사람이 다시 이곳에서
+              재회하는 장면으로 등장. | 2회에서 이 무도회장에서 기념일을
+              축하한다. 그리고 차지헌(지성)은 공황 발작으로 인해 방을 떠나야 할
+              때까지 자신을 새로운 최고 재무 책임자라고 소개한다.
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb" aria-hidden="true">6</div>
+          <div class="content">
+            <div class="title">650</div>
+            <div class="meta">
+              drama ·
+              <span class="addr"
+                >(04048)서울특별시 마포구 독막로9길 38 3층</span
+              >
+            </div>
+            <div class="rec">
+              추천 권기석(김준한)은 봄밤 20회에서 이정인(한지민)에게 술을 마시러
+              왔다. 누나 이서인(임성언)은 정인이 아이가 있는 누군가를 만나고
+              있다는 사실을 알게 된다. 술을 마시며 정인의 전화를 기다리지만
+              이번에는 자신의 전략이 통하지 않는다는 ???실을 곧 알게 된다.
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb" aria-hidden="true">6</div>
+          <div class="content">
+            <div class="title">692고기포차</div>
+            <div class="meta">
+              drama ·
+              <span class="addr">(03073)서울특별시 종로구 창경궁로29길 25</span>
+            </div>
+            <div class="rec">
+              추천 홍이영(구구단 김세정)이 자주 지나치는 식당이다. 2화(전편
+              1화)에서 남자친구 문재인(김상균)에게 밥을 사줬던 회상이 떠올랐을
+              때, 밥이 모자랐을 때. 술에 취한 그녀는 바깥에서 장면을 연출하고,
+              결국 지나가던 그녀를 본 장윤(연우진)에게 끌려간다.
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">6</div>
+          <div class="thumb" aria-hidden="true">7</div>
+          <div class="content">
+            <div class="title">702 레코딩스튜디오</div>
+            <div class="meta">
+              drama ·
+              <span class="addr"
+                >(04031)서울특별시 마포구 동교로18길 40 B1F</span
+              >
+            </div>
+            <div class="rec">
+              추천 11/12회에서 차시안(정제원)의 녹음실 모습으로 나온다. 서울로
+              돌아온 그의 어머니 공은영(이일화)도 등장한다
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pane" data-day="4">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb" aria-hidden="true">8</div>
+          <div class="content">
+            <div class="title">8810 리스트레토 바</div>
+            <div class="meta">
+              drama ·
+              <span class="addr"
+                >(03993)서울특별시 마포구 월드컵북로6길 88-10</span
+              >
+            </div>
+            <div class="rec">추천 으라차차와이키키를 촬영한 연남동 카페</div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb" aria-hidden="true">9</div>
+          <div class="content">
+            <div class="title">91아파트</div>
+            <div class="meta">
+              drama ·
+              <span class="addr">(03058)서울특별시 종로구 창덕궁1길 19</span>
+            </div>
+            <div class="rec">
+              추천 9회에서 좌윤이(백진희)가 설날에 남치원(최다니엘)을 찾으러온
+              곳
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb" aria-hidden="true">9</div>
+          <div class="content">
+            <div class="title">99종합어시장</div>
+            <div class="meta">
+              show ·
+              <span class="addr"
+                >(07785)서울특별시 강서구 곰달래로 264 1층</span
+              >
+            </div>
+            <div class="rec">추천 생방송투데이 3089회 활어회, 매운탕 맛집</div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb" aria-hidden="true">9</div>
+          <div class="content">
+            <div class="title">9ounce Burger 낙성대점</div>
+            <div class="meta">
+              show ·
+              <span class="addr"
+                >(08790)서울특별시 관악구 관악로12길 108 1층</span
+              >
+            </div>
+            <div class="rec">
+              추천 백종원의 3대 천왕 64회 240g버거/나인온스버거 맛집
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb" aria-hidden="true">?</div>
+          <div class="content">
+            <div class="title">??의선숲길공원</div>
+            <div class="meta">
+              drama ·
+              <span class="addr">서울특별시 마포구 연남동 연남로 80</span>
+            </div>
+            <div class="rec">추천 공유영(박지훈)의 등교길로 나온다.</div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">6</div>
+          <div class="thumb" aria-hidden="true">A</div>
+          <div class="content">
+            <div class="title">Apart</div>
+            <div class="meta">
+              show ·
+              <span class="addr">(03699)서울특별시 서대문구 연희로 153</span>
+            </div>
+            <div class="rec">
+              추천 생방송오늘저녁 1797회 닭가슴살삼합, 관자스테이크배추구이,
+              농어구이 맛집
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="pane" data-day="5">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb" aria-hidden="true">B</div>
+          <div class="content">
+            <div class="title">BBQ 헬리오시티점</div>
+            <div class="meta">
+              drama ·
+              <span class="addr">(05695)서울특별시 송파구 송파대로37길 78</span>
+            </div>
+            <div class="rec">
+              추천 세리 회사 홍보팀장님 닭 다리 뜯던 단골 치킨집
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb" aria-hidden="true">B</div>
+          <div class="content">
+            <div class="title">BBQ치킨 성북스타 2호점</div>
+            <div class="meta">
+              drama ·
+              <span class="addr">(03094)서울특별시 종로구 지봉로 99-2</span>
+            </div>
+            <div class="rec">추천 봄밤에서 김준한과 임현수가 간 치킨집</div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb" aria-hidden="true">B</div>
+          <div class="content">
+            <div class="title">BBQ치킨 우장산점</div>
+            <div class="meta">
+              drama ·
+              <span class="addr">(07690)서울특별시 강서구 우현로 26</span>
+            </div>
+            <div class="rec">추천 봄밤에서 정해인이 간 치킨집</div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb" aria-hidden="true">B</div>
+          <div class="content">
+            <div class="title">BHC치킨 사당점</div>
+            <div class="meta">
+              k-pop ·
+              <span class="addr">(07015)서울특별시 동작구 동작대로7길 16</span>
+            </div>
+            <div class="rec">추천 틴탑 리키 부모님이 운영하는 치킨집</div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb" aria-hidden="true">B</div>
+          <div class="content">
+            <div class="title">BK볏짚 우대갈비 장안동본점</div>
+            <div class="meta">
+              show ·
+              <span class="addr"
+                >(02639)서울특별시 동대문구 장한로26가길 29 1층</span
+              >
+            </div>
+            <div class="rec">
+              추천 2TV생생정보 1611회 우대갈비, 된장찌개 맛집
+            </div>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="num">6</div>
+          <div class="thumb" aria-hidden="true">B</div>
+          <div class="content">
+            <div class="title">BLT 스테이크</div>
+            <div class="meta">
+              show ·
+              <span class="addr">(03198)서울특별시 종로구 청계천로 279</span>
+            </div>
+            <div class="rec">추천 서울에서 맛보는 뉴욕 3대 스테이크 맛집</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="cta"><button>내 일정으로 담기</button></div>
+    </div>
+    <script>
+      const tabs = document.querySelectorAll(".tab");
+      const panes = document.querySelectorAll(".pane");
+      tabs.forEach((t) =>
+        t.addEventListener("click", () => {
+          tabs.forEach((b) => b.classList.remove("active"));
+          panes.forEach((p) => p.classList.remove("active"));
+          t.classList.add("active");
+          document
+            .querySelector(`.pane[data-day="${t.dataset.day}"]`)
+            .classList.add("active");
+        })
+      );
+    </script>
+  </body>
+</html>
