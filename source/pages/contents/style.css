@@ -1,0 +1,818 @@
+/* General Body Styles */
+body {
+  box-sizing: border-box;
+  background: #f5faf8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  font-family: "Noto Sans KR", sans-serif;
+  color: #172522;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header Styles */
+header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px 0px 17px;
+  gap: 1px;
+  width: 100%;
+  height: 177px;
+  backdrop-filter: blur(4px);
+  z-index: 1;
+}
+
+header .container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px;
+  gap: 1163.02px;
+  width: 100%;
+  max-width: 1536px;
+  height: 56px;
+  margin: 0 auto;
+}
+
+header .logo-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px;
+  gap: 8px;
+  width: 153px;
+  height: 28px;
+}
+
+header .logo-container .logo-text {
+  width: 125px;
+  height: 28px;
+  font-family: "Noto Sans KR";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 28px;
+  display: flex;
+  align-items: center;
+  color: #172522;
+}
+
+header .action-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px;
+  gap: 12px;
+  width: 263px;
+  height: 36px;
+}
+
+/* Main Content Styles */
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 48px 0px;
+  gap: 32px;
+  width: 100%;
+  max-width: 1536px;
+  margin: 0 auto;
+}
+
+/* Card Styles */
+.card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0; /* 내부 패딩 제거, content-container에서 조절 */
+  gap: 24px;
+  isolation: isolate;
+  background: #ffffff;
+  border: 1px solid #d1dad8;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1),
+    0px 1px 2px -1px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  /* 3개의 카드가 한 줄에 배치되도록 너비 계산 (gap: 20px) */
+  flex-basis: calc(33.333% - 13.333px);
+  max-width: calc(33.333% - 13.333px);
+}
+.card {
+  position: relative; /* 좋아요 버튼의 위치 기준점 */
+}
+
+.image-container .badge {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 3px 9px;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  background: #00473c;
+  border-radius: 10px;
+  font-family: "Noto Sans KR";
+  font-style: normal;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  color: #f5faf8;
+}
+
+.card .content-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
+  gap: 8px;
+  width: 100%; /* 너비를 100%로 설정 */
+  padding-bottom: 60px; /* 버튼 공간 확보 */
+  box-sizing: border-box; /* 패딩이 너비에 포함되도록 함 */
+}
+
+.card .content-container h3 {
+  height: 28px;
+  font-family: "Noto Sans KR";
+  font-style: normal;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  display: flex;
+  align-items: center;
+  color: #172522;
+  margin: 0;
+}
+
+.card .content-container .description {
+  height: 23px;
+  font-family: "Noto Sans KR";
+  font-style: normal;
+  font-weight: 350;
+  font-size: 14px;
+  line-height: 23px;
+  display: flex;
+  align-items: center;
+  color: #576764;
+}
+
+.card .content-container .details {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0px 0px;
+  width: 100%;
+  height: 40px;
+}
+
+.details-button,
+.like-button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #d1dad8;
+  background-color: #fff;
+  cursor: pointer;
+  font-family: "Noto Sans KR", sans-serif;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.details-button {
+  color: #00473c;
+}
+
+.details-button:hover {
+  background-color: #f0f5f4;
+}
+
+.like-button {
+  position: absolute; /* 절대 위치 지정 */
+  bottom: 20px; /* 아래쪽에서 20px */
+  right: 20px; /* 오른쪽에서 20px */
+  font-size: 16px;
+  color: #e53e3e; /* 하트 색상 */
+  border: none; /* 테두리 제거 */
+  background: none; /* 배경 제거 */
+}
+
+.like-button:hover {
+  transform: scale(1.2); /* 호버 시 약간 커지는 효과 */
+}
+
+/* 카드 컨테이너 스타일 */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start; /* 왼쪽 정렬로 변경 */
+}
+
+/* 탭 메뉴 스타일 */
+.tab-menu {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin: 30px auto;
+  max-width: 1536px;
+  border-bottom: 2px solid #d1dad8;
+}
+
+.tab-button {
+  padding: 15px 30px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: "Noto Sans KR";
+  font-style: normal;
+  font-size: 16px;
+  font-weight: 500;
+  color: #576764;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+  position: relative;
+  bottom: -2px;
+}
+
+.tab-button:hover {
+  color: #172522;
+  background-color: rgba(0, 71, 60, 0.05);
+}
+
+.tab-button.active {
+  color: #00473c;
+  border-bottom-color: #00473c;
+  font-weight: 600;
+}
+
+/* Main header 스타일 */
+.main-header {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.main-header h1 {
+  font-family: "Noto Sans KR";
+  font-weight: 700;
+  font-size: 32px;
+  color: #172522;
+  margin: 0 0 8px 0;
+}
+
+.main-header p {
+  font-family: "Noto Sans KR";
+  font-weight: 400;
+  font-size: 16px;
+  color: #576764;
+  margin: 0;
+}
+
+/* 이미지 크기 조절을 위한 CSS */
+.image-container {
+  position: relative; /* badge 위치의 기준점 */
+  width: 100%;
+  height: 200px; /* 모든 이미지 컨테이너의 높이를 200px로 고정 */
+  overflow: hidden; /* 컨테이너를 벗어나는 이미지 부분을 숨김 */
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 이미지가 비율을 유지하며 컨테이너를 가득 채우도록 설정 */
+  display: block; /* 이미지 아래의 불필요한 여백 제거 */
+}
+
+/* 이미지가 없을 때 표시될 스타일 */
+.no-image {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  color: #888;
+  font-size: 16px;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default - JS controls this */
+  position: fixed; /* Stay in place */
+  z-index: 1000; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0, 0, 0, 0.6); /* Black w/ opacity */
+  justify-content: center;
+  align-items: center;
+}
+
+/* 모달 콘텐츠 박스 */
+.modal-content {
+  background-color: #fefefe;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 90%;
+  max-width: 1600px;
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  animation-name: animatetop;
+  animation-duration: 0.4s;
+  height: 80vh; /* 모달의 높이를 화면 높이의 80%로 고정 */
+  overflow-y: auto; /* 내용이 넘칠 경우 세로 스크롤 생성 */
+}
+
+/* 모달 나타나는 애니메이션 */
+@keyframes animatetop {
+  from {
+    top: -300px;
+    opacity: 0;
+  }
+  to {
+    top: 0;
+    opacity: 0.4;
+  }
+}
+
+/* 닫기 버튼 (X) */
+.modal-close,
+.detail-modal-close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.modal-close:hover,
+.modal-close:focus,
+.detail-modal-close:hover,
+.detail-modal-close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 모달 내부 콘텐츠 스타일 */
+#modal-body h2 {
+  margin-top: 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+#modal-body p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+#modal-body hr {
+  border: 0;
+  border-top: 1px solid #eee;
+  margin: 20px 0;
+}
+
+#modal-body h3 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* 모달 내부 이미지 스타일 */
+#modal-body img {
+  width: 100%;
+  height: 200px; /* 카드 이미지와 동일하게 높이를 200px로 고정 */
+  object-fit: contain; /* 카드 이미지와 동일하게 비율을 유지하며 영역을 채우도록 설정 */
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+/* 모달 내부 Swiper/Location Card 스타일 */
+.location-slider .swiper-slide {
+  padding: 0px 10px; /* 좌우 네비게이션 버튼과의 간격 확보 */
+}
+
+.location-grid {
+  display: grid;
+  /* 항상 2개의 열을 갖는 2x2 그리드로 설정 */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.location-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10;
+  isolation: isolate;
+  background: #ffffff;
+  border: 1px solid #d1dad8;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1),
+    0px 1px 2px -1px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.location-card img {
+  width: 100%;
+  height: 200px; /* 메인 카드와 동일한 높이로 조정 */
+  object-fit: cover;
+}
+
+.location-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 20px;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.location-card-content h5 {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 20px; /* 메인 카드 제목과 동일한 크기 */
+  font-weight: 600;
+  color: #172522;
+}
+
+.location-card-content p {
+  margin: 0;
+  font-size: 14px; /* 메인 카드 설명과 동일한 크기 */
+  color: #576764;
+  line-height: 23px;
+}
+
+.location-card-content .address {
+  font-size: 12px;
+  color: #777;
+}
+
+/* 모달 내부 Swiper 컨트롤러 스타일 */
+.swiper-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px; /* 카드 그리드와의 간격 */
+  gap: 20px;
+}
+
+.location-slider .swiper-button-next,
+.location-slider .swiper-button-prev {
+  position: static; /* top, left 등 위치 속성 초기화 */
+  width: auto;
+  height: auto;
+  margin-top: 0;
+  color: #00473c;
+}
+
+.location-slider .swiper-button-next::after,
+.location-slider .swiper-button-prev::after {
+  font-size: 24px; /* 버튼 아이콘 크기 조정 */
+  font-weight: 600;
+}
+
+.location-slider .swiper-pagination {
+  position: static; /* 위치 속성 초기화 */
+  width: auto;
+}
+
+.location-slider .swiper-pagination-bullet-active {
+  background-color: #00473c;
+}
+
+/* Detail Modal Image Slider Styles */
+.detail-image-slider {
+  width: 100%;
+  height: 400px; /* 슬라이더 높이 지정 */
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.detail-image-slider .swiper-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+}
+
+.detail-image-slider .swiper-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.detail-image-slider .swiper-button-next,
+.detail-image-slider .swiper-button-prev {
+  color: #00473c;
+  --swiper-navigation-size: 30px;
+}
+
+.detail-image-slider .swiper-pagination-bullet-active {
+  background-color: #00473c;
+}
+
+/* Detail Page Styles */
+.detail-page-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.detail-page-container h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.detail-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 32px;
+  margin-top: 24px;
+}
+
+.detail-info-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+/* Detail Page Header with Like Button */
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.detail-header h2 {
+  margin: 0;
+}
+
+.detail-header .like-button {
+  position: static; /* 기존 absolute 속성 무효화 */
+  font-size: 32px; /* 제목과 어울리도록 크기 키움 */
+}
+
+/* Detail Page Map Section */
+.map-section {
+  margin-top: 40px;
+  border-top: 1px solid #eee;
+  padding-top: 40px;
+}
+
+.map-section h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+#map {
+  width: 100%;
+  height: 450px;
+  background-color: #f0f0f0; /* 지도 로딩 전 회색 배경 */
+  border-radius: 8px;
+}
+
+/* Detail Page Reviews Section */
+.reviews-section {
+  margin-top: 40px;
+  border-top: 1px solid #eee;
+  padding-top: 40px;
+}
+
+.reviews-section h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 24px 0;
+}
+
+/* Review Summary (Average Rating) */
+.review-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.review-summary .average-rating {
+  font-size: 28px;
+  font-weight: 700;
+  color: #00473c;
+}
+
+.review-summary .review-count {
+  font-size: 14px;
+  color: #576764;
+}
+
+/* Star Rating Display */
+.stars-outer {
+  position: relative;
+  display: inline-block;
+  font-size: 24px;
+}
+
+.stars-outer::before {
+  content: "★★★★★";
+  color: #e0e0e0; /* 비어있는 별 색상 */
+}
+
+.stars-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 0;
+}
+
+.stars-inner::before {
+  content: "★★★★★";
+  color: #ffc107; /* 채워진 별 색상 */
+}
+
+/* Review List */
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.review-item {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 24px;
+}
+
+.review-item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.review-item-header .review-author {
+  font-weight: 600;
+}
+
+.review-item-header .stars-outer {
+  font-size: 16px;
+}
+
+.review-item .review-text {
+  margin: 0 0 8px 0;
+  line-height: 1.6;
+}
+
+.review-item .review-date {
+  font-size: 12px;
+  color: #888;
+}
+
+.review-item .review-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+  margin: 8px 0;
+}
+
+/* Review Form */
+.review-form-container {
+  margin-top: 40px;
+  padding: 24px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.review-form-container h4 {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+}
+
+#review-form textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid #d1dad8;
+  border-radius: 8px;
+  resize: vertical;
+  margin-bottom: 16px;
+}
+
+/* Recently Visited Section */
+.recently-visited-section {
+  width: 100%;
+  max-width: 1536px;
+  margin: 0 auto 48px auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.recently-visited-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #d1dad8;
+  padding-bottom: 16px;
+}
+
+.recently-visited-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #172522;
+  margin: 0;
+}
+
+.clear-all-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #576764;
+  background-color: transparent;
+  border: 1px solid #d1dad8;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clear-all-btn:hover {
+  background-color: #f0f5f4;
+  color: #172522;
+}
+
+.recently-visited-list {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.recent-item-card {
+  position: relative;
+  flex: 0 0 220px; /* 카드의 너비를 고정 */
+  border: 1px solid #d1dad8;
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s;
+}
+
+.recent-item-card:hover {
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.recent-item-card img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+
+.recent-item-card p {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recent-item-delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 1;
+}

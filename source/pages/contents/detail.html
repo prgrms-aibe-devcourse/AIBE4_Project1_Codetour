@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>상세 정보 - CodeTour</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swiper/swiper-bundle.min.css"
+    />
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="logo-container">
+          <div class="logo-text">CodeTour</div>
+        </div>
+        <div class="action-container">
+          <button>로그인</button>
+          <button>회원가입</button>
+        </div>
+      </div>
+      <nav>
+        <a href="index.html">홈</a>
+        <a href="contents.html">콘텐츠별 여행지</a>
+        <a href="#">지역별 탐색</a>
+        <a href="#">여행 코스</a>
+        <a href="#">인기 여행 루트</a>
+        <a href="#">마이페이지</a>
+      </nav>
+    </header>
+
+    <main>
+      <div id="detail-container" class="detail-page-container">
+        <!-- 상세 정보가 여기에 동적으로 삽입됩니다. -->
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; Kspot</p>
+    </footer>
+
+    <script type="module">
+      let supabase;
+
+      // Supabase 클라이언트 초기화
+      async function initSupabase() {
+        try {
+          const response = await fetch("http://localhost:3000/api/config");
+          if (!response.ok) throw new Error("Failed to fetch Supabase config");
+          const config = await response.json();
+          supabase = window.supabase.createClient(
+            config.supabaseUrl,
+            config.supabaseKey
+          );
+          await loadPlaceDetails(); // 장소 상세 정보 로드
+        } catch (error) {
+          console.error("Error initializing Supabase:", error);
+          const detailContainer = document.getElementById("detail-container");
+          detailContainer.innerHTML = `<p>초기화 중 오류가 발생했습니다: ${error.message}</p>`;
+        }
+      }
+
+      // URL에서 placeId를 가져와 상세 정보를 로드하는 함수
+      async function loadPlaceDetails() {
+        const detailContainer = document.getElementById("detail-container");
+        detailContainer.innerHTML = "<p>상세 정보를 불러오는 중입니다...</p>";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const placeId = urlParams.get("placeId");
+
+        if (!placeId) {
+          detailContainer.innerHTML =
+            "<p>장소 ID가 올바르지 않습니다. 이전 페이지로 돌아가 다시 시도해주세요.</p>";
+          return;
+        }
+
+        try {
+          // Promise.all을 사용하여 location 정보와 images 정보를 동시에 가져옵니다.
+          const [locationRes, imagesRes, reviewsRes] = await Promise.all([
+            supabase.from("location").select("*").eq("placeId", placeId),
+            supabase.from("images").select("imageUrl").eq("placeId", placeId),
+            supabase.from("reviews").select("*").eq("location_id", placeId),
+          ]);
+
+          const { data: locations, error: locationError } = locationRes;
+          const { data: images, error: imageError } = imagesRes;
+          const { data: reviews, error: reviewError } = reviewsRes;
+          if (locationError) throw locationError;
+          if (imageError) throw imageError;
+          if (reviewError) throw reviewError;
+
+          if (!locations || locations.length === 0) {
+            detailContainer.innerHTML = "<p>장소 정보를 찾을 수 없습니다.</p>";
+            return;
+          }
+
+          const mainLocation = locations[0];
+
+          // --- 최근 방문 목록 저장 로직 ---
+          const RECENTLY_VISITED_KEY = "recentlyVisited";
+          const MAX_ITEMS = 5;
+
+          // 1. 기존 목록 불러오기
+          let recentlyVisited =
+            JSON.parse(localStorage.getItem(RECENTLY_VISITED_KEY)) || [];
+
+          // 2. 현재 항목이 목록에 있는지 확인하고, 있다면 제거
+          recentlyVisited = recentlyVisited.filter(
+            (item) => item.placeId !== mainLocation.placeId
+          );
+
+          // 3. 새 항목을 맨 앞에 추가
+          recentlyVisited.unshift({
+            placeId: mainLocation.placeId,
+            placeName: mainLocation.placeName,
+            imageUrl:
+              mainLocation.imageUrl || (images[0] ? images[0].imageUrl : ""),
+          });
+
+          // 4. 목록 길이를 5개로 제한
+          if (recentlyVisited.length > MAX_ITEMS) {
+            recentlyVisited.pop();
+          }
+
+          // 5. 최종 목록을 localStorage에 저장
+          localStorage.setItem(
+            RECENTLY_VISITED_KEY,
+            JSON.stringify(recentlyVisited)
+          );
+
+          let html = `
+            <div class="detail-header">
+              <h2>${mainLocation.placeName}</h2>
+              <button class="like-button" data-place-id="${mainLocation.placeId}">♡</button>
+            </div>`;
+
+          // 이미지 슬라이더 또는 단일 이미지 표시
+          if (images && images.length > 1) {
+            html += `
+              <div class="swiper-container detail-image-slider">
+                <div class="swiper-wrapper">
+            `;
+            images.forEach((img) => {
+              html += `
+                <div class="swiper-slide">
+                  <img src="${img.imageUrl}" alt="${mainLocation.name} 이미지">
+                </div>
+              `;
+            });
+            html += `
+                </div>
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+              </div>
+            `;
+          } else if (images && images.length === 1) {
+            html += `<img src="${images[0].imageUrl}" alt="${mainLocation.name}" style="width: 100%; height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 20px;">`;
+          } else {
+            html += `<img src="${mainLocation.imageUrl || ""}" alt="${
+              mainLocation.name
+            }" style="max-width: 100%; height: 200px;" onerror="this.outerHTML='<div class=\\'no-image\\'>이미지가 없습니다.</div>'">`;
+          }
+
+          // 상세 정보 표시
+          html += `<div class="detail-info-grid">`;
+          html += `<p><strong>주소:</strong> ${
+            mainLocation.address || "정보 없음"
+          }</p>`;
+          html += `<p><strong>연락처:</strong> ${
+            mainLocation.tel || "정보 없음"
+          }</p>`;
+          html += `<p><strong>입장료:</strong> ${
+            mainLocation.entranceFee || "정보 없음"
+          }</p>`;
+          html += `<p><strong>운영 시간:</strong> ${
+            mainLocation.subDescription || "정보 없음"
+          }</p>`;
+          html += `<p class="full-width"><strong>설명:</strong> ${
+            mainLocation.description || "정보 없음"
+          }</p>`;
+          html += `</div>`;
+
+          // 지도 섹션 추가
+          html += `
+            <div class="map-section">
+              <h3>위치 정보</h3>
+              <div id="map"></div>
+            </div>
+          `;
+
+          // --- 리뷰 섹션 동적 생성 ---
+          let reviewSummaryHtml = "";
+          let reviewListHtml = "";
+
+          if (reviews && reviews.length > 0) {
+            // 평균 평점 및 리뷰 수 계산
+            const totalRating = reviews.reduce(
+              (sum, review) => sum + review.rating,
+              0
+            );
+            const averageRating = (totalRating / reviews.length).toFixed(1);
+            const starPercentage = (averageRating / 5) * 100;
+
+            reviewSummaryHtml = `
+              <div class="review-summary">
+                <span class="average-rating">${averageRating}</span>
+                <div class="stars-outer">
+                  <div class="stars-inner" style="width: ${starPercentage}%;"></div>
+                </div>
+                <span class="review-count">(${reviews.length}개의 리뷰)</span>
+              </div>
+            `;
+
+            // 리뷰 목록 생성
+            reviews.forEach((review) => {
+              const reviewStarPercentage = (review.rating / 5) * 100;
+              const reviewDate = new Date(
+                review.created_at
+              ).toLocaleDateString();
+              reviewListHtml += `
+                <div class="review-item">
+                  <div class="review-item-header">
+                    <span class="review-author">${review.author}</span>
+                    <div class="stars-outer"><div class="stars-inner" style="width: ${reviewStarPercentage}%;"></div></div>
+                  </div>
+                  <p class="review-text">${review.text}</p>
+                  ${
+                    review.imageUrl
+                      ? `<img src="${review.imageUrl}" alt="리뷰 이미지" class="review-image" style="width:120px; height:120px; object-fit:cover; border-radius:8px; margin:8px 0;">`
+                      : ""
+                  }
+                  <span class="review-date">${reviewDate}</span>
+                </div>`;
+            });
+          } else {
+            reviewListHtml =
+              "<p>아직 작성된 리뷰가 없습니다. 첫 리뷰를 남겨주세요!</p>";
+          }
+
+          // 유저 평점 및 리뷰 섹션 추가
+          html += `
+            <div class="reviews-section">
+              <h3>유저 리뷰 및 평점</h3>
+              ${reviewSummaryHtml}
+              <div class="review-list">${reviewListHtml}</div>
+
+              <!-- 리뷰 작성 폼 -->
+              <div class="review-form-container">
+                <h4>리뷰 작성하기</h4>
+                <form id="review-form">
+                  <textarea id="review-text" placeholder="이 장소에 대한 경험을 공유해주세요." required></textarea>
+                  <button type="submit" class="details-button">리뷰 등록</button>
+                </form>
+              </div>
+            </div>
+          `;
+
+          detailContainer.innerHTML = html;
+
+          // '좋아요' 버튼에 이벤트 리스너 추가
+          const likeButton = detailContainer.querySelector(".like-button");
+          if (likeButton) {
+            likeButton.addEventListener("click", (event) => {
+              event.stopPropagation();
+              if (likeButton.textContent === "♡") {
+                likeButton.textContent = "♥";
+              } else {
+                likeButton.textContent = "♡";
+              }
+            });
+          }
+
+          // 이미지가 여러 장일 때만 Swiper를 초기화합니다.
+          if (images && images.length > 1) {
+            new Swiper(".detail-image-slider", {
+              loop: true,
+              pagination: {
+                el: ".swiper-pagination",
+                clickable: true,
+              },
+              navigation: {
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+              },
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching location details:", error);
+          detailContainer.innerHTML = `<p>장소 정보를 불러오는 데 실패했습니다: ${error.message}</p>`;
+        }
+      }
+
+      // 페이지 로드 시 초기화 함수 실행
+      initSupabase();
+    </script>
+  </body>
+</html>
