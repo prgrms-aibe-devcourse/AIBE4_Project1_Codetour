@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kspot-mypage</title>
+    <link rel="stylesheet" href="../index/style.css" />
+    <link rel="stylesheet" href="my-page.css" />
+    <script src="/libs/include.js" defer></script>
+    <style>
+      h1 {
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 40px;
+      }
+
+      .subtitle .highlight {
+        color: #00a896;
+        font-weight: 600;
+      }
+
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 24px;
+      }
+
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 32px 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+
+      .card:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+      }
+
+      .card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+
+      .card-icon.teal {
+        background-color: #e0f5f3;
+        color: #00a896;
+      }
+
+      .card-icon.blue {
+        background-color: #e3f2fd;
+        color: #2196f3;
+      }
+
+      .card-icon.pink {
+        background-color: #fce4ec;
+        color: #e91e63;
+      }
+
+      .card-icon.purple {
+        background-color: #f3e5f5;
+        color: #9c27b0;
+      }
+
+      .card h3 {
+        font-size: 18px;
+        margin-bottom: 12px;
+        color: #222;
+      }
+
+      .card p {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container">
+        <div class="header-top">
+          <a href="/source/pages/index/index.html" class="logo">
+            <svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style="stop-color: #e91e8c; stop-opacity: 1" />
+                  <stop offset="100%" style="stop-color: #ff6b9d; stop-opacity: 1" />
+                </linearGradient>
+                <style>
+                  .logo-text { font-family: "Pretendard", sans-serif; font-weight: 800; font-size: 40px; fill: url(#logoGradient); letter-spacing: -1px; }
+                </style>
+              </defs>
+              <text x="0" y="37" class="logo-text">K</text>
+              <text x="30" y="37" class="logo-text">-</text>
+              <text x="44" y="37" class="logo-text">S</text>
+              <text x="70" y="37" class="logo-text">P</text>
+              <g transform="translate(95.5, 4) scale(0.93)">
+                <path d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z" fill="url(#logoGradient)"/>
+                <circle cx="18" cy="13" r="8" fill="white"/>
+              </g>
+              <text x="128" y="37" class="logo-text">T</text>
+            </svg>
+          </a>
+          <div class="header-right" style="display: flex; gap: 8px; align-items: center">
+            <select class="lang-select"><option value="ko">한국어</option><option value="en">English</option></select>
+            <button class="btn-search">🔍</button>
+            <button id="loginBtn">로그인</button>
+          </div>
+        </div>
+        
+        <nav class="nav">
+          <a href="/source/pages/index/index.html" class="nav-link">홈</a>
+          <a href="#content" class="nav-link">콘텐츠별 여행지</a>
+          <a href="/source/pages/aiCourse/aiSchedule.html" class="nav-link">AI 코스 추천</a>
+          <a href="/source/pages/map/map_page.html" class="nav-link">K-콘텐츠 여행 지도</a>
+          <a href="#routes" class="nav-link">인기 여행 루트</a>
+          <a href="/source/pages/my-page/my-page.html" class="nav-link active">마이페이지</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div id="mypage-home">
+        <h1>마이페이지</h1>
+        <p class="subtitle">
+          안녕하세요, <span class="highlight">김여행</span>님!
+        </p>
+
+        <div class="card-grid">
+          <div class="card" onclick="location.href='my-page-profile.html'">
+            <div class="card-icon teal">👤</div>
+            <h3>개인정보 관리</h3>
+            <p>프로필, 이메일, 비밀번호 변경</p>
+          </div>
+
+          <div class="card" onclick="location.href='my-page-preference.html'">
+            <div class="card-icon blue">⚙️</div>
+            <h3>여행 선호도 설정</h3>
+            <p>관심 태그, 여행, 여행 스타일 설정</p>
+          </div>
+
+          <div class="card" onclick="location.href='my-page-favorite.html'">
+            <div class="card-icon pink">❤️</div>
+            <h3>관심 콘텐츠 관리</h3>
+            <p>좋아요한 컨텐츠, 여행지, 코스 보기</p>
+          </div>
+
+          <div class="card" onclick="location.href='my-page-course.html'">
+            <div class="card-icon purple">📑</div>
+            <h3>나의 여행 코스</h3>
+            <p>생성 및 저장된 여행 코스</p>
+          </div>
+
+          <div class="card" onclick="location.href='my-page-review.html'">
+            <div class="card-icon teal">💬</div>
+            <h3>리뷰 관리</h3>
+            <p>작성한 리뷰 및 평점 관리</p>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script src="/libs/user-manager.js"></script>
+    <script type="module">
+      import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+      const supabase = createClient(
+        "https://fmcxkqfccuevcaqkzsex.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtY3hrcWZjY3VldmNhcWt6c2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MDA5OTYsImV4cCI6MjA1MDE3Njk5Nn0.pWGr6o9t1JCVJp6aaLYCEyeXRvEGnvR7CtGUNrzpZHs"
+      );
+
+      async function updateUserGreeting() {
+        console.log("Update user greeting");
+        const userManager = UserManager.getInstance();
+
+        // Supabase에서 현재 사용자 확인
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          // 프로필에서 닉네임 가져오기
+          let displayName = user.email?.split("@")[0] || "사용자";
+          try {
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("display_name")
+              .eq("id", user.id)
+              .maybeSingle();
+
+            if (profile?.display_name) {
+              displayName = profile.display_name;
+            }
+          } catch (e) {
+            console.warn("프로필 로드 실패:", e);
+          }
+
+          // UserManager 업데이트
+          userManager.setLoggedInUser({
+            id: user.id,
+            email: user.email,
+            nickname: displayName,
+            profile_image_url: user.user_metadata?.avatar_url || "",
+            bio: "",
+          });
+
+          // 화면에 표시
+          const welcomeElement = document.querySelector(".subtitle .highlight");
+          if (welcomeElement) {
+            welcomeElement.textContent = displayName;
+          }
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", updateUserGreeting);
+    </script>
+  </body>
+</html>

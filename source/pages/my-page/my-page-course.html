@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KSpot-나의 여행 코스</title>
+    <link rel="stylesheet" href="my-page.css" />
+    <script src="/libs/user-manager.js"></script>
+    <script src="/libs/include.js" defer></script>
+    <style>
+      .course-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .course-item {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+        overflow: hidden;
+      }
+      .course-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .course-header:hover {
+        background-color: #f9f9f9;
+      }
+      .course-name {
+        font-size: 18px;
+        font-weight: 600;
+      }
+      .course-date {
+        font-size: 13px;
+        color: #888;
+        margin-top: 4px;
+      }
+      .course-actions button {
+        background: none;
+        border: none;
+        color: #e74c3c;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: all 0.3s;
+      }
+      .course-actions button:hover {
+        background-color: #fbeeed;
+      }
+      .course-body {
+        display: none;
+        padding: 0 20px 20px;
+        border-top: 1px solid #f0f0f0;
+      }
+      .course-places-list {
+        list-style: none;
+        padding-left: 20px;
+        border-left: 2px solid #00a896;
+      }
+      .place-item {
+        padding: 12px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 15px;
+      }
+      .place-order {
+        background-color: #00a896;
+        color: white;
+        font-weight: 600;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .empty-message {
+        text-align: center;
+        padding: 80px 20px;
+        background-color: #fafafa;
+        border-radius: 12px;
+        color: #888;
+      }
+    </style>
+  </head>
+  <body>
+    <header></header>
+    <nav></nav>
+
+    <main>
+      <div class="page-header">
+        <button class="back-btn" onclick="history.back()">← 뒤로가기</button>
+        <h1>나의 여행 코스</h1>
+        <p class="subtitle">내가 직접 만든 여행 코스를 확인하고 관리하세요.</p>
+      </div>
+
+      <div class="course-list"></div>
+    </main>
+
+    <script>
+      const apiURL = "http://localhost:3000";
+
+      async function fetchAndRenderCourses() {
+        if (!userManager.getIsLoggedIn()) {
+          alert("로그인이 필요합니다.");
+          window.location.href = "/source/pages/my-page/my-page.html";
+          return;
+        }
+        const userId = userManager.getUserId();
+        const courseListContainer = document.querySelector(".course-list");
+
+        try {
+          const response = await fetch(`${apiURL}/api/courses/${userId}`);
+          if (!response.ok) throw new Error("Failed to fetch courses");
+
+          const courses = await response.json();
+          courseListContainer.innerHTML = ""; // Clear previous list
+
+          if (courses.length === 0) {
+            courseListContainer.innerHTML = `
+              <div class="empty-message">
+                <p>저장된 여행 코스가 없습니다.</p>
+              </div>
+            `;
+            return;
+          }
+
+          courses.forEach((course) => {
+            const courseItem = document.createElement("div");
+            courseItem.className = "course-item";
+            courseItem.innerHTML = `
+              <div class="course-header" data-course-id="${course.id}">
+                <div>
+                  <div class="course-name">${course.name}</div>
+                  <div class="course-date">생성일: ${new Date(
+                    course.created_at
+                  ).toLocaleDateString()}</div>
+                </div>
+                <div class="course-actions">
+                  <button class="btn-delete" data-course-id="${
+                    course.id
+                  }">삭제</button>
+                </div>
+              </div>
+              <div class="course-body" id="course-body-${course.id}">
+                <ol class="course-places-list">
+                  ${course.places
+                    .map(
+                      (place) => `
+                        <li class="place-item">
+                          <span class="place-order">${place.order_index}</span>
+                          <span>${place.place_name}</span>
+                        </li>
+                      `
+                    )
+                    .join("")}
+                </ol>
+              </div>
+            `;
+            courseListContainer.appendChild(courseItem);
+          });
+
+          // Add event listeners
+          document.querySelectorAll(".course-header").forEach((header) => {
+            header.addEventListener("click", (e) => {
+              if (e.target.classList.contains("btn-delete")) return;
+              const body = header.nextElementSibling;
+              body.style.display =
+                body.style.display === "block" ? "none" : "block";
+            });
+          });
+
+          document.querySelectorAll(".btn-delete").forEach((button) => {
+            button.addEventListener("click", () => {
+              const courseId = button.dataset.courseId;
+              deleteCourse(courseId);
+            });
+          });
+        } catch (error) {
+          console.error("Error rendering courses:", error);
+          courseListContainer.innerHTML = `
+            <div class="empty-message">
+              <p>코스를 불러오는 중 오류가 발생했습니다.</p>
+            </div>
+          `;
+        }
+      }
+
+      async function deleteCourse(courseId) {
+        if (
+          !confirm(
+            "정말로 이 코스를 삭제하시겠습니까? 연결된 모든 장소 정보가 함께 삭제됩니다."
+          )
+        ) {
+          return;
+        }
+        try {
+          const response = await fetch(`${apiURL}/api/courses/${courseId}`, {
+            method: "DELETE",
+          });
+          if (!response.ok) throw new Error("Failed to delete course");
+
+          alert("코스가 삭제되었습니다.");
+          fetchAndRenderCourses(); // Refresh the list
+        } catch (error) {
+          console.error("Error deleting course:", error);
+          alert("코스 삭제에 실패했습니다.");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", fetchAndRenderCourses);
+    </script>
+  </body>
+</html>

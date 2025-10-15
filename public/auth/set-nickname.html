@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>닉네임 & 선호도 설정</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { background:#f6faf8; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+
+    .container-nick {
+      max-width: 720px; margin: 40px auto; padding: 0 16px;
+      position: relative; z-index: 10;
+    }
+    .card {
+      background:#fff; border-radius:16px; padding:16px;
+      box-shadow:0 10px 24px rgba(0,0,0,.06);
+      margin-bottom:16px; position: relative; z-index: 10;
+    }
+    .row { display:flex; gap:10px; margin:12px 0; }
+    input[type="text"]{
+      flex:1; height:44px; padding:0 12px; border:1px solid #e5e7eb; border-radius:10px;
+    }
+    .btn {
+      height:44px; padding:0 14px; border-radius:10px; border:1px solid #bcd0c7;
+      background:#0f5132; color:#fff; font-weight:700; cursor:pointer;
+    }
+    .btn.secondary { background:#fff; color:#0f5132; }
+    .error { color:#b00020; margin-top:6px; min-height: 18px; }
+    .hint { color:#6b7280; font-size:13px; }
+    .pref-group { display:grid; grid-template-columns: repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-top:12px; }
+    .pref-group label { cursor:pointer; user-select:none; display:inline-flex; align-items:center; gap:8px; }
+  </style>
+</head>
+<body>
+  <div class="container-nick">
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin:8px 0 16px;">
+      <button id="logoutBtn" type="button" class="btn secondary">로그아웃</button>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 8px 0;">닉네임을 설정하세요</h2>
+      <p class="hint">2–10자, 한글/영문/숫자</p>
+
+      <div class="row">
+        <input id="nickname" type="text" placeholder="닉네임 (2–10자, 한/영/숫자)" />
+        <button id="saveBtn" type="button" class="btn">저장</button>
+      </div>
+      <div id="err" class="error"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 8px 0;">선호 카테고리</h3>
+      <p class="hint">관심 있는 카테고리를 선택해주세요. (복수 선택 가능)</p>
+
+      <div class="pref-group" id="prefGroup">
+        <label><input type="checkbox" name="pref" value="drama" /> 드라마</label>
+        <label><input type="checkbox" name="pref" value="movie" /> 영화</label>
+        <label><input type="checkbox" name="pref" value="kpop" /> K-POP</label>
+        <label><input type="checkbox" name="pref" value="variety" /> 예능</label>
+        <label><input type="checkbox" name="pref" value="history" /> 사극</label>
+        <label><input type="checkbox" name="pref" value="romance" /> 로맨스</label>
+        <label><input type="checkbox" name="pref" value="action" /> 액션</label>
+        <label><input type="checkbox" name="pref" value="thriller" /> 스릴러</label>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    window.AUTH_PATHS = {
+      INDEX: "/",
+      SET_NICK: "/auth/set-nickname.html"
+    };
+  </script>
+
+
+  <script type="module" src="./auth.js"></script>
+
+
+  <script type="module" src="./set-nickname.js"></script>
+</body>
+</html>
