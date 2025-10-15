@@ -6,6 +6,7 @@ const axios = require("axios");
 const { createClient } = require("@supabase/supabase-js");
 const path = require("path");
 const fs = require("fs");
+const { router: mapRouter, setSupabase } = require("./routes/map");
 
 const app = express();
 app.disable("x-powered-by");
@@ -15,6 +16,16 @@ const PORT = process.env.PORT || 3000;
 // ---------- 파일 경로 ----------
 const indexPath = path.join(__dirname, "../source/pages/index/index.html");
 const mapPath = path.join(__dirname, "../source/pages/map/map_page.html");
+const myPagePath = path.join(__dirname, "../source/pages/my-page/my-page.html");
+const authPath = path.join(__dirname, "../public/auth/login-demo.html");
+const aiCoursePath = path.join(
+  __dirname,
+  "../source/pages/aiCourse/aiSchedule.html"
+);
+const preferencePath = path.join(
+  __dirname,
+  "../source/pages/preference/preference.html"
+);
 
 console.log("Index 경로:", indexPath, "존재:", fs.existsSync(indexPath));
 console.log("Map   경로:", mapPath, "존재:", fs.existsSync(mapPath));
@@ -25,28 +36,43 @@ const supabase = createClient(
   process.env.SUPABASE_KEY
 );
 
+// Map 라우터에 supabase 클라이언트 주입
+setSupabase(supabase);
+
 // ---------- 공통 미들웨어 ----------
 app.use(cors());
 app.use(express.json());
 
-// CSP (Supabase SDK/ESM, 폰트 CDN, OAuth 리디렉션 등 허용)
+// CSP 헤더 설정 (통합본)
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://esm.sh https://dapi.kakao.com https://t1.daumcdn.net http://t1.daumcdn.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; connect-src 'self' http://localhost:3000 https: wss:; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: http:;"
+    [
+      // 기본
+      "default-src 'self' https: data: blob:",
+
+      // 스크립트: Supabase ESM, jsDelivr, Kakao/Daum, unpkg 등
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://esm.sh https://cdn.jsdelivr.net https://dapi.kakao.com https://t1.daumcdn.net http://t1.daumcdn.net https://unpkg.com",
+
+      // 스타일/폰트 CDN
+      "style-src 'self' 'unsafe-inline' https: https://fonts.googleapis.com https://unpkg.com",
+      "font-src 'self' https: data: https://fonts.gstatic.com",
+
+      // API / Realtime / 개발 서버(로컬) 허용
+      "connect-src 'self' http://localhost:3000 https: wss:",
+
+      // 이미지/동영상 등
+      "img-src 'self' https: http: data: blob:",
+
+      // OAuth/지도 등 외부 프레임 대비
+      "frame-src https:"
+    ].join("; ")
   );
   next();
 });
 
-// ---------- 정적 파일 제공 ----------
-// /public/** 정적 제공 (브라우저에서 /public/... 경로로 접근)
-app.use("/public", express.static(path.join(__dirname, "../public")));
-
-// /source/pages/** 정적 제공
-app.use(
-  "/source/pages",
-  express.static(path.join(__dirname, "../source/pages"))
-);
+// 정적 파일 제공
+app.use(express.static(path.join(__dirname, "../public")));
 app.use(
   "/source/pages/index",
   express.static(path.join(__dirname, "../source/pages/index"))
@@ -55,9 +81,23 @@ app.use(
   "/source/pages/map",
   express.static(path.join(__dirname, "../source/pages/map"))
 );
+app.use(
+  "/aiCourse",
+  express.static(path.join(__dirname, "../source/pages/aiCourse"))
+);
+app.use("/auth", express.static(path.join(__dirname, "../public/auth")));
+app.use(
+  "/my-page",
+  express.static(path.join(__dirname, "../source/pages/my-page"))
+);
+// Bootstrap과 jQuery를 루트 경로에서 제공
+app.use("/bootstrap", express.static(path.join(__dirname, "../bootstrap")));
+app.use("/jquery", express.static(path.join(__dirname, "../jquery")));
 
 // 메인 페이지
 app.get("/", (_req, res) => {
+  if (!fs.existsSync(indexPath))
+    return res.status(404).send("index.html을 찾을 수 없습니다");
   if (!fs.existsSync(indexPath))
     return res.status(404).send("index.html을 찾을 수 없습니다");
   res.sendFile(indexPath);
@@ -65,6 +105,8 @@ app.get("/", (_req, res) => {
 
 // (옵션) 간단한 /map 라우트
 app.get("/map", (_req, res) => {
+  if (!fs.existsSync(mapPath))
+    return res.status(404).send("map_page.html을 찾을 수 없습니다");
   if (!fs.existsSync(mapPath))
     return res.status(404).send("map_page.html을 찾을 수 없습니다");
   res.sendFile(mapPath);
@@ -188,96 +230,37 @@ app.get("/api/contents", async (_req, res) => {
   }
 });
 
-// ---------- API: 길찾기 (Kakao) ----------
-app.get("/api/route", async (req, res) => {
-  const { startLng, startLat, endLng, endLat } = req.query;
-  if (!startLng || !startLat || !endLng || !endLat) {
-    return res.status(400).json({ error: "출발지/목적지 좌표 필요" });
-  }
-  try {
-    const resp = await axios.get(
-      "https://apis-navi.kakaomobility.com/v1/directions",
-      {
-        params: {
-          origin: `${startLng},${startLat}`,
-          destination: `${endLng},${endLat}`,
-          priority: "RECOMMEND",
-        },
-        headers: { Authorization: `KakaoAK ${process.env.KAKAO_KEY}` },
-      }
-    );
-    res.json(resp.data);
-  } catch (e) {
-    console.error("❌ /api/route:", e);
-    res.status(500).json({ error: "경로 검색 오류" });
-  }
+// aiCourse 페이지
+app.get("/aiCourse", (_req, res) => {
+  if (!fs.existsSync(aiCoursePath))
+    return res.status(404).send("aiSchedule.html을 찾을 수 없습니다");
+  res.sendFile(aiCoursePath);
 });
 
-// ---------- API: 코스 CRUD ----------
-app.post("/api/course", async (req, res) => {
-  const { userId, name, places } = req.body;
-  if (!userId || !name || !places) {
-    return res.status(400).json({ success: false, error: "데이터 부족" });
-  }
-  try {
-    const { data: course, error: cErr } = await supabase
-      .from("courses")
-      .insert([{ user_id: userId, name }])
-      .select()
-      .single();
-    if (cErr) throw cErr;
-
-    const rows = (places || []).map((p, i) => ({
-      course_id: course.id,
-      place_name: p.name,
-      lat: p.lat,
-      lng: p.lng,
-      order_index: i,
-      place_id: p.placeId || null,
-      media_title: p.mediaTitle || null,
-    }));
-
-    const { error: pErr } = await supabase.from("course_places").insert(rows);
-    if (pErr) throw pErr;
-
-    res.json({ success: true, courseId: course.id });
-  } catch (e) {
-    console.error("❌ POST /api/course:", e);
-    res.status(500).json({ error: "코스 저장 실패" });
-  }
+// 선호도 조사 페이지
+app.get("/preference", (_req, res) => {
+  if (!fs.existsSync(preferencePath))
+    return res.status(404).send("preference.html을 찾을 수 없습니다");
+  res.sendFile(preferencePath);
 });
 
-app.get("/api/course/:userId", async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from("courses")
-      .select(
-        "id, name, course_places(place_name, lat, lng, order_index, place_id, media_title)"
-      )
-      .eq("user_id", req.params.userId);
-    if (error) throw error;
-    res.json(data || []);
-  } catch (e) {
-    console.error("❌ GET /api/course/:userId:", e);
-    res.status(500).json({ error: "코스 조회 실패" });
-  }
+// 로그인 페이지
+app.get("/auth", (_req, res) => {
+  if (!fs.existsSync(authPath))
+    return res.status(404).send("login-demo.html을 찾을 수 없습니다");
+  res.sendFile(authPath);
 });
 
-app.delete("/api/course/:courseId", async (req, res) => {
-  try {
-    const { error } = await supabase
-      .from("courses")
-      .delete()
-      .eq("id", req.params.courseId);
-    if (error) throw error;
-    res.json({ success: true, message: "코스 삭제 완료" });
-  } catch (e) {
-    console.error("❌ DELETE /api/course/:courseId:", e);
-    res.status(500).json({ success: false, error: "코스 삭제 실패" });
-  }
+// 마이페이지
+app.get("/my-page", (_req, res) => {
+  if (!fs.existsSync(myPagePath))
+    return res.status(404).send("my-page.html을 찾을 수 없습니다");
+  res.sendFile(myPagePath);
 });
 
-// ---------- 서버 시작 ----------
+// API 라우트 연결
+app.use("/api", mapRouter);
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

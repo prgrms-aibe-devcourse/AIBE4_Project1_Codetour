@@ -3,14 +3,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const navElement = document.querySelector("nav");
 
   if (headerElement) {
-    const response = await fetch("/source/pages/my-page/_header.html");
+    const response = await fetch("/my-page/_header.html");
     if (response.ok) {
       headerElement.innerHTML = await response.text();
     }
   }
 
   if (navElement) {
-    const response = await fetch("/source/pages/my-page/_nav.html");
+    const response = await fetch("/my-page/_nav.html");
     if (response.ok) {
       navElement.innerHTML = await response.text();
 
