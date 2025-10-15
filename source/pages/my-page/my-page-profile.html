@@ -221,7 +221,7 @@
               <div class="profile-image">
                 <img
                   id="preview-image"
-                  src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNzUiIGN5PSI3NSIgcj0iNzUiIGZpbGw9IiNmMGYwZjAiLz48cGF0aCBkPSJNNzUsNjcuNWMxMS4wNSwwLDIwLTguOTUsMjAtMjBzLTguOTUtMjAtMjAtMjBzLTIwLDguOTUtMjAsMjBTNjMuOTUsNjcuNSw3NSw2Ny41eiBNNzUsNzIuNSBjLTEzLjM1LDAtNDAsNi43LTQwLDIwdjEwaDgwdi0xMEMxMTUsNzkuMiw4OC4zNSw3Mi41LDc1LDcyLjV6IiBmaWxsPSIjYTBhMGEwIi8+PC9zdmc+"
+                  src=".\public\images\profile-alter.png"
                   alt="프로필"
                 />
               </div>
@@ -283,7 +283,8 @@
     </main>
     <script>
       const apiURL = "http://localhost:3000";
-      const defaultAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNzUiIGN5PSI3NSIgcj0iNzUiIGZpbGw9IiNmMGYwZjAiLz48cGF0aCBkPSJNNzUsNjcuNWMxMS4wNSwwLDIwLTguOTUsMjAtMjBzLTguOTUtMjAtMjAtMjBzLTIwLDguOTUtMjAsMjBTNjMuOTUsNjcuNSw3NSw2Ny41eiBNNzUsNzIuNSBjLTEzLjM1LDAtNDAsNi43LTQwLDIwdjEwaDgwdi0xMEMxMTUsNzkuMiw4OC4zNSw3Mi41LDc1LDcyLjV6IiBmaWxsPSIjYTBhMGEwIi8+PC9zdmc+";
+      const defaultAvatar =
+        "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNzUiIGN5PSI3NSIgcj0iNzUiIGZpbGw9IiNmMGYwZjAiLz48cGF0aCBkPSJNNzUsNjcuNWMxMS4wNSwwLDIwLTguOTUsMjAtMjBzLTguOTUtMjAtMjAtMjBzLTIwLDguOTUtMjAsMjBTNjMuOTUsNjcuNSw3NSw2Ny41eiBNNzUsNzIuNSBjLTEzLjM1LDAtNDAsNi43LTQwLDIwdjEwaDgwdi0xMEMxMTUsNzkuMiw4OC4zNSw3Mi41LDc1LDcyLjV6IiBmaWxsPSIjYTBhMGEwIi8+PC9zdmc+";
 
       document.addEventListener("DOMContentLoaded", () => {
         // DOM Elements
@@ -322,8 +323,7 @@
                 const userInfo = userManager.getUserInfo();
                 nicknameInput.value = userInfo.nickname || "";
                 bioTextarea.value = userInfo.bio || "";
-                previewImage.src =
-                  userInfo.profile_image_url || defaultAvatar;
+                previewImage.src = userInfo.profile_image_url || defaultAvatar;
                 console.log("No profile found on server, using local data.");
                 return;
               }
@@ -335,8 +335,7 @@
             // Populate form with data from the server
             nicknameInput.value = profile.display_name || "";
             bioTextarea.value = profile.bio || "";
-            previewImage.src =
-              profile.avatar_url || defaultAvatar;
+            previewImage.src = profile.avatar_url || defaultAvatar;
           } catch (error) {
             console.error("Error fetching profile:", error);
             alert("프로필 정보를 불러오는 데 실패했습니다.");
@@ -369,21 +368,21 @@
             return;
           }
 
-          const updatedProfile = {
-            display_name: nicknameInput.value,
-            bio: bioTextarea.value,
-            avatar_url: previewImage.src,
-          };
+          const formData = new FormData();
+          formData.append("display_name", nicknameInput.value);
+          formData.append("bio", bioTextarea.value);
+
+          const avatarFile = profileUpload.files[0];
+          if (avatarFile) {
+            formData.append("avatar", avatarFile);
+          }
 
           try {
             const response = await fetch(
               `${apiURL}/api/profiles/${currentUserId}`,
               {
                 method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(updatedProfile),
+                body: formData,
               }
             );
 
@@ -402,6 +401,7 @@
             });
 
             alert("프로필 변경 완료");
+            window.location.href = "my-page.html"; // Redirect to my-page
           } catch (error) {
             console.error("Error updating profile:", error);
             alert(`프로필 업데이트에 실패했습니다: ${error.message}`);
