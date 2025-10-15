@@ -634,7 +634,7 @@ function setupEventListeners() {
     .querySelectorAll(".btn-login, .btn-login-large")
     .forEach((btn) =>
       btn.addEventListener("click", () =>
-        alert(translations[currentLang].btn.login)
+        window.location.href = '/auth'
       )
     );
   document

@@ -41,6 +41,12 @@
         align-items: center;
       }
 
+      .header-right {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
       .home-btn {
         background: rgba(255, 255, 255, 0.2);
         color: white;
@@ -51,11 +57,34 @@
         font-weight: 600;
         font-size: 14px;
         transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
       }
 
       .home-btn:hover {
         background: white;
         color: #ff4d8d;
+      }
+
+      .lang-select {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      .lang-select:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .lang-select option {
+        background: #ff4d8d;
+        color: white;
       }
 
       .container {
@@ -424,22 +453,43 @@
   </head>
   <body>
     <header>
-      <h1>🇰🇷 K-콘텐츠 여행 지도</h1>
-      <p>한류 콘텐츠와 함께하는 특별한 여행 코스를 만들어보세요</p>
+      <div class="header-content">
+        <div>
+          <h1 data-i18n="header.title">🇰🇷 K-콘텐츠 여행 지도</h1>
+          <p data-i18n="header.subtitle">
+            한류 콘텐츠와 함께하는 특별한 여행 코스를 만들어보세요
+          </p>
+        </div>
+        <div class="header-right">
+          <select class="lang-select" id="languageSelector">
+            <option value="ko">한국어</option>
+            <option value="en">English</option>
+          </select>
+          <a href="/" class="home-btn" data-i18n="btn.home">홈으로</a>
+        </div>
+      </div>
     </header>
 
     <div class="container">
       <div class="left-panel">
         <!-- 장소 검색 -->
         <div class="section search-section">
-          <h3>🔍 검색</h3>
+          <h3 data-i18n="section.search">🔍 검색</h3>
 
           <!-- 탭 선택 -->
           <div class="search-tabs">
-            <button class="tab-btn active" onclick="switchSearchMode('place')">
+            <button
+              class="tab-btn active"
+              onclick="switchSearchMode('place')"
+              data-i18n="tab.place"
+            >
               장소 검색
             </button>
-            <button class="tab-btn" onclick="switchSearchMode('content')">
+            <button
+              class="tab-btn"
+              onclick="switchSearchMode('content')"
+              data-i18n="tab.content"
+            >
               콘텐츠 검색
             </button>
           </div>
@@ -450,19 +500,23 @@
               <input
                 type="text"
                 id="searchInput"
+                data-i18n-placeholder="placeholder.placeSearch"
                 placeholder="장소명, 주소 검색..."
               />
-              <button id="searchBtn">검색</button>
+              <button id="searchBtn" data-i18n="btn.search">검색</button>
             </div>
           </div>
 
           <!-- 콘텐츠 검색 모드 -->
           <div id="contentSearchMode" style="display: none">
             <select id="contentSelect">
-              <option value="">콘텐츠 선택...</option>
+              <option value="" data-i18n="option.selectContent">
+                콘텐츠 선택...
+              </option>
             </select>
             <button
               id="searchContentBtn"
+              data-i18n="btn.search"
               style="
                 width: 100%;
                 background: #3a8dff;
@@ -478,25 +532,44 @@
 
         <!-- 현재 코스 -->
         <div class="section course-section">
-          <h3>📍 나만의 여행 코스</h3>
-          <p style="font-size: 13px; color: #666; margin-bottom: 10px">
+          <h3 data-i18n="section.myCourse">📍 나만의 여행 코스</h3>
+          <p
+            style="font-size: 13px; color: #666; margin-bottom: 10px"
+            data-i18n="hint.dragOrder"
+          >
             드래그로 순서를 변경할 수 있어요
           </p>
           <ul id="courseList"></ul>
-          <button id="saveBtn">💾 코스 저장하기</button>
-          <button id="showRouteBtn">🚗 경로 확인하기</button>
+          <button id="saveBtn" data-i18n="btn.saveCourse">
+            💾 코스 저장하기
+          </button>
+          <button id="showRouteBtn" data-i18n="btn.showRoute">
+            🚗 경로 확인하기
+          </button>
+          <button
+            id="aiRecommendBtn"
+            data-i18n="btn.aiRecommend"
+            style="
+              width: 100%;
+              background: linear-gradient(135deg, #ff6b9d 0%, #ffa07a 100%);
+              color: white;
+              border: none;
+              padding: 14px;
+              font-size: 15px;
+              margin: 5px;
+            "
+          >
+            🤖 AI 추천받기
+          </button>
           <div id="routeInfo"></div>
         </div>
 
         <!-- 저장된 코스 -->
         <div class="section saved-section">
-          <h3>💎 저장된 코스</h3>
-          <select id="userSelect">
-            <option value="1">사용자 1</option>
-            <option value="2">사용자 2</option>
-            <option value="3">사용자 3</option>
-          </select>
-          <button id="loadCoursesBtn">불러오기</button>
+          <h3 data-i18n="section.savedCourses">💎 저장된 코스</h3>
+          <button id="loadCoursesBtn" data-i18n="btn.load">
+            내 코스 불러오기
+          </button>
           <div id="savedCourses"></div>
         </div>
       </div>
@@ -507,8 +580,205 @@
     </div>
 
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
+    <script type="module">
+      // Supabase Auth 연동
+      import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+      const supabase = createClient(
+        "https://fmcxkqfccuevcaqkzsex.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtY3hrcWZjY3VldmNhcWt6c2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNzk3MzcsImV4cCI6MjA3NDk1NTczN30.IZ47Juv0ypiX4sWTb1vo54hcMI0yBQol1VhUm37vs7M"
+      );
+
+      window.supabase = supabase;
+      window.currentUser = null;
+
+      // 로그인 상태 확인
+      async function checkAuth() {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        window.currentUser = user;
+
+        // 로그인 버튼 표시/숨김
+        const headerRight = document.querySelector(".header-right");
+        if (user) {
+          // 로그인된 상태 - 사용자 정보 표시
+          const userInfo = document.createElement("span");
+          userInfo.style.cssText =
+            "color: white; margin-right: 10px; font-weight: 600;";
+          userInfo.textContent = `${user.email}`;
+          headerRight.insertBefore(userInfo, headerRight.firstChild);
+
+          const logoutBtn = document.createElement("button");
+          logoutBtn.className = "home-btn";
+          logoutBtn.textContent = "로그아웃";
+          logoutBtn.onclick = async () => {
+            await supabase.auth.signOut();
+            window.location.reload();
+          };
+          headerRight.appendChild(logoutBtn);
+        } else {
+          // 로그인 안 된 상태 - 로그인 버튼 표시
+          const loginBtn = document.createElement("a");
+          loginBtn.href = "/auth";
+          loginBtn.className = "home-btn";
+          loginBtn.textContent = "로그인";
+          headerRight.insertBefore(loginBtn, headerRight.firstChild);
+        }
+      }
+
+      checkAuth();
+    </script>
 
     <script>
+      // 다국어 번역 데이터
+      const translations = {
+        ko: {
+          "header.title": "🇰🇷 K-콘텐츠 여행 지도",
+          "header.subtitle":
+            "한류 콘텐츠와 함께하는 특별한 여행 코스를 만들어보세요",
+          "btn.home": "홈으로",
+          "section.search": "🔍 검색",
+          "tab.place": "장소 검색",
+          "tab.content": "콘텐츠 검색",
+          "placeholder.placeSearch": "장소명, 주소 검색...",
+          "btn.search": "검색",
+          "option.selectContent": "콘텐츠 선택...",
+          "option.selectUser": "사용자 선택...",
+          "section.myCourse": "📍 나만의 여행 코스",
+          "hint.dragOrder": "드래그로 순서를 변경할 수 있어요",
+          "btn.saveCourse": "💾 코스 저장하기",
+          "btn.showRoute": "🚗 경로 확인하기",
+          "btn.aiRecommend": "🤖 AI 추천받기",
+          "section.savedCourses": "💎 저장된 코스",
+          "user.user1": "사용자 1",
+          "user.user2": "사용자 2",
+          "user.user3": "사용자 3",
+          "btn.load": "불러오기",
+          "btn.delete": "삭제",
+          "btn.addToCourse": "+ 코스 추가",
+          "alert.enterSearch": "검색어를 입력해주세요 😊",
+          "alert.noResults": "검색 결과가 없습니다 😢",
+          "alert.selectContent": "콘텐츠를 선택해주세요 😊",
+          "alert.selectUser": "사용자를 선택해주세요 😊",
+          "alert.noLocations": "해당 콘텐츠의 촬영지가 없습니다 😢",
+          "alert.deleteCourse": "이 코스를 삭제하시겠습니까? 🗑️",
+          "alert.courseDeleted": "✅ 코스가 삭제되었습니다!",
+          "alert.addPlaces": "코스에 장소를 추가해주세요 📍",
+          "alert.courseNamePrompt": "코스 이름을 입력하세요 ✨",
+          "alert.courseNameDefault": "나의 K-여행 코스",
+          "alert.courseSaved": "🎉 저장 완료!\n코스 ID: ",
+          "alert.saveFailed": "저장에 실패했습니다 😢",
+          "alert.noSavedCourses": "저장된 코스가 없습니다 📭",
+          "alert.courseLoaded": '✨ "{name}" 코스를 불러왔습니다!',
+          "alert.minTwoPlaces":
+            "경로를 보려면 최소 2개 이상의 장소가 필요합니다 🗺️",
+          "alert.routeFailed": "경로 검색에 실패했습니다 😢",
+          "alert.added": "✨ {name}이(가) 코스에 추가되었습니다!",
+          "route.totalDistance": "📏 총 거리: ",
+          "route.estimatedTime": "⏱️ 예상 시간: ",
+          "route.info": "🚗 경로 정보",
+          "text.places": "개 장소",
+          "text.km": " km",
+          "text.min": " 분",
+        },
+        en: {
+          "header.title": "🇰🇷 K-Content Travel Map",
+          "header.subtitle":
+            "Create your special travel course with Korean Wave content",
+          "btn.home": "Home",
+          "section.search": "🔍 Search",
+          "tab.place": "Search Place",
+          "tab.content": "Search Content",
+          "placeholder.placeSearch": "Search place name, address...",
+          "btn.search": "Search",
+          "option.selectContent": "Select content...",
+          "option.selectUser": "Select user...",
+          "section.myCourse": "📍 My Travel Course",
+          "hint.dragOrder": "You can change the order by dragging",
+          "btn.saveCourse": "💾 Save Course",
+          "btn.showRoute": "🚗 Show Route",
+          "btn.aiRecommend": "🤖 AI Recommend",
+          "section.savedCourses": "💎 Saved Courses",
+          "user.user1": "User 1",
+          "user.user2": "User 2",
+          "user.user3": "User 3",
+          "btn.load": "Load",
+          "btn.delete": "Delete",
+          "btn.addToCourse": "+ Add to Course",
+          "alert.enterSearch": "Please enter a search term 😊",
+          "alert.noResults": "No results found 😢",
+          "alert.selectContent": "Please select content 😊",
+          "alert.selectUser": "Please select a user 😊",
+          "alert.noLocations": "No filming locations for this content 😢",
+          "alert.deleteCourse": "Do you want to delete this course? 🗑️",
+          "alert.courseDeleted": "✅ Course deleted!",
+          "alert.addPlaces": "Please add places to the course 📍",
+          "alert.courseNamePrompt": "Enter course name ✨",
+          "alert.courseNameDefault": "My K-Travel Course",
+          "alert.courseSaved": "🎉 Saved!\nCourse ID: ",
+          "alert.saveFailed": "Failed to save 😢",
+          "alert.noSavedCourses": "No saved courses 📭",
+          "alert.courseLoaded": '✨ Loaded "{name}" course!',
+          "alert.minTwoPlaces": "At least 2 places needed to show route 🗺️",
+          "alert.routeFailed": "Failed to search route 😢",
+          "alert.added": "✨ {name} has been added to the course!",
+          "route.totalDistance": "📏 Total Distance: ",
+          "route.estimatedTime": "⏱️ Estimated Time: ",
+          "route.info": "🚗 Route Info",
+          "text.places": " places",
+          "text.km": " km",
+          "text.min": " min",
+        },
+      };
+
+      // 현재 언어 (기본값: 한국어)
+      let currentLang = localStorage.getItem("language") || "ko";
+
+      // 언어 변경 함수
+      function changeLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem("language", lang);
+
+        // 모든 data-i18n 속성을 가진 요소 번역
+        document.querySelectorAll("[data-i18n]").forEach((element) => {
+          const key = element.getAttribute("data-i18n");
+          if (translations[lang] && translations[lang][key]) {
+            element.textContent = translations[lang][key];
+          }
+        });
+
+        // placeholder 번역
+        document
+          .querySelectorAll("[data-i18n-placeholder]")
+          .forEach((element) => {
+            const key = element.getAttribute("data-i18n-placeholder");
+            if (translations[lang] && translations[lang][key]) {
+              element.placeholder = translations[lang][key];
+            }
+          });
+      }
+
+      // 번역 함수 (alert 등에서 사용)
+      function t(key, params = {}) {
+        let text = translations[currentLang][key] || key;
+        Object.keys(params).forEach((param) => {
+          text = text.replace(`{${param}}`, params[param]);
+        });
+        return text;
+      }
+
+      // 페이지 로드 시 저장된 언어로 설정
+      document.addEventListener("DOMContentLoaded", () => {
+        const langSelector = document.getElementById("languageSelector");
+        langSelector.value = currentLang;
+        changeLanguage(currentLang);
+
+        langSelector.addEventListener("change", (e) => {
+          changeLanguage(e.target.value);
+        });
+      });
+
       let currentSearchMode = "place";
       let contentsData = [];
 
@@ -646,7 +916,7 @@
                   place.mediaTitle ? `📺 ${place.mediaTitle}` : ""
                 }</small>
               </div>
-              <button class="remove-btn" onclick="removeCourse(${index})">삭제</button>
+              <button class="remove-btn" data-i18n="btn.delete" onclick="removeCourse(${index})">삭제</button>
             `;
             courseList.appendChild(li);
           });
@@ -666,7 +936,7 @@
             currentInfoWindow = null;
           }
 
-          alert(`✨ ${name}이(가) 코스에 추가되었습니다!`);
+          alert(t("alert.added", { name }));
         };
 
         window.closeInfoWindow = function () {
@@ -677,7 +947,7 @@
         };
 
         window.deleteCourse = async function (courseId) {
-          if (!confirm("이 코스를 삭제하시겠습니까? 🗑️")) return;
+          if (!confirm(t("alert.deleteCourse"))) return;
 
           try {
             const res = await fetch(`/api/course/${courseId}`, {
@@ -686,22 +956,22 @@
             const data = await res.json();
 
             if (data.success) {
-              alert("✅ 코스가 삭제되었습니다!");
+              alert(t("alert.courseDeleted"));
               // 코스 목록 새로고침
               document.getElementById("loadCoursesBtn").click();
             } else {
-              alert("삭제 실패: " + data.error);
+              alert("Delete failed: " + data.error);
             }
           } catch (err) {
             console.error(err);
-            alert("삭제 중 오류가 발생했습니다 😢");
+            alert(t("alert.saveFailed"));
           }
         };
 
         // 장소 검색 기능
         document.getElementById("searchBtn").onclick = async function () {
           const query = document.getElementById("searchInput").value;
-          if (!query) return alert("검색어를 입력해주세요 😊");
+          if (!query) return alert(t("alert.enterSearch"));
 
           try {
             const res = await fetch(
@@ -713,7 +983,7 @@
             markers = [];
 
             if (data.documents.length === 0) {
-              alert("검색 결과가 없습니다 😢");
+              alert(t("alert.noResults"));
               return;
             }
 
@@ -738,7 +1008,7 @@
                   place.y
                 }, ${place.x}, "${place.media_title || ""}", ${
                   place.place_id || "null"
-                })' class="info-add-btn">+ 코스 추가</button>
+                })' class="info-add-btn" data-i18n="btn.addToCourse">+ 코스 추가</button>
                         </div>`,
               });
 
@@ -763,7 +1033,7 @@
             );
           } catch (err) {
             console.error(err);
-            alert("검색에 실패했습니다 😢");
+            alert(t("alert.routeFailed"));
           }
         };
 
@@ -771,7 +1041,7 @@
         document.getElementById("searchContentBtn").onclick =
           async function () {
             const contentName = document.getElementById("contentSelect").value;
-            if (!contentName) return alert("콘텐츠를 선택해주세요 😊");
+            if (!contentName) return alert(t("alert.selectContent"));
 
             try {
               const res = await fetch(
@@ -783,7 +1053,7 @@
               markers = [];
 
               if (data.documents.length === 0) {
-                alert("해당 콘텐츠의 촬영지가 없습니다 😢");
+                alert(t("alert.noLocations"));
                 return;
               }
 
@@ -832,7 +1102,7 @@
               }
             } catch (err) {
               console.error(err);
-              alert("검색에 실패했습니다 😢");
+              alert(t("alert.routeFailed"));
             }
           };
 
@@ -847,10 +1117,23 @@
 
         // 코스 저장
         document.getElementById("saveBtn").onclick = async function () {
-          if (myCourse.length === 0)
-            return alert("코스에 장소를 추가해주세요 📍");
-          const userId = document.getElementById("userSelect").value;
-          const name = prompt("코스 이름을 입력하세요 ✨", "나의 K-여행 코스");
+          // 로그인 체크
+          if (!window.currentUser) {
+            if (
+              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
+            ) {
+              window.location.href = "/auth";
+            }
+            return;
+          }
+
+          if (myCourse.length === 0) return alert(t("alert.addPlaces"));
+
+          const userId = window.currentUser.id; // 로그인한 사용자 ID 사용
+          const name = prompt(
+            t("alert.courseNamePrompt"),
+            t("alert.courseNameDefault")
+          );
           if (!name) return;
 
           try {
@@ -861,21 +1144,32 @@
             });
             const data = await res.json();
             if (data.success) {
-              alert(`🎉 저장 완료!\n코스 ID: ${data.courseId}`);
+              alert(t("alert.courseSaved") + data.courseId);
               myCourse = [];
               renderCourseList();
             } else {
-              alert("저장에 실패했습니다 😢");
+              alert(t("alert.saveFailed"));
             }
           } catch (err) {
             console.error(err);
-            alert("저장에 실패했습니다 😢");
+            alert(t("alert.saveFailed"));
           }
         };
 
         // 저장된 코스 불러오기
         document.getElementById("loadCoursesBtn").onclick = async function () {
-          const userId = document.getElementById("userSelect").value;
+          // 로그인 체크
+          if (!window.currentUser) {
+            if (
+              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
+            ) {
+              window.location.href = "/auth";
+            }
+            return;
+          }
+
+          const userId = window.currentUser.id; // 로그인한 사용자 ID 사용
+
           try {
             const res = await fetch(`/api/course/${userId}`);
             const courses = await res.json();
@@ -884,8 +1178,9 @@
             container.innerHTML = "";
 
             if (courses.length === 0) {
-              container.innerHTML =
-                '<p style="text-align:center; color:#999; padding:20px;">저장된 코스가 없습니다 📭</p>';
+              container.innerHTML = `<p style='text-align:center; color:#999; padding:20px;'>${t(
+                "alert.noSavedCourses"
+              )}</p>`;
               return;
             }
 
@@ -898,7 +1193,7 @@
                     <strong>🎯 ${course.name}</strong><br>
                     <small>📍 ${course.course_places.length}개 장소</small>
                   </div>
-                  <button onclick="deleteCourse(${course.id})" style="background: #FF4D8D; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; margin-left: 8px;">삭제</button>
+                  <button onclick="deleteCourse(${course.id})" data-i18n="btn.delete" style="background: #FF4D8D; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; margin-left: 8px;">삭제</button>
                 </div>
               `;
               div.onclick = (e) => {
@@ -909,9 +1204,47 @@
             });
           } catch (err) {
             console.error(err);
-            alert("코스 불러오기에 실패했습니다 😢");
+            alert(t("alert.saveFailed"));
           }
         };
+
+        // 커스텀 마커 생성 함수
+        function createCustomMarker(position, label, isStart, isEnd) {
+          let bgColor = "#3A8DFF"; // 기본 파란색
+          if (isStart) bgColor = "#4CAF50"; // 출발: 초록색
+          if (isEnd) bgColor = "#FF4D8D"; // 도착: 분홍색
+
+          const content = document.createElement("div");
+          content.style.cssText = `
+            position: relative;
+            width: 36px;
+            height: 36px;
+            background: ${bgColor};
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+          `;
+
+          content.innerHTML = label;
+          content.onmouseover = () => (content.style.transform = "scale(1.2)");
+          content.onmouseout = () => (content.style.transform = "scale(1)");
+
+          const customOverlay = new kakao.maps.CustomOverlay({
+            position: position,
+            content: content,
+            yAnchor: 0.5,
+          });
+
+          return customOverlay;
+        }
 
         function loadCourse(course) {
           markers.forEach((m) => m.setMap(null));
@@ -935,12 +1268,18 @@
           renderCourseList();
 
           myCourse.forEach((place, index) => {
-            const marker = new kakao.maps.Marker({
-              map,
-              position: new kakao.maps.LatLng(place.lat, place.lng),
-              title: `${index + 1}. ${place.name}`,
-            });
-            markers.push(marker);
+            const isStart = index === 0;
+            const isEnd = index === myCourse.length - 1;
+            const position = new kakao.maps.LatLng(place.lat, place.lng);
+
+            const customMarker = createCustomMarker(
+              position,
+              index + 1,
+              isStart,
+              isEnd
+            );
+            customMarker.setMap(map);
+            markers.push(customMarker);
           });
 
           if (myCourse.length > 0) {
@@ -949,14 +1288,23 @@
             );
           }
 
-          alert(`✨ "${course.name}" 코스를 불러왔습니다!`);
+          alert(t("alert.courseLoaded", { name: course.name }));
         }
+
+        // AI 추천받기
+        document.getElementById("aiRecommendBtn").onclick = function () {
+          window.location.href = "/aiCourse";
+        };
 
         // 경로 보기
         document.getElementById("showRouteBtn").onclick = async function () {
           if (myCourse.length < 2) {
-            return alert("경로를 보려면 최소 2개 이상의 장소가 필요합니다 🗺️");
+            return alert(t("alert.minTwoPlaces"));
           }
+
+          // 기존 마커 제거 후 커스텀 마커로 재생성
+          markers.forEach((m) => m.setMap(null));
+          markers = [];
 
           if (routePolyline) {
             routePolyline.setMap(null);
@@ -1011,12 +1359,28 @@
               }
             }
 
+            // 커스텀 마커 생성 (경로 표시 후)
+            myCourse.forEach((place, index) => {
+              const isStart = index === 0;
+              const isEnd = index === myCourse.length - 1;
+              const position = new kakao.maps.LatLng(place.lat, place.lng);
+
+              const customMarker = createCustomMarker(
+                position,
+                index + 1,
+                isStart,
+                isEnd
+              );
+              customMarker.setMap(map);
+              markers.push(customMarker);
+            });
+
             if (pathCoords.length > 0) {
               routePolyline = new kakao.maps.Polyline({
                 path: pathCoords,
-                strokeWeight: 6,
+                strokeWeight: 5,
                 strokeColor: "#FF4D8D",
-                strokeOpacity: 0.8,
+                strokeOpacity: 0.7,
                 strokeStyle: "solid",
               });
               routePolyline.setMap(map);
@@ -1037,7 +1401,7 @@
             `;
           } catch (err) {
             console.error("경로 검색 에러:", err);
-            alert("경로 검색에 실패했습니다 😢");
+            alert(t("alert.routeFailed"));
           }
         };
       });
