@@ -14,7 +14,7 @@ const indexPath = path.join(__dirname, "../source/pages/index/index.html");
 const mapPath = path.join(__dirname, "../source/pages/map/map_page.html");
 const aiCoursePath = path.join(
   __dirname,
-  "../source/pages/aiCourse/indexBae.html"
+  "../source/pages/aiCourse/aiSchedule.html"
 );
 const preferencePath = path.join(
   __dirname,
