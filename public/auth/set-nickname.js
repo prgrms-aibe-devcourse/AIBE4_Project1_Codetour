@@ -1,5 +1,6 @@
 import { supabase, getSafeUserInfo } from "./userStore.js";
 
+// === 경로 유틸 ===
 function basePath() {
   const p = location.pathname.endsWith("/")
     ? location.pathname
@@ -8,20 +9,35 @@ function basePath() {
 }
 function urlTo(p) {
   if (!p) return `${location.origin}${basePath()}`;
-  if (/^https?:\/\//i.test(p)) return p;                 
-  if (p.startsWith("/")) return `${location.origin}${p}`; 
-  return `${location.origin}${basePath()}${p}`;         
+  if (/^https?:\/\//i.test(p)) return p;                 // full URL
+  if (p.startsWith("/")) return `${location.origin}${p}`; // absolute
+  return `${location.origin}${basePath()}${p}`;           // relative
 }
 
+// 팀 홈/닉설정 경로
 const PATHS = window.AUTH_PATHS ?? {
   INDEX: "index.html",
   SET_NICK: "set-nickname.html",
 };
 
+function goHome() {
+  const dest = PATHS.INDEX || "index.html";
+  const url = (/^https?:\/\//i.test(dest) || dest.startsWith("/")) ? dest : urlTo(dest);
+  location.replace(url);
+  setTimeout(() => {
+    try {
+      const want = new URL(url, location.href).href;
+      if (location.href !== want) location.href = url;
+    } catch {
+      location.href = url;
+    }
+  }, 50);
+}
+
 const $ = (s) => document.querySelector(s);
-const $name = $("#nickname");
-const $save = $("#saveBtn");
-const $err  = $("#err");
+const $name   = $("#nickname");
+const $save   = $("#saveBtn");
+const $err    = $("#err");
 const $logout = $("#logoutBtn");
 
 const NAME_RE = /^[A-Za-z0-9가-힣]{2,10}$/;
@@ -39,15 +55,17 @@ async function isDuplicate(name, myId) {
     .eq("display_name", name)
     .neq("id", myId)
     .limit(1);
-
   if (error) {
-    console.error("중복 검사 실패:", error);
+    console.warn("중복 검사 중 RLS/오류:", error);
     return false;
   }
   return !!(data && data.length > 0);
 }
 
-async function saveNickname() {
+async function saveNickname(e) {
+  e?.preventDefault?.();
+  e?.stopPropagation?.();
+
   $err.textContent = "";
   const name = ($name.value || "").trim();
 
@@ -57,15 +75,12 @@ async function saveNickname() {
   const me = getSafeUserInfo();
   if (!me.id) { $err.textContent = "로그인이 필요합니다."; return; }
 
-  if (await isDuplicate(name, me.id)) {
-    $err.textContent = "이미 사용 중인 닉네임입니다.";
-    return;
-  }
-
   const { error } = await supabase
     .from("profiles")
-    .update({ display_name: name, updated_at: new Date().toISOString() })
-    .eq("id", me.id);
+    .upsert(
+      { id: me.id, display_name: name, updated_at: new Date().toISOString() },
+      { onConflict: "id" }
+    );
 
   if (error) {
     console.error(error);
@@ -74,17 +89,19 @@ async function saveNickname() {
   }
 
   alert("닉네임이 설정되었습니다");
-  window.location.href = urlTo("index.html");
+  goHome();
 }
 
-$save.addEventListener("click", saveNickname);
+$save?.addEventListener("click", saveNickname);
 
-$logout.addEventListener("click", async () => {
+$logout?.addEventListener("click", async (e) => {
+  e?.preventDefault?.();
+  e?.stopPropagation?.();
   try {
     await supabase.auth.signOut({ scope: "local" });
     supabase.auth.signOut({ scope: "global" }).catch(()=>{});
   } finally {
     alert("로그아웃 되었습니다.");
-    window.location.href = urlTo("index.html");
+    goHome();
   }
 });
