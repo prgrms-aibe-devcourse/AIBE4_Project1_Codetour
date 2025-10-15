@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeTour</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swiper/swiper-bundle.min.css"
+    />
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="logo-container">
+          <div class="logo-text">CodeTour</div>
+        </div>
+        <div class="action-container">
+          <button>로그인</button>
+          <button>회원가입</button>
+        </div>
+      </div>
+      <nav>
+        <a href="index.html">홈</a>
+        <a href="contents.html">콘텐츠별 여행지</a>
+        <a href="#">지역별 탐색</a>
+        <a href="#">여행 코스</a>
+        <a href="#">인기 여행 루트</a>
+        <a href="#">마이페이지</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="recently-visited-section">
+        <div class="recently-visited-header">
+          <h2>최근 방문한 장소</h2>
+          <button class="clear-all-btn">전체 삭제</button>
+        </div>
+        <div class="recently-visited-list" id="recently-visited-list">
+          <!-- 최근 방문 목록이 여기에 동적으로 삽입됩니다. -->
+        </div>
+      </section>
+
+      <div class="main-header">
+        <h1>콘텐츠별 여행지</h1>
+        <p>좋아하는 드라마, 영화, 예능의 촬영지를 찾아보세요</p>
+      </div>
+
+      <div class="tab-menu">
+        <button class="tab-button active" data-category="k-pop">K-Pop</button>
+        <button class="tab-button" data-category="k-drama">
+          K-Drama/Movie
+        </button>
+        <button class="tab-button" data-category="k-webtoon">K-Webtoon</button>
+        <button class="tab-button" data-category="k-food">K-Food</button>
+        <button class="tab-button" data-category="k-ent">K-Ent</button>
+      </div>
+
+      <div class="card-container" id="card-container"></div>
+    </main>
+
+    <footer>
+      <p>&copy; Kspot</p>
+    </footer>
+
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <div id="modal-body"></div>
+      </div>
+    </div>
+
+    <script type="module">
+      let supabase;
+      let allContents = []; // 모든 콘텐츠를 저장할 배열
+      let allLocations = []; // 모든 장소 정보를 저장할 배열
+
+      // --- 모달 관련 DOM 요소 가져오기 ---
+      const modal = document.getElementById("modal");
+      const modalBody = document.getElementById("modal-body");
+      const closeModalBtn = document.querySelector(".modal-close");
+
+      // Supabase 클라이언트 초기화
+      async function initSupabase() {
+        try {
+          const response = await fetch("http://localhost:3000/api/config");
+          if (!response.ok) throw new Error("Failed to fetch Supabase config");
+          const config = await response.json();
+          supabase = window.supabase.createClient(
+            config.supabaseUrl,
+            config.supabaseKey
+          );
+          await loadAllContents(); // 모든 콘텐츠 로드
+          setupTabListeners(); // 탭 이벤트 리스너 설정
+
+          // --- 모달 닫기 이벤트 리스너 설정 ---
+          setupModalListeners();
+          setupRecentlyVisitedListeners(); // 최근 방문 목록 이벤트 리스너 설정
+          renderRecentlyVisited(); // 최근 방문 목록 렌더링
+          // contentGroup 테이블의 모든 데이터를 가져옵니다.
+          const { data: contentGroup, error: groupError } = await supabase
+            .from("contentGroup")
+            .select("*");
+
+          const { data: contentsData, error: contentsError } = await supabase
+            .from("contents")
+            .select("*");
+
+          if (groupError) {
+            throw groupError;
+          }
+
+          // 2. 각 contentGroup에 대해 location 개수를 조회하여 추가합니다.
+          const contentsWithCount = [];
+          for (const content of contentGroup) {
+            const id = content.id;
+
+            let count = 0;
+            // id가 유효한 경우에만 location 개수를 조회합니다.
+            if (id) {
+              const { count: locationCount, error: countError } = await supabase
+                .from("location")
+                .select("*", { count: "exact", head: true })
+                .eq("placeId", id);
+              if (!countError) {
+                count = locationCount;
+              }
+            }
+            contentsWithCount.push({
+              ...content,
+              locationCount: count,
+            });
+          }
+
+          allContents = contentsWithCount;
+          allLocations = contentsData; // 가져온 장소 정보를 전역 변수에 저장
+
+          // 페이지 로드 시 sessionStorage에 저장된 모달이 있는지 확인하고 다시 엽니다.
+          // 이 위치에서 호출해야 allContents와 allLocations 데이터가 보장됩니다.
+          const lastOpenModalId = sessionStorage.getItem("lastOpenModalId");
+          if (lastOpenModalId) {
+            openModal(lastOpenModalId);
+          }
+
+          filterByCategory("k-pop"); // 처음에는 'K-Pop' 카테고리를 표시
+        } catch (error) {
+          console.error("Error initializing Supabase:", error);
+          const cardContainer = document.getElementById("card-container");
+          cardContainer.innerHTML = `<p>Supabase 초기화 중 오류가 발생했습니다: ${error.message}</p>`;
+        }
+      }
+
+      // 모든 콘텐츠 데이터를 Supabase에서 가져오는 함수
+      async function loadAllContents() {
+        const cardContainer = document.getElementById("card-container");
+        cardContainer.innerHTML = "<p>데이터를 불러오는 중입니다...</p>";
+      }
+
+      /**
+       * 카테고리에 따라 allContents를 필터링하고 표시하는 함수
+       * @param {string} category - 선택된 카테고리 ('k-pop', 'k-drama', 'k-webtoon', 'k-food', 'k-ent')
+       */
+      function filterByCategory(category) {
+        let filteredContents;
+
+        if (category === "k-drama") {
+          filteredContents = allContents.filter(
+            (content) =>
+              content.category === "k-drama" || content.category === "k-movie"
+          );
+        } else {
+          const filterCategory = category === "k-pop" ? "k-pop" : category;
+          filteredContents = allContents.filter(
+            (content) => content.category === filterCategory
+          );
+        }
+
+        displayItems(filteredContents);
+      }
+
+      // 탭 버튼에 이벤트 리스너를 설정하는 함수
+      function setupTabListeners() {
+        const tabButtons = document.querySelectorAll(".tab-button");
+        tabButtons.forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const category = event.target.dataset.category;
+            filterByCategory(category);
+            tabButtons.forEach((btn) => btn.classList.remove("active"));
+            event.target.classList.add("active");
+          });
+        });
+      }
+
+      // 주어진 아이템 목록을 화면에 카드 형태로 표시하는 함수
+      function displayItems(contents) {
+        const cardContainer = document.getElementById("card-container");
+        cardContainer.innerHTML = "";
+
+        if (!contents || contents.length === 0) {
+          cardContainer.innerHTML = "<p>해당 카테고리의 데이터가 없습니다.</p>";
+          return;
+        }
+
+        for (const content of contents) {
+          const locationCount = content.locationCount || 0;
+
+          const card = document.createElement("div");
+          card.classList.add("card");
+
+          card.innerHTML = `
+                <div class="image-container">
+                  <img src="${content.imageUrl || ""}" alt="${
+            content.name || "이미지 없음"
+          }" onerror="this.outerHTML='<div class=\\'no-image\\'>이미지가 없습니다.</div>'">
+                  <div class="badge">${content.category}</div>
+                </div>
+                <div class="content-container">
+                  <h3>${content.name || "제목 없음"}</h3>
+                  <p class="description">${
+                    content.des || "설명이 없습니다."
+                  }</p>
+                  <div class="details">
+                    <button class="details-button" data-content-id="${
+                      content.id
+                    }">자세히 보기</button>
+                  </div>
+                  <button class="like-button" data-content-id="${
+                    content.id
+                  }">♡</button>
+                </div>
+              `;
+
+          cardContainer.appendChild(card);
+        }
+
+        document.querySelectorAll(".details-button").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const contentId = event.target.dataset.contentId;
+            openModal(contentId);
+          });
+        });
+
+        document.querySelectorAll(".like-button").forEach((button) => {
+          button.addEventListener("click", (event) => {
+            event.stopPropagation(); // 이벤트 버블링 방지
+            const likeButton = event.currentTarget;
+            if (likeButton.textContent === "♡") {
+              likeButton.textContent = "♥";
+              likeButton.classList.add("liked");
+            } else {
+              likeButton.textContent = "♡";
+              likeButton.classList.remove("liked");
+            }
+          });
+        });
+      }
+
+      // --- 모달을 열고 상세 정보를 표시하는 함수 ---
+      async function openModal(contentId) {
+        modal.style.display = "flex"; // 모달을 보이게 함
+        modalBody.innerHTML = "<p>상세 정보를 불러오는 중입니다...</p>";
+
+        // 어떤 모달이 열렸는지 sessionStorage에 저장
+        sessionStorage.setItem("lastOpenModalId", contentId);
+
+        try {
+          const contentInfo = allContents.find((c) => c.id == contentId);
+          // console.log("contentInfo:", contentInfo);
+          if (!contentInfo) {
+            throw new Error("콘텐츠 정보를 찾을 수 없습니다.");
+          }
+
+          // 미리 로드된 allLocations에서 현재 콘텐츠에 해당하는 장소 정보 필터링
+          const relatedLocations = allLocations.filter(
+            (loc) => loc.contentGroup === contentInfo.name
+          );
+          // console.log("relatedLocations:", relatedLocations);
+
+          let html = `<img src="${contentInfo.imageUrl}" alt="${contentInfo.name}">`;
+          html += `<h2>${contentInfo.name}</h2>`;
+          html += "<hr><h3>관련 촬영지 정보</h3>";
+
+          if (relatedLocations && relatedLocations.length > 0) {
+            html += `
+              <div class="swiper-container location-slider">
+                <div class="swiper-wrapper">
+            `;
+
+            for (let i = 0; i < relatedLocations.length; i += 4) {
+              html += '<div class="swiper-slide"><div class="location-grid">';
+              const slideLocations = relatedLocations.slice(i, i + 4);
+
+              slideLocations.forEach((loc) => {
+                html += `
+                  <div class="location-card">
+                    <img src="${loc.imageUrl || ""}" alt="${
+                  loc.name || "이미지 없음"
+                }" onerror="this.outerHTML='<div class=\\'no-image\\'>이미지가 없습니다.</div>'">
+                    <div class="location-card-content">
+                      <h5>${loc.name || "이름 없음"}</h5>
+                      <p class="address">${loc.location || "주소 정보 없음"}</p>
+                      <p class="description">${
+                        loc.explanation || "설명이 없습니다."
+                      }</p>
+                      <button class="location-details-button"
+                              data-location-id="${loc.id}"
+                              data-place-id="${
+                                loc.placeId
+                              }">자세히 보기</button>
+                    </div>
+                  </div>
+                `;
+              });
+
+              html += "</div></div>"; // close grid and slide
+            }
+
+            html += `
+                </div>
+                <div class="swiper-controls">
+                  <div class="swiper-button-prev"></div>
+                  <div class="swiper-pagination"></div>
+                  <div class="swiper-button-next"></div>
+                </div>
+              </div>
+            `;
+          } else {
+            html += "<p>관련된 장소 정보가 없습니다.</p>";
+          }
+
+          // 리뷰 섹션 추가
+          html += `
+            <div class="reviews-section">
+              <hr>
+              <h3>리뷰</h3>
+              <div class="reviews-container">
+                <p>아직 작성된 리뷰가 없습니다.</p>
+              </div>
+            </div>
+          `;
+          modalBody.innerHTML = html;
+
+          new Swiper(".location-slider", {
+            loop: false,
+            pagination: {
+              el: ".swiper-pagination",
+              clickable: true,
+            },
+            navigation: {
+              nextEl: ".swiper-button-next",
+              prevEl: ".swiper-button-prev",
+            },
+          });
+
+          document
+            .querySelectorAll(".location-details-button")
+            .forEach((button) => {
+              button.addEventListener("click", (event) => {
+                const placeId = event.currentTarget.dataset.placeId;
+                // 상세 페이지로 placeId와 함께 이동
+                window.location.href = `detail.html?placeId=${placeId}`;
+              });
+            });
+        } catch (error) {
+          modalBody.innerHTML = `<p>상세 정보를 불러오는 데 실패했습니다: ${error.message}</p>`;
+        }
+      }
+
+      // --- 모달을 닫는 함수 ---
+      function closeModal() {
+        modal.style.display = "none";
+        // 모달을 닫을 때 sessionStorage에서 ID 제거
+        sessionStorage.removeItem("lastOpenModalId");
+      }
+
+      // ---모달 닫기 이벤트 리스너를 설정하는 함수 ---
+      function setupModalListeners() {
+        closeModalBtn.addEventListener("click", closeModal);
+
+        window.addEventListener("click", (event) => {
+          if (event.target == modal) {
+            closeModal();
+          }
+        });
+      }
+
+      // --- 최근 방문 목록의 이벤트 리스너를 설정하는 함수 (이벤트 위임 사용) ---
+      function setupRecentlyVisitedListeners() {
+        const listContainer = document.getElementById("recently-visited-list");
+        const clearAllBtn = document.querySelector(".clear-all-btn");
+        const RECENTLY_VISITED_KEY = "recentlyVisited";
+
+        // 개별 삭제 버튼 이벤트 리스너 (이벤트 위임)
+        listContainer.addEventListener("click", (event) => {
+          const deleteButton = event.target.closest(".recent-item-delete-btn");
+          if (!deleteButton) return;
+
+          event.preventDefault(); // a 태그의 링크 이동 방지
+          event.stopPropagation(); // 이벤트 버블링 방지
+
+          const placeIdToDelete = parseInt(deleteButton.dataset.placeId, 10);
+          let currentList =
+            JSON.parse(localStorage.getItem(RECENTLY_VISITED_KEY)) || [];
+          currentList = currentList.filter(
+            (item) => item.placeId !== placeIdToDelete
+          );
+          localStorage.setItem(
+            RECENTLY_VISITED_KEY,
+            JSON.stringify(currentList)
+          );
+          renderRecentlyVisited(); // 목록 다시 렌더링
+        });
+
+        // 전체 삭제 버튼 이벤트 리스너
+        clearAllBtn.addEventListener("click", () => {
+          const isConfirmed = confirm(
+            "정말로 모든 방문 기록을 삭제하시겠습니까?"
+          );
+          if (isConfirmed) {
+            localStorage.removeItem(RECENTLY_VISITED_KEY);
+            renderRecentlyVisited(); // 목록 다시 렌더링
+          }
+        });
+      }
+
+      // --- 최근 방문 목록을 렌더링하는 함수 ---
+      function renderRecentlyVisited() {
+        const listContainer = document.getElementById("recently-visited-list");
+        const clearAllBtn = document.querySelector(".clear-all-btn");
+        const RECENTLY_VISITED_KEY = "recentlyVisited";
+
+        const recentlyVisited =
+          JSON.parse(localStorage.getItem(RECENTLY_VISITED_KEY)) || [];
+
+        listContainer.innerHTML = ""; // 목록 초기화
+
+        if (recentlyVisited.length === 0) {
+          listContainer.innerHTML = "<p>최근 방문한 장소가 없습니다.</p>";
+          clearAllBtn.style.display = "none";
+          return;
+        }
+
+        clearAllBtn.style.display = "block";
+
+        recentlyVisited.forEach((item) => {
+          const cardLink = document.createElement("a");
+          cardLink.href = `detail.html?placeId=${item.placeId}`;
+          cardLink.className = "recent-item-card";
+          cardLink.innerHTML = `
+            <img src="${item.imageUrl}" alt="${item.placeName}" onerror="this.style.display='none'">
+            <p>${item.placeName}</p>
+            <button class="recent-item-delete-btn" data-place-id="${item.placeId}">×</button>
+          `;
+          listContainer.appendChild(cardLink);
+        });
+      }
+
+      initSupabase();
+    </script>
+  </body>
+</html>
