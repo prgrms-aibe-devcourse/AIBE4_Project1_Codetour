@@ -72,7 +72,7 @@ async function hardLocalClear() {
   }
 }
 
-/** ✅ 팝업 대신 '전체 페이지 리디렉션' 강제 (팝업 차단 우회) */
+
 async function signInWithGoogle() {
   try {
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -207,10 +207,10 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   const loginBtn   = document.getElementById("loginBtn");
   const logoutBtn  = document.getElementById("logoutBtn");
-  const loginLarge = document.querySelector(".btn-login-large"); // ✅ 히어로/오버레이 버튼도 처리
+  const loginLarge = document.querySelector(".btn-login-large");
 
   if (loginBtn)   loginBtn.onclick   = signInWithGoogle;
-  if (loginLarge) loginLarge.onclick = signInWithGoogle; // ✅ 추가 바인딩
+  if (loginLarge) loginLarge.onclick = signInWithGoogle; 
   if (logoutBtn)  logoutBtn.onclick  = signOut;
 
   await handleOAuthRedirectIfNeeded();
