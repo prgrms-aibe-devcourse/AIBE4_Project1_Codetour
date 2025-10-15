@@ -3,8 +3,53 @@
   <select class="header-btn">
     <option>한국</option>
   </select>
-  <button class="header-btn" id="loginBtn">로그인</button>
+  <button class="header-btn" id="loginBtn" onclick="window.location.href='/auth'">로그인</button>
   <button class="header-btn" id="logoutBtn" style="display: none;">로그아웃</button>
   <span id="greeting" style="display: none; margin-right: 10px;">안녕하세요, <span id="nickname"></span>님</span>
 </div>
-<script type="module" src="/auth/auth.js"></script>
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const supabase = createClient(
+    'https://fmcxkqfccuevcaqkzsex.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtY3hrcWZjY3VldmNhcWt6c2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MDA5OTYsImV4cCI6MjA1MDE3Njk5Nn0.pWGr6o9t1JCVJp6aaLYCEyeXRvEGnvR7CtGUNrzpZHs'
+  );
+
+  async function checkAuth() {
+    const { data: { user } } = await supabase.auth.getUser();
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const greeting = document.getElementById('greeting');
+    const nickname = document.getElementById('nickname');
+
+    if (user) {
+      // 사용자 프로필 조회
+      let displayName = user.email?.split('@')[0] || '사용자';
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('id', user.id)
+          .single();
+        if (profile?.display_name) displayName = profile.display_name;
+      } catch (e) {}
+
+      loginBtn.style.display = 'none';
+      logoutBtn.style.display = 'inline-block';
+      greeting.style.display = 'inline';
+      nickname.textContent = displayName;
+    } else {
+      loginBtn.style.display = 'inline-block';
+      logoutBtn.style.display = 'none';
+      greeting.style.display = 'none';
+    }
+  }
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    window.location.href = '/';
+  }
+
+  document.getElementById('logoutBtn')?.addEventListener('click', signOut);
+  checkAuth();
+</script>

@@ -6,7 +6,8 @@
       "Bash(taskkill:*)",
       "Bash(tasklist)",
       "Bash(findstr \"node\")",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

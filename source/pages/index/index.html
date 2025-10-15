@@ -175,7 +175,7 @@
           <span id="greeting" class="hide"
             >안녕하세요, <span id="nickname"></span>님</span
           >
-          <button id="loginBtn">로그인</button>
+          <button id="loginBtn" onclick="window.location.href='/auth'">로그인</button>
           <button id="logoutBtn" class="hide">로그아웃</button>
         </div>
       </div>
@@ -384,8 +384,8 @@
 
     <script>
       window.AUTH_PATHS = {
-        INDEX: "/source/pages/index/index.html",
-        SET_NICK: "/public/auth/set-nickname.html",
+        INDEX: "/",
+        SET_NICK: "/auth/set-nickname.html",
       };
     </script>
 
