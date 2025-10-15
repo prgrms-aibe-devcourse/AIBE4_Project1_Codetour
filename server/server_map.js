@@ -43,11 +43,30 @@ setSupabase(supabase);
 app.use(cors());
 app.use(express.json());
 
-// CSP (Supabase SDK/ESM, 폰트 CDN, OAuth 리디렉션 등 허용)
+// CSP 헤더 설정 (통합본)
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://esm.sh https://dapi.kakao.com https://t1.daumcdn.net http://t1.daumcdn.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; connect-src 'self' http://localhost:3000 https: wss:; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: http:;"
+    [
+      // 기본
+      "default-src 'self' https: data: blob:",
+
+      // 스크립트: Supabase ESM, jsDelivr, Kakao/Daum, unpkg 등
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://esm.sh https://cdn.jsdelivr.net https://dapi.kakao.com https://t1.daumcdn.net http://t1.daumcdn.net https://unpkg.com",
+
+      // 스타일/폰트 CDN
+      "style-src 'self' 'unsafe-inline' https: https://fonts.googleapis.com https://unpkg.com",
+      "font-src 'self' https: data: https://fonts.gstatic.com",
+
+      // API / Realtime / 개발 서버(로컬) 허용
+      "connect-src 'self' http://localhost:3000 https: wss:",
+
+      // 이미지/동영상 등
+      "img-src 'self' https: http: data: blob:",
+
+      // OAuth/지도 등 외부 프레임 대비
+      "frame-src https:"
+    ].join("; ")
   );
   next();
 });

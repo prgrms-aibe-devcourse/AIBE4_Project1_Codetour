@@ -253,17 +253,17 @@ body {
     display: block;
 }
 
-.logo:hover {
-    transform: scale(1.05);
+.logo:hover .logo-pin {
+    animation: pinBounce 0.5s ease infinite;
 }
 
-.logo-icon {
-    position: relative;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+@keyframes pinBounce {
+    0%, 100% { 
+        transform: translate(95.5px, 4px) scale(0.93); 
+    }
+    50% { 
+        transform: translate(95.5px, 0px) scale(0.93); /* Moves up 4px */
+    }
 }
 
 .pin-outer {
@@ -352,7 +352,7 @@ html[lang="ja"] .nav-link {
 }
 
 .lang-select {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.5rem;
     border: 1px solid var(--light-gray);
     border-radius: 8px;
     background: var(--white);
