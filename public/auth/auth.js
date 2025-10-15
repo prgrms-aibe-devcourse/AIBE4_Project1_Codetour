@@ -192,7 +192,14 @@ async function routeByProfile() {
 
   const dest = hasNick ? PATHS.INDEX : PATHS.SET_NICK;
   if (hasNick && page === "set-nickname.html") {
-    location.replace(urlTo(PATHS.INDEX));
+    // returnUrl이 있으면 그곳으로, 없으면 홈으로
+    const returnUrl = sessionStorage.getItem('returnUrl');
+    if (returnUrl) {
+      sessionStorage.removeItem('returnUrl');
+      location.replace(returnUrl);
+    } else {
+      location.replace(urlTo(PATHS.INDEX));
+    }
     return;
   }
   if (page !== dest.toLowerCase()) {

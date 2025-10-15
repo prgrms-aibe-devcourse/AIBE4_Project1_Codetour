@@ -23,6 +23,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       .eq("id", user.id)
       .maybeSingle();
 
+    // 이미 닉네임이 있으면 리디렉트
+    if (profile && profile.display_name) {
+      console.log("이미 닉네임이 설정되어 있습니다. 리디렉트합니다.");
+      const returnUrl = sessionStorage.getItem('returnUrl');
+      if (returnUrl) {
+        sessionStorage.removeItem('returnUrl');
+        window.location.href = returnUrl;
+      } else {
+        window.location.href = "/";
+      }
+      return;
+    }
+
     if (profile) {
       nicknameInput.value = profile.display_name || "";
     }
@@ -75,11 +88,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       saveBtn.disabled = true;
       saveBtn.textContent = "저장 중...";
 
-      // 1. 프로필 업데이트
+      // 1. 프로필 업데이트 (email 포함)
       const { error: profileError } = await supabase
         .from("profiles")
         .upsert({
           id: user.id,
+          email: user.email,
           display_name: nickname
         }, {
           onConflict: "id"
@@ -109,8 +123,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       alert("프로필이 저장되었습니다!");
 
-      // 홈으로 이동
-      window.location.href = "/";
+      // returnUrl이 있으면 그곳으로, 없으면 홈으로 이동
+      const returnUrl = sessionStorage.getItem('returnUrl');
+      if (returnUrl) {
+        sessionStorage.removeItem('returnUrl');
+        window.location.href = returnUrl;
+      } else {
+        window.location.href = "/";
+      }
 
     } catch (error) {
       console.error("프로필 저장 실패:", error);

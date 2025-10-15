@@ -137,21 +137,57 @@
       </div>
     </main>
     <script src="/libs/user-manager.js"></script>
-    <script>
-      function updateUserGreeting() {
+    <script type="module">
+      import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+      const supabase = createClient(
+        'https://fmcxkqfccuevcaqkzsex.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtY3hrcWZjY3VldmNhcWt6c2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MDA5OTYsImV4cCI6MjA1MDE3Njk5Nn0.pWGr6o9t1JCVJp6aaLYCEyeXRvEGnvR7CtGUNrzpZHs'
+      );
+
+      async function updateUserGreeting() {
         console.log("Update user greeting");
         const userManager = UserManager.getInstance();
-        const isLoggedIn = userManager.getIsLoggedIn();
 
-        if (isLoggedIn) {
-          const nickname = userManager.getUserNickname();
+        // Supabase에서 현재 사용자 확인
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user) {
+          // 프로필에서 닉네임 가져오기
+          let displayName = user.email?.split('@')[0] || '사용자';
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('display_name')
+              .eq('id', user.id)
+              .maybeSingle();
+
+            if (profile?.display_name) {
+              displayName = profile.display_name;
+            }
+          } catch (e) {
+            console.warn('프로필 로드 실패:', e);
+          }
+
+          // UserManager 업데이트
+          userManager.setLoggedInUser({
+            id: user.id,
+            email: user.email,
+            nickname: displayName,
+            profile_image_url: user.user_metadata?.avatar_url || '',
+            bio: ''
+          });
+
+          // 화면에 표시
           const welcomeElement = document.querySelector(".subtitle .highlight");
           if (welcomeElement) {
-            welcomeElement.textContent = nickname;
+            welcomeElement.textContent = displayName;
           }
         } else {
-          console.log("로그 아웃 상태");
-          // 여기서 로그인 페이지로 넘어가야 함
+          console.log("로그아웃 상태");
+          // returnUrl 저장하고 로그인 페이지로 이동
+          sessionStorage.setItem('returnUrl', window.location.pathname);
+          window.location.href = '/auth';
         }
       }
 
