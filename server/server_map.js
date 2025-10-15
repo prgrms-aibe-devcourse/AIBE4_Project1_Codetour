@@ -18,8 +18,14 @@ const indexPath = path.join(__dirname, "../source/pages/index/index.html");
 const mapPath = path.join(__dirname, "../source/pages/map/map_page.html");
 const myPagePath = path.join(__dirname, "../source/pages/my-page/my-page.html");
 const authPath = path.join(__dirname, "../public/auth/login-demo.html");
-const aiCoursePath = path.join(__dirname, "../source/pages/aiCourse/aiSchedule.html");
-const preferencePath = path.join(__dirname, "../source/pages/preference/preference.html");
+const aiCoursePath = path.join(
+  __dirname,
+  "../source/pages/aiCourse/aiSchedule.html"
+);
+const preferencePath = path.join(
+  __dirname,
+  "../source/pages/preference/preference.html"
+);
 
 console.log("Index 경로:", indexPath, "존재:", fs.existsSync(indexPath));
 console.log("Map   경로:", mapPath, "존재:", fs.existsSync(mapPath));
@@ -73,11 +79,15 @@ app.use("/jquery", express.static(path.join(__dirname, "../jquery")));
 app.get("/", (_req, res) => {
   if (!fs.existsSync(indexPath))
     return res.status(404).send("index.html을 찾을 수 없습니다");
+  if (!fs.existsSync(indexPath))
+    return res.status(404).send("index.html을 찾을 수 없습니다");
   res.sendFile(indexPath);
 });
 
 // (옵션) 간단한 /map 라우트
 app.get("/map", (_req, res) => {
+  if (!fs.existsSync(mapPath))
+    return res.status(404).send("map_page.html을 찾을 수 없습니다");
   if (!fs.existsSync(mapPath))
     return res.status(404).send("map_page.html을 찾을 수 없습니다");
   res.sendFile(mapPath);

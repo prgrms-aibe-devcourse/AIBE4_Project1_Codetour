@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>나만의 여행 코스 만들기</title>
+<style>
+  :root{
+    --bg:#f3f5f7;
+    --card:#ffffff;
+    --ink:#0f172a;
+    --sub:#475569;
+    --line:#e2e8f0;
+    --accent:#0ea5e9;
+    --brand:#0ea5e9;
+    --muted:#94a3b8;
+    --ok:#22c55e;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0; background:var(--bg); color:var(--ink); font-family:ui-sans-serif,system-ui,Apple SD Gothic Neo,Malgun Gothic,NanumSquare,Roboto,sans-serif}
+  .wrap{width:min(1180px,94vw); margin:20px auto 56px}
+  header{margin:6px 0 14px}
+  h1{margin:0; font-size:22px}
+  header p{margin:2px 0 0; color:var(--sub); font-size:12px}
+
+  /* Main card */
+  .card{display:grid; grid-template-columns:1fr 280px; gap:16px; align-items:start;
+        background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px}
+  .col{padding:6px}
+  .aside{border-left:1px solid var(--line)}
+  .aside h4{margin:6px 0 10px; font-size:14px}
+  .aside .empty{border:1px dashed var(--line); padding:18px 12px; border-radius:10px; color:var(--muted); font-size:13px}
+  .aside .sel{display:flex; align-items:center; justify-content:space-between; border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin:10px 0}
+  .aside .sel .meta{font-size:12px; color:var(--sub); margin-top:2px}
+  .aside .sel .act{display:flex; gap:6px}
+  .btn{padding:8px 12px; border:1px solid var(--line); border-radius:10px; background:#fff; cursor:pointer; font-weight:600}
+  .btn.icon{width:32px; height:32px; display:grid; place-items:center}
+  .btn.primary{background:#111827; color:#fff; border-color:#111827}
+  .btn.ghost{background:#f8fafc}
+
+  /* Stepper */
+  .stepper{display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin:6px 6px 12px}
+  .step{display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:12px; padding:10px 12px; font-weight:700; color:#0f172a}
+  .step small{display:block; font-weight:700; color:#64748b; font-size:10px; letter-spacing:.5px}
+  .step .num{min-width:26px; height:26px; border-radius:999px; display:grid; place-items:center; background:#e2e8f0; font-size:12px}
+  .step.active{border-color:#bae6fd; background:#f0f9ff}
+  .step.active .num{background:#0ea5e9; color:#fff}
+
+  /* Search + list */
+  .section-title{display:flex; align-items:center; gap:8px; font-weight:800; margin:4px 0 8px; font-size:14px}
+  .search{display:flex; gap:8px; margin:6px 0 10px}
+  .search input{flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:10px}
+  .list{border:1px solid var(--line); border-radius:12px; overflow:hidden}
+  .row{display:grid; grid-template-columns:1fr 120px 80px 36px; align-items:center; gap:8px; padding:10px 12px; border-top:1px solid var(--line); background:#fff}
+  .row:first-child{border-top:none}
+  .cell.title{display:flex; align-items:center; gap:10px}
+  .thumb{width:44px; height:34px; border-radius:8px; background:#e2e8f0; display:grid; place-items:center; color:#475569; font-weight:800}
+  .poi-title{font-weight:800}
+  .poi-meta{font-size:12px; color:var(--sub); margin-top:2px}
+  .poi-cat{font-size:12px; color:#0ea5e9; font-weight:700}
+  .add{display:grid; place-items:center}
+  .add .plus{width:28px; height:28px; border-radius:999px; border:1px solid var(--line); display:grid; place-items:center; cursor:pointer; background:#fff}
+  .add .plus.added{background:#22c55e; color:#fff; border-color:#22c55e}
+
+  /* Bottom actions */
+  .actions-bar{display:flex; justify-content:flex-end; margin:12px 0 0}
+  .divider{height:1px; background:var(--line); margin:10px 0}
+
+  /* Map */
+  .map{margin-top:14px; height:300px; background:#e2e8f0; border:1px solid var(--line); border-radius:14px; display:grid; place-items:center; color:#475569}
+  @media (max-width: 980px){ .card{grid-template-columns:1fr} .aside{border-left:none} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>나만의 여행 코스 만들기</h1>
+      <p>아래 순서를 거쳐 세부 설정을 해보세요</p>
+    </header>
+
+    <section class="card">
+      <!-- LEFT MAIN -->
+      <div class="col">
+        <!-- Stepper -->
+        <div class="stepper" aria-label="Step Progress">
+          <div class="step active"><div class="num">1</div><div>장소 선택</div></div>
+          <div class="step"><div class="num">2</div><div>개인 설정</div></div>
+          <div class="step"><div class="num">3</div><div>이동 수단</div></div>
+          <div class="step"><div class="num">4</div><div>예산 설정</div></div>
+          <div class="step"><div class="num">5</div><div>동행자 정보</div></div>
+          <div class="step"><div class="num">6</div><div>완료 확인</div></div>
+        </div>
+
+        <!-- 관심 장소 선택 -->
+        <div class="section-title">📍 관심 장소 선택</div>
+        <div class="search">
+          <input id="q" placeholder="찾고 싶은 곳을 검색하세요" />
+        </div>
+
+        <div class="list" id="poi-list"></div>
+
+        <div class="actions-bar">
+          <button class="btn ghost" id="prev">이전</button>
+          <button class="btn primary" id="next" style="margin-left:8px">다음</button>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDEBAR -->
+      <aside class="col aside">
+        <h4>🧺 선택한 장소</h4>
+        <div id="selected-empty" class="empty">아직 선택한 장소가 없습니다</div>
+        <div id="selected"></div>
+      </aside>
+    </section>
+
+    <div class="map">(지도가 표시되는 영역)</div>
+  </div>
+
+<script>
+// ---------------- Sample Data (inspired by user's seoul_itinerary) ----------------
+const POIS = [
+  {id:'1', title:'남산타워', ward:'중구', cat:'전망·랜드마크', thumb:'N', meta:'서울의 야경 명소'},
+  {id:'2', title:'경복궁', ward:'종로구', cat:'궁궐', thumb:'경', meta:'조선의 법궁'},
+  {id:'3', title:'광장시장', ward:'종로구', cat:'시장', thumb:'광', meta:'빈대떡·마약김밥'},
+  {id:'4', title:'롯데월드', ward:'송파구', cat:'테마파크', thumb:'롯', meta:'실내·실외 놀이공원'},
+  {id:'5', title:'북촌 한옥마을', ward:'종로구', cat:'산책', thumb:'북', meta:'한옥 골목'},
+  {id:'6', title:'서촌 골목', ward:'종로구', cat:'산책', thumb:'서', meta:'맛집·카페'},
+  {id:'7', title:'홍대 걷고싶은거리', ward:'마포구', cat:'거리', thumb:'홍', meta:'버스킹·쇼핑'},
+  {id:'8', title:'코엑스 아쿠아리움', ward:'강남구', cat:'실내', thumb:'코', meta:'아이동반 인기'},
+];
+
+let selected = [];
+
+// ---------------- Renderers ----------------
+const listEl = document.getElementById('poi-list');
+const selEl  = document.getElementById('selected');
+const selEmpty = document.getElementById('selected-empty');
+
+function renderList(items){
+  listEl.innerHTML = '';
+  items.forEach(p=>{
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div class="cell title">
+        <div class="thumb">${p.thumb}</div>
+        <div>
+          <div class="poi-title">${p.title}</div>
+          <div class="poi-meta">${p.ward}</div>
+        </div>
+      </div>
+      <div class="poi-cat">${p.cat}</div>
+      <div class="poi-meta">${p.meta||''}</div>
+      <div class="add"><button class="plus" aria-label="추가">＋</button></div>
+    `;
+    const btn = row.querySelector('.plus');
+    const added = selected.find(s=>s.id===p.id);
+    if(added) btn.classList.add('added');
+    btn.addEventListener('click', ()=> toggleSelect(p, btn));
+    listEl.appendChild(row);
+  });
+}
+
+function renderSelected(){
+  selEl.innerHTML = '';
+  if(selected.length===0){ selEmpty.style.display='block'; return; }
+  selEmpty.style.display='none';
+  selected.forEach((p, idx)=>{
+    const row = document.createElement('div');
+    row.className = 'sel';
+    row.innerHTML = `
+      <div>
+        <div style="font-weight:800">${p.title}</div>
+        <div class="meta">${p.ward} · ${p.cat}</div>
+      </div>
+      <div class="act">
+        <button class="btn icon" title="위로">↑</button>
+        <button class="btn icon" title="아래로">↓</button>
+        <button class="btn icon" title="삭제">−</button>
+      </div>
+    `;
+    const [up,down,del] = row.querySelectorAll('button');
+    up.addEventListener('click', ()=> move(idx,-1));
+    down.addEventListener('click', ()=> move(idx,1));
+    del.addEventListener('click', ()=> remove(idx));
+    selEl.appendChild(row);
+  });
+}
+
+function toggleSelect(p, btn){
+  const pos = selected.findIndex(s=>s.id===p.id);
+  if(pos>-1){ selected.splice(pos,1); btn.classList.remove('added'); }
+  else{ selected.push(p); btn.classList.add('added'); }
+  renderSelected();
+}
+
+function move(i, d){
+  const j = i+d;
+  if(j<0 || j>=selected.length) return;
+  [selected[i],selected[j]]=[selected[j],selected[i]];
+  renderSelected();
+}
+
+function remove(i){
+  const id = selected[i].id;
+  selected.splice(i,1);
+  renderSelected();
+  // also unmark in list
+  const idx = POIS.findIndex(p=>p.id===id);
+  if(idx>-1){
+    const btn = listEl.querySelectorAll('.plus')[idx];
+    if(btn) btn.classList.remove('added');
+  }
+}
+
+// Search
+document.getElementById('q').addEventListener('input', (e)=>{
+  const q = e.target.value.trim();
+  const filtered = POIS.filter(p=> (p.title+p.ward+p.cat).includes(q));
+  renderList(filtered);
+});
+
+// Nav (just placeholders to mirror screenshot)
+document.getElementById('prev').addEventListener('click', ()=> alert('이전 단계로 이동 (샘플)'));
+document.getElementById('next').addEventListener('click', ()=> alert('다음 단계로 이동 (샘플)'));
+
+// Boot
+renderList(POIS);
+renderSelected();
+</script>
+</body>
+</html>
