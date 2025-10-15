@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KSpot-나의 여행 코스</title>
     <link rel="stylesheet" href="my-page.css" />
-    <script src="/libs/user-manager.js"></script>
-    <script src="/libs/include.js" defer></script>
+    <script src="/libs/config.js"></script>
+    <script src="/libs/include.js"></script>
     <style>
       .course-list {
         display: flex;
@@ -105,20 +105,27 @@
       <div class="course-list"></div>
     </main>
 
-    <script>
-      const apiURL = "http://localhost:3000";
+    <script type="module">
+      import {
+        initAuthListener,
+        getIsLoggedIn,
+        getUserId,
+      } from "/libs/user-manager.js";
+      //const apiURL = "http://localhost:3000";
 
       async function fetchAndRenderCourses() {
-        if (!userManager.getIsLoggedIn()) {
+        initAuthListener();
+        const userId = getUserId();
+
+        if (!userId) {
           alert("로그인이 필요합니다.");
-          window.location.href = "/source/pages/my-page/my-page.html";
+          window.location.href = "/auth";
           return;
         }
-        const userId = userManager.getUserId();
         const courseListContainer = document.querySelector(".course-list");
 
         try {
-          const response = await fetch(`${apiURL}/api/courses/${userId}`);
+          const response = await fetch(`${API_BASE_URL}/api/courses/${userId}`);
           if (!response.ok) throw new Error("Failed to fetch courses");
 
           const courses = await response.json();
@@ -203,9 +210,12 @@
           return;
         }
         try {
-          const response = await fetch(`${apiURL}/api/courses/${courseId}`, {
-            method: "DELETE",
-          });
+          const response = await fetch(
+            `${API_BASE_URL}/api/courses/${courseId}`,
+            {
+              method: "DELETE",
+            }
+          );
           if (!response.ok) throw new Error("Failed to delete course");
 
           alert("코스가 삭제되었습니다.");

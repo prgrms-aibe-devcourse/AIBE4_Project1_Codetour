@@ -1,134 +1,108 @@
-const UserManager = (function () {
-  let instance;
+/*
+user-manager.js
+: localStorage에서 로그인한 사용자 정보를 가져오거나 이벤트를 받아 정보를 저장하는 독립적인 함수들을 export하는 모듈
+auth.js
+:로그인/로그아웃 시 'auth-state-changed' 이벤트를 발생 -> 페이지에서 사용자 정보가 필요할 때 이 이벤트 구독
 
-  function createInstance() {
-    // Load state from localStorage (changed from sessionStorage for persistence)
-    let db_id = localStorage.getItem("db_id");
-    let email = localStorage.getItem("email");
-    let nickname = localStorage.getItem("nickname");
-    let profile_image_url = localStorage.getItem("profile_image_url");
-    let bio = localStorage.getItem("bio");
-    let isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-    let isInitialized = localStorage.getItem("isInitialized") === "true";
+html파일에서 사용예시
+:
+*/
 
-    return {
-      setLoggedInUser: function (userData) {
-        db_id = userData.id;
-        email = userData.email;
-        nickname = userData.nickname;
-        profile_image_url = userData.profile_image_url;
-        bio = userData.bio;
-        isLoggedIn = true;
+const getItem = (key) => localStorage.getItem(key);
 
-        // Save state to localStorage (changed from sessionStorage for persistence)
-        localStorage.setItem("db_id", db_id);
-        localStorage.setItem("email", email);
-        localStorage.setItem("nickname", nickname);
-        localStorage.setItem("profile_image_url", profile_image_url);
-        localStorage.setItem("bio", bio || ""); // Ensure we don't store "null"
-        localStorage.setItem("isLoggedIn", "true");
+/**
+ * 로그인되었을 때 사용자 정보를 LocalStorage에 저장
+ *@param{object}userData - { id, email, nickname, profile_image_url, bio }
+ */
+export function setLoggedInUser(userData) {
+  localStorage.setItem("db_id", userData.id);
+  localStorage.setItem("email", userData.email);
+  localStorage.setItem("nickname", userData.nickname);
+  localStorage.setItem("profile_image_url", userData.profile_image_url);
+  localStorage.setItem("bio", userData.bio || "");
+  localStorage.setItem("isLoggedIn", "true");
+  console.log(`[UserManager] User ${userData.nickname} is now logged in.`);
+}
 
-        console.log(`User ${nickname} is now logged in.`);
-      },
-      clearUser: function () {
-        db_id = null;
-        email = null;
-        nickname = null;
-        profile_image_url = null;
-        bio = null;
-        isLoggedIn = false;
-        isInitialized = false;
+/**
+ * 로그아웃 시 LocalStorage에서 사용자 정보를 삭제.
+ */
+export function clearUser() {
+  localStorage.removeItem("db_id");
+  localStorage.removeItem("email");
+  localStorage.removeItem("nickname");
+  localStorage.removeItem("profile_image_url");
+  localStorage.removeItem("bio");
+  localStorage.removeItem("isLoggedIn");
+  console.log("[UserManager] User logged out.");
+}
 
-        // Clear state from localStorage (changed from sessionStorage for persistence)
-        localStorage.removeItem("db_id");
-        localStorage.removeItem("email");
-        localStorage.removeItem("nickname");
-        localStorage.removeItem("profile_image_url");
-        localStorage.removeItem("bio");
-        localStorage.removeItem("isLoggedIn");
-        localStorage.removeItem("isInitialized");
-
-        console.log("User logged out.");
-      },
-      setIsInitialized: function (value) {
-        isInitialized = value;
-        localStorage.setItem("isInitialized", value);
-      },
-      getIsInitialized: function () {
-        return isInitialized;
-      },
-      getIsLoggedIn: function () {
-        return isLoggedIn;
-      },
-      getUserId: function () {
-        return db_id;
-      },
-      getUserEmail: function () {
-        return email;
-      },
-      getUserNickname: function () {
-        return nickname;
-      },
-      getProfileImageUrl: function () {
-        return profile_image_url;
-      },
-      getBio: function () {
-        return bio;
-      },
-      getUserInfo: function () {
-        if (!isLoggedIn) return null;
-        return {
-          id: db_id,
-          email: email,
-          nickname: nickname,
-          profile_image_url: profile_image_url,
-          bio: bio,
-        };
-      },
-      updateUserInfo: function (newUserData) {
-        if (newUserData.nickname !== undefined) {
-          nickname = newUserData.nickname;
-          localStorage.setItem("nickname", nickname);
-        }
-        if (newUserData.profile_image_url !== undefined) {
-          profile_image_url = newUserData.profile_image_url;
-          localStorage.setItem("profile_image_url", profile_image_url);
-        }
-        if (newUserData.bio !== undefined) {
-          bio = newUserData.bio;
-          localStorage.setItem("bio", bio || "");
-        }
-        console.log(`update user : ${nickname}, ${bio}`);
-      },
-    };
-  }
-
+/**
+ * 현재 로그인된 사용자의 모든 DB정보를 객체로 반환.
+ *@returns{object|null} -> 로그인 상태가 아니면 null 반환
+ */
+export function getUserInfo() {
+  if (getItem("isLoggedIn") !== "true") return null;
   return {
-    getInstance: function () {
-      if (!instance) {
-        instance = createInstance();
-      }
-      return instance;
-    },
+    id: getItem("db_id"),
+    email: getItem("email"),
+    nickname: getItem("nickname"),
+    profile_image_url: getItem("profile_image_url"),
+    bio: getItem("bio"),
   };
-})();
+}
 
-const userManager = UserManager.getInstance();
+//하나씩 받아오기
+export function getIsLoggedIn() {
+  return getItem("isLoggedIn") === "true";
+}
+export function getUserId() {
+  return getItem("db_id");
+}
+export function getUserEmail() {
+  return getItem("email");
+}
+export function getUserNickname() {
+  return getItem("nickname");
+}
+export function getProfileImageUrl() {
+  return getItem("profile_image_url");
+}
+export function getBio() {
+  return getItem("bio");
+}
 
-// //테스트용
-// function testCode() {
-//   if (!userManager.getIsLoggedIn() && !userManager.getIsInitialized()) {
-//     console.log("테스트 코드 실행");
-//     const userData = {
-//       id: "3a1e2ae0-71e6-4618-a2bc-ed5ccbdc3e74",
-//       email: "user@example.com",
-//       nickname: "1013test",
-//       profile_image_url: "https://example.com/profile.jpg",
-//       bio: null,
-//     };
-//     userManager.setLoggedInUser(userData);
-//     userManager.setIsInitialized(true);
-//   }
-// }
+/**
+ * 'auth-state-changed'의 이벤트 리스너 초기화
+ * user-manager 함수 사용 전 먼저 호출.
+ */
+export function initAuthListener() {
+  window.addEventListener("auth-state-changed", (event) => {
+    const { loggedIn, user } = event.detail;
+    if (loggedIn && user) {
+      setLoggedInUser(user);
+    } else {
+      clearUser();
+    }
+  });
+}
 
-// testCode();
+//일부 정보만 업데이트하기(마이페이지 프로필 수정용)
+export function updateUserInfo(newUserData) {
+  if (newUserData.nickname !== undefined) {
+    localStorage.setItem("nickname", newUserData.nickname);
+  }
+  if (newUserData.profile_image_url !== undefined) {
+    localStorage.setItem("profile_image_url", newUserData.profile_image_url);
+  }
+  if (newUserData.bio !== undefined) {
+    localStorage.setItem("bio", newUserData.bio || "");
+  }
+  if (newUserData.email !== undefined) {
+    localStorage.setItem("email", newUserData.email);
+  }
+  if (newUserData.id !== undefined) {
+    localStorage.setItem("db_id", newUserData.id);
+  }
+  console.log(`update user : ${newUserData.nickname}, ${newUserData.bio}`);
+}

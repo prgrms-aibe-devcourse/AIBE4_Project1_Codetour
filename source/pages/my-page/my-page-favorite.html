@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KSpot-관심 콘텐츠 관리</title>
     <link rel="stylesheet" href="my-page.css" />
-    <script src="/libs/user-manager.js"></script>
+    <script src="/libs/config.js"></script>
     <script src="/libs/include.js" defer></script>
     <style>
       .favorite-tabs {
@@ -116,8 +116,13 @@
       </div>
     </main>
 
-    <script>
-      const apiURL = "http://localhost:3000";
+    <script type="module">
+      import {
+        initAuthListener,
+        getIsLoggedIn,
+        getUserId,
+      } from "/libs/user-manager.js";
+      //const apiURL = "http://localhost:3000";
 
       function setupTabs() {
         const tabs = document.querySelectorAll(".favorite-tab");
@@ -190,14 +195,18 @@
       }
 
       async function fetchAndRenderFavorites() {
-        if (!userManager.getIsLoggedIn()) {
+        const userId = getUserId();
+
+        if (!userId) {
           alert("로그인이 필요합니다.");
+          window.location.href = "/auth";
           return;
         }
-        const userId = userManager.getUserId();
 
         try {
-          const response = await fetch(`${apiURL}/api/favorites/${userId}`);
+          const response = await fetch(
+            `${API_BASE_URL}/api/favorites/${userId}`
+          );
           if (!response.ok) throw new Error("Failed to fetch favorites");
 
           const favorites = await response.json();
@@ -218,6 +227,7 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
+        initAuthListener();
         setupTabs();
         fetchAndRenderFavorites();
       });

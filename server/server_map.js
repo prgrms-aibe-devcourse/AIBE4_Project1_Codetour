@@ -7,6 +7,14 @@ const { createClient } = require("@supabase/supabase-js");
 const path = require("path");
 const fs = require("fs");
 const { router: mapRouter, setSupabase } = require("./routes/map");
+const multer = require("multer");
+
+// Configure multer for memory storage to handle file uploads
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+});
 
 const app = express();
 app.disable("x-powered-by");
@@ -282,29 +290,63 @@ app.get("/api/profiles/:id", async (req, res) => {
 });
 
 // Update user profile
-app.post("/api/profiles/:id", async (req, res) => {
+app.post("/api/profiles/:id", upload.single("avatar"), async (req, res) => {
   const { id } = req.params;
-  const { display_name, bio, avatar_url } = req.body;
-  if (!id) return res.status(400).json({ error: "User ID is required" });
+  const { display_name, bio } = req.body; // Text fields from multer
 
-  const updates = { display_name, bio, avatar_url };
-  Object.keys(updates).forEach(
-    (key) => updates[key] === undefined && delete updates[key]
-  );
+  if (!id) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
 
   try {
-    const { data, error } = await supabase
+    const updates = {};
+    if (display_name !== undefined) updates.display_name = display_name;
+    if (bio !== undefined) updates.bio = bio;
+
+    // Handle file upload to Supabase Storage
+    if (req.file) {
+      const file = req.file;
+      const fileExt = path.extname(file.originalname);
+      const fileName = `avatar_${id}${fileExt}`;
+      const filePath = `${id}/${fileName}`; // Store in a user-specific folder
+
+      // Upload file to bucket
+      const { error: uploadError } = await supabase.storage
+        .from("profile-avatars")
+        .upload(filePath, file.buffer, {
+          contentType: file.mimetype,
+          upsert: true, // Overwrite existing file
+        });
+
+      if (uploadError) {
+        // Throw error to be caught by the catch block
+        throw new Error(`Storage Error: ${uploadError.message}`);
+      }
+
+      // Get the public URL of the uploaded file
+      const { data: urlData } = supabase.storage
+        .from("profile-avatars")
+        .getPublicUrl(filePath);
+
+      updates.avatar_url = `${urlData.publicUrl}?t=${new Date().getTime()}`;
+    }
+
+    const { data, error: dbError } = await supabase
       .from("profiles")
       .update(updates)
       .eq("id", id)
       .select()
       .single();
 
-    if (error) throw error;
+    if (dbError) {
+      // If there's a database error, throw it
+      throw dbError;
+    }
+
     res.json({ message: "Profile updated successfully", data });
   } catch (error) {
     console.error("Error updating profile:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: `Internal server error: ${error.message}` });
   }
 });
 
@@ -486,6 +528,54 @@ app.get("/api/favorites/:userId", async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching user favorites:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Get user preferences
+app.get("/api/preferences/:userId", async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) return res.status(400).json({ error: "User ID is required" });
+
+  try {
+    const { data, error } = await supabase
+      .from("user_preferences")
+      .select("categories")
+      .eq("user_id", userId)
+      .single();
+
+    if (error && error.code !== "PGRST116") throw error; // PGRST116 = no rows found
+    res.json(data || { categories: [] });
+  } catch (error) {
+    console.error("Error fetching user preferences:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Update user preferences
+app.post("/api/preferences", async (req, res) => {
+  console.log("Received preferences update request:", req.body);
+  const { userId, categories } = req.body;
+  if (!userId || !categories) {
+    return res
+      .status(400)
+      .json({ error: "User ID and categories are required" });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("user_preferences")
+      .upsert(
+        { user_id: userId, categories: categories, updated_at: new Date() },
+        { onConflict: "user_id" }
+      )
+      .select()
+      .single();
+
+    if (error) throw error;
+    res.json({ message: "Preferences updated successfully", data });
+  } catch (error) {
+    console.error("Error updating user preferences:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

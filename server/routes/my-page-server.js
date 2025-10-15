@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const multer = require("multer");
-const supabase = require("../public/libs/supabase-client");
+const supabase = require("../../public/libs/supabase-client");
 
 dotenv.config();
 
