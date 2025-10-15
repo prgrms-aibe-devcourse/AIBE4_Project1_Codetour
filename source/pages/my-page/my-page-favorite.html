@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KSpot-관심 콘텐츠 관리</title>
+    <link rel="stylesheet" href="my-page.css" />
+    <script src="/public/libs/user-manager.js"></script>
+    <script src="/public/libs/include.js" defer></script>
+    <style>
+      .favorite-tabs {
+        display: flex;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 32px;
+      }
+      .favorite-tab {
+        padding: 12px 24px;
+        cursor: pointer;
+        font-size: 16px;
+        color: #666;
+        border-bottom: 2px solid transparent;
+        transition: all 0.3s;
+      }
+      .favorite-tab.active {
+        color: #00a896;
+        font-weight: 600;
+        border-bottom-color: #00a896;
+      }
+      .tab-panel {
+        display: none;
+      }
+      .tab-panel.active {
+        display: block;
+      }
+      .favorite-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+      }
+      .favorite-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+      .favorite-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      }
+      .favorite-card-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        background-color: #eee;
+      }
+      .favorite-card-content {
+        padding: 16px;
+      }
+      .favorite-card-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .favorite-card-desc {
+        font-size: 14px;
+        color: #666;
+        height: 40px;
+        overflow: hidden;
+      }
+      .empty-message {
+        text-align: center;
+        padding: 80px 20px;
+        background-color: #fafafa;
+        border-radius: 12px;
+        color: #888;
+      }
+    </style>
+  </head>
+  <body>
+    <header></header>
+    <nav></nav>
+
+    <main>
+      <div class="page-header">
+        <button class="back-btn" onclick="location.href='my-page.html'">
+          ← 뒤로가기
+        </button>
+        <h1>관심 콘텐츠 관리</h1>
+        <p class="subtitle">
+          좋아요를 누른 컨텐츠, 여행지, 여행 코스를 모아보세요.
+        </p>
+      </div>
+
+      <div class="favorite-tabs">
+        <div class="favorite-tab active" data-tab="contents">컨텐츠</div>
+        <div class="favorite-tab" data-tab="location">여행지</div>
+      </div>
+
+      <div id="contents-panel" class="tab-panel active">
+        <div class="favorite-grid"></div>
+        <div class="empty-message" style="display: none">
+          <p>좋아요를 누른 컨텐츠가 없습니다.</p>
+        </div>
+      </div>
+
+      <div id="location-panel" class="tab-panel">
+        <div class="favorite-grid"></div>
+        <div class="empty-message" style="display: none">
+          <p>좋아요를 누른 여행지가 없습니다.</p>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const apiURL = "http://localhost:3000";
+
+      function setupTabs() {
+        const tabs = document.querySelectorAll(".favorite-tab");
+        const panels = document.querySelectorAll(".tab-panel");
+
+        tabs.forEach((tab) => {
+          tab.addEventListener("click", () => {
+            tabs.forEach((t) => t.classList.remove("active"));
+            panels.forEach((p) => p.classList.remove("active"));
+
+            tab.classList.add("active");
+            const panelId = `${tab.dataset.tab}-panel`;
+            document.getElementById(panelId).classList.add("active");
+          });
+        });
+      }
+
+      function createCard(item, type) {
+        let title, description, image;
+
+        switch (type) {
+          case "contents":
+            title = item.contents || "제목 없음";
+            description = item.explanation || "설명 없음";
+            image =
+              item.imageUrl ||
+              `https://via.placeholder.com/300x200/00a896/ffffff?text=${encodeURI(
+                title
+              )}`;
+            break;
+          case "location":
+            title = item.placeName || "장소 이름 없음";
+            description = item.address || "주소 정보 없음";
+            image =
+              item.imageUrl ||
+              `https://via.placeholder.com/300x200/9370db/ffffff?text=${encodeURI(
+                title
+              )}`;
+            break;
+        }
+
+        return `
+                <div class="favorite-card">
+                  <img class="favorite-card-image" src="${image}" alt="${title}" />
+                  <div class="favorite-card-content">
+                    <h3 class="favorite-card-title">${title}</h3>
+                    <p class="favorite-card-desc">${description}</p>
+                  </div>
+                </div>
+              `;
+      }
+
+      function renderItems(items, type) {
+        console.log(`Rendering items for type:${type} / items:${items}`);
+
+        const panel = document.getElementById(`${type}-panel`);
+        const grid = panel.querySelector(".favorite-grid");
+        const emptyMessage = panel.querySelector(".empty-message");
+
+        grid.innerHTML = "";
+        if (!items || items.length === 0) {
+          emptyMessage.style.display = "block";
+          return;
+        }
+
+        emptyMessage.style.display = "none";
+        items.forEach((item) => {
+          grid.innerHTML += createCard(item, type);
+        });
+      }
+
+      async function fetchAndRenderFavorites() {
+        if (!userManager.getIsLoggedIn()) {
+          alert("로그인이 필요합니다.");
+          return;
+        }
+        const userId = userManager.getUserId();
+
+        try {
+          const response = await fetch(`${apiURL}/api/favorites/${userId}`);
+          if (!response.ok) throw new Error("Failed to fetch favorites");
+
+          const favorites = await response.json();
+
+          if (!favorites) {
+            renderItems(null, "contents");
+            renderItems(null, "location");
+            return;
+          }
+
+          renderItems(favorites.contents, "contents");
+          renderItems(favorites.location, "location");
+        } catch (error) {
+          console.error("Error fetching favorites:", error);
+          document.querySelector("main").innerHTML =
+            "<p>좋아요 목록을 불러오는 중 오류가 발생했습니다.</p>";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        setupTabs();
+        fetchAndRenderFavorites();
+      });
+    </script>
+  </body>
+</html>
