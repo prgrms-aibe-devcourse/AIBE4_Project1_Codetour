@@ -50,22 +50,17 @@ app.use((req, res, next) => {
     [
       // 기본
       "default-src 'self' https: data: blob:",
-
       // 스크립트: Supabase ESM, jsDelivr, Kakao/Daum, unpkg 등
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://esm.sh https://cdn.jsdelivr.net https://dapi.kakao.com https://t1.daumcdn.net http://t1.daumcdn.net https://unpkg.com",
-
       // 스타일/폰트 CDN
       "style-src 'self' 'unsafe-inline' https: https://fonts.googleapis.com https://unpkg.com",
       "font-src 'self' https: data: https://fonts.gstatic.com",
-
-      // API / Realtime / 개발 서버(로컬) 허용
-      "connect-src 'self' http://localhost:3000 https: wss:",
-
+      // API / Realtime / 개발 서버(로컬) + 구글 OAuth 허용
+      "connect-src 'self' http://localhost:3000 https: wss: https://accounts.google.com https://www.googleapis.com https://*.googleusercontent.com",
       // 이미지/동영상 등
       "img-src 'self' https: http: data: blob:",
-
-      // OAuth/지도 등 외부 프레임 대비
-      "frame-src https:"
+      // OAuth 프레임 허용
+      "frame-src https: https://accounts.google.com https://*.googleusercontent.com"
     ].join("; ")
   );
   next();
