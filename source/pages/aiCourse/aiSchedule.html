@@ -50,7 +50,6 @@
               <li><i class="fa fa-envelope"></i> yeong0586@gmail.com</li>
               <li>
                 <i class="fa fa-map"></i> 서울특별시 서초구 반포대로 45, 4층
-
               </li>
             </ul>
           </div>
@@ -81,13 +80,58 @@
           <div class="col-12">
             <nav class="main-nav">
               <!-- 로고 -->
-              <a href="indexBae.html" class="logo">
+              <a href="index/html/index.html" class="logo">
                 <h1>KSPOT</h1>
               </a>
               <!-- 로고 끝  -->
               <!--  메뉴 시작  -->
               <ul class="nav">
-                <li><a href="aiSchedule.html">AI일정추천</a></li>
+                <li>
+                  <a href="source/pages/aiCourse/aiSchedule.html" class="active"
+                    >AI일정추천</a
+                  >
+                </li>
+                <li>
+                  <a href="/source/pages/map/map_page.html"
+                    >K-콘텐츠 여행 지도</a
+                  >
+                </li>
+                <li
+                  id="greeting"
+                  class="hide"
+                  style="padding: 10px; color: #1e1e1e; font-weight: 500"
+                >
+                  안녕하세요, <span id="nickname"></span>님
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    id="loginBtn"
+                    style="
+                      background: #f35525;
+                      color: white;
+                      padding: 10px 20px;
+                      border-radius: 20px;
+                    "
+                    >로그인</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    id="logoutBtn"
+                    class="hide"
+                    style="
+                      background: #eee;
+                      color: #1e1e1e;
+                      padding: 10px 20px;
+                      border-radius: 20px;
+                    "
+                    >로그아웃</a
+                  >
+                </li>
+
+                <!-- 기존 메뉴 항목은 필요에 따라 유지하거나 수정할 수 있습니다. -->
                 <li>
                   <a href="#"><i class="fa fa-calendar"></i>빠른 일정짜기</a>
                 </li>
@@ -102,7 +146,6 @@
       </div>
     </header>
     <!--  Header 이동거리 End  -->
-
 
     <div class="page-heading header-text">
       <div class="container">
@@ -374,11 +417,22 @@
 
     <!-- Scripts -->
     <!-- Bootstrap 핵심 JavaScript -->
-    <script src="jquery.min.js"></script>
-    <script src="bootstrap.min.js"></script>
-    <script src="isotope.min.js"></script>
-    <script src="owl-carousel.js"></script>
-    <script src="counter.js"></script>
-    <script src="custom.js"></script>
+    <script src="/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/isotope.min.js"></script>
+    <script src="/owl-carousel.js"></script>
+    <script src="/counter.js"></script>
+    <script src="/custom.js"></script>
+
+    <!-- 로그인 기능 스크립트 -->
+    <script src="/libs/userManager.js"></script>
+    <script>
+      // auth.js가 라우팅에 사용할 경로 정의
+      window.AUTH_PATHS = {
+        INDEX: "/",
+        SET_NICK: "/auth/set-nickname.html",
+      };
+    </script>
+    <script type="module" src="/auth/auth.js"></script>
   </body>
 </html>
