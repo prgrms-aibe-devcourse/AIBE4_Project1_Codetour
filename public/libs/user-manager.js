@@ -3,9 +3,6 @@ user-manager.js
 : localStorage에서 로그인한 사용자 정보를 가져오거나 이벤트를 받아 정보를 저장하는 독립적인 함수들을 export하는 모듈
 auth.js
 :로그인/로그아웃 시 'auth-state-changed' 이벤트를 발생 -> 페이지에서 사용자 정보가 필요할 때 이 이벤트 구독
-
-html파일에서 사용예시
-:
 */
 
 const getItem = (key) => localStorage.getItem(key);

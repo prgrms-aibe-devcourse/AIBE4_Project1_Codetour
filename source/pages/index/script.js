@@ -418,34 +418,15 @@ const recommendedCourses = [
   },
 ];
 
-let currentLang = "ko";
+let currentLang = localStorage.getItem("preferredLang") || "ko";
 
 document.addEventListener("DOMContentLoaded", function () {
-  updateLanguage(currentLang);
   renderPopularContent();
   renderRecommendedCourses();
   renderPersonalizedCourses();
   setupEventListeners();
-  setupSearchModal();
   setupCarouselDots();
 });
-
-function updateLanguage(lang) {
-  currentLang = lang;
-  document.querySelectorAll("[data-i18n]").forEach((element) => {
-    const keys = element.getAttribute("data-i18n").split(".");
-    let value = translations[lang];
-    keys.forEach((k) => {
-      value = value[k];
-    });
-    if (value) element.innerHTML = value;
-  });
-  renderPopularContent();
-  renderRecommendedCourses();
-  renderPersonalizedCourses();
-  // 도트를 다시 설정
-  setTimeout(() => setupCarouselDots(), 100);
-}
 
 function renderPopularContent() {
   const grid = document.getElementById("popularContent");
@@ -583,80 +564,10 @@ function setupCarouselDots() {
   });
 }
 
-// 검색 모달 설정
-function setupSearchModal() {
-  const searchButton = document.getElementById("searchButton");
-  const searchModal = document.getElementById("searchModal");
-  const searchClose = document.getElementById("searchClose");
-  const searchInput = document.getElementById("searchInput");
-
-  if (searchButton !== null) {
-    searchButton.addEventListener("click", () => {
-      searchModal.classList.add("active");
-      setTimeout(() => searchInput.focus(), 100);
-    });
-  }
-
-  searchClose.addEventListener("click", () => {
-    searchModal.classList.remove("active");
-  });
-
-  if (searchModal !== null) {
-    searchModal.addEventListener("click", (e) => {
-      if (e.target === searchModal) {
-        searchModal.classList.remove("active");
-      }
-    });
-  }
-
-  // ESC 키로 모달 닫기
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && searchModal.classList.contains("active")) {
-      searchModal.classList.remove("active");
-    }
-  });
-
-  // 검색 제안 태그 클릭
-  document.querySelectorAll(".suggestion-tag").forEach((tag) => {
-    tag.addEventListener("click", () => {
-      searchInput.value = tag.textContent;
-      searchInput.focus();
-    });
-  });
-}
-
 function setupEventListeners() {
-  document
-    .getElementById("languageSelector")
-    .addEventListener("change", (e) => updateLanguage(e.target.value));
   document
     .querySelector(".btn-hero")
     .addEventListener("click", () =>
       document.querySelector("#content").scrollIntoView({ behavior: "smooth" })
     );
-  document
-    .querySelectorAll(".btn-login, .btn-login-large, .loginBtn")
-    .forEach((btn) =>
-      btn.addEventListener("click", () => (window.location.href = "/auth"))
-    );
-  if (document.querySelector(".btn-signup") !== null) {
-    document
-      .querySelector(".btn-signup")
-      .addEventListener("click", () =>
-        alert(translations[currentLang].btn.signup)
-      );
-  }
-  document.querySelectorAll(".nav-link").forEach((link) => {
-    link.addEventListener("click", (e) => {
-      const target = link.getAttribute("href");
-      if (target.startsWith("#")) {
-        const element = document.querySelector(target);
-        if (element) element.scrollIntoView({ behavior: "smooth" });
-      }
-      document
-        .querySelectorAll(".nav-link")
-        .forEach((l) => l.classList.remove("active"));
-      link.classList.add("active");
-    });
-  });
 }

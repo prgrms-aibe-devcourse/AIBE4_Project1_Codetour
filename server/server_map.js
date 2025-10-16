@@ -85,12 +85,16 @@ app.use(
   express.static(path.join(__dirname, "../source/pages/map"))
 );
 app.use(
-  "/aiCourse",
+  "/source/pages/aiCourse",
   express.static(path.join(__dirname, "../source/pages/aiCourse"))
+);
+app.use(
+  "/source/pages/contents",
+  express.static(path.join(__dirname, "../source/pages/contents"))
 );
 app.use("/auth", express.static(path.join(__dirname, "../public/auth")));
 app.use(
-  "/my-page",
+  "/source/pages/my-page",
   express.static(path.join(__dirname, "../source/pages/my-page"))
 );
 // Bootstrap과 jQuery를 루트 경로에서 제공

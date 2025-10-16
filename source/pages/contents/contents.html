@@ -5,33 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CodeTour</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="/source/pages/index/style.css" />
+    <!-- <link rel="stylesheet" href="contents-style.css" /> -->
     <link
       rel="stylesheet"
       href="https://unpkg.com/swiper/swiper-bundle.min.css"
     />
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script src="/libs/nav-manager.js" type="module"></script>
   </head>
   <body>
-    <header>
-      <div class="container">
-        <div class="logo-container">
-          <div class="logo-text">CodeTour</div>
-        </div>
-        <div class="action-container">
-          <button>로그인</button>
-          <button>회원가입</button>
-        </div>
-      </div>
-      <nav>
-        <a href="index.html">홈</a>
-        <a href="contents.html">콘텐츠별 여행지</a>
-        <a href="#">지역별 탐색</a>
-        <a href="#">여행 코스</a>
-        <a href="#">인기 여행 루트</a>
-        <a href="#">마이페이지</a>
-      </nav>
-    </header>
+    <div id="headerPlaceholder"></div>
 
     <main>
       <section class="recently-visited-section">
