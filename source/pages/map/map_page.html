@@ -1083,6 +1083,7 @@
           center: new kakao.maps.LatLng(37.5665, 126.978),
           level: 5,
         });
+        
 
         let markers = [];
         let myCourse = [];
@@ -1658,5 +1659,53 @@
         initKakaoMap();
       }
     </script>
+
+    <script>
+  // --- 유틸: 쿼리 파라미터 가져오기
+  function getQS(name, dflt = null) {
+    const v = new URLSearchParams(location.search).get(name);
+    return v == null ? dflt : v;
+  }
+
+  const toNum = v => (v == null ? NaN : Number(v));
+
+  function performTextSearch(keyword) {
+    const input =
+      document.querySelector('#searchInput') ||             
+      document.querySelector('input[placeholder*="검색"]');   
+    const btn =
+      document.querySelector('#searchBtn') ||              
+      Array.from(document.querySelectorAll('button'))
+        .find(b => /검색/.test(b.textContent));
+
+    if (input) input.value = keyword || '';
+    if (btn) btn.click();
+  }
+
+  function addDirectMarker(lat, lng, title) {
+    if (isNaN(lat) || isNaN(lng) || !window.kakao || !window.map) return;
+    const pos = new kakao.maps.LatLng(lat, lng);
+    map.setCenter(pos);
+    const marker = new kakao.maps.Marker({ position: pos, title: title || '' });
+    marker.setMap(map);
+  }
+
+  function initFromQuery() {
+    const name = getQS('name', '').trim();
+    const lat = toNum(getQS('lat'));
+    const lng = toNum(getQS('lng'));
+
+    if (!name && isNaN(lat) && isNaN(lng)) return;
+
+    if (name) performTextSearch(name);
+
+    if (!isNaN(lat) && !isNaN(lng)) addDirectMarker(lat, lng, name);
+  }
+
+  document.addEventListener('DOMContentLoaded', initFromQuery);
+</script>
+
+
+
   </body>
 </html>
