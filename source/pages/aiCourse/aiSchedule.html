@@ -28,25 +28,25 @@
       rel="stylesheet"
       href="https://unpkg.com/swiper@7/swiper-bundle.min.css"
     />
-    <link rel="stylesheet" href="../index/style.css" />
+    <link rel="stylesheet" href="/source/pages/index/style.css" />
     <style>
       .header {
         background: rgba(255, 255, 255, 0.95) !important;
         backdrop-filter: blur(10px) !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
         position: sticky !important;
         top: 0 !important;
         z-index: 1000 !important;
         padding: 0 !important;
       }
-      
+
       .header .container {
         max-width: 1280px !important;
         margin: 0 auto !important;
         padding: 0 2rem !important;
         display: block !important;
       }
-      
+
       .header-top {
         display: flex !important;
         justify-content: space-between !important;
@@ -54,14 +54,14 @@
         padding: 12px 0 !important;
         border-bottom: 1px solid #eee !important;
       }
-      
+
       .header .nav {
         display: flex !important;
         justify-content: space-evenly !important;
         align-items: center !important;
         padding: 12px 0 !important;
       }
-      
+
       .header .nav-link {
         text-decoration: none !important;
         color: #2d3748 !important;
@@ -70,26 +70,29 @@
         padding: 8px 0 !important;
         border-bottom: 3px solid transparent !important;
       }
-      
+
       .header .nav-link:hover,
       .header .nav-link.active {
-        color: #E91E8C !important;
-        border-bottom-color: #E91E8C !important;
+        color: #e91e8c !important;
+        border-bottom-color: #e91e8c !important;
       }
-      
+
       .header-right {
         display: flex !important;
         gap: 12px !important;
         align-items: center !important;
       }
-      
-      .lang-select, .btn-search, #loginBtn, #logoutBtn {
+
+      .lang-select,
+      .btn-search,
+      #loginBtn,
+      #logoutBtn {
         height: 40px !important;
         border-radius: 8px !important;
       }
-      
+
       #loginBtn {
-        background: #E91E8C !important;
+        background: #e91e8c !important;
         color: white !important;
         padding: 0 16px !important;
         border: none !important;
@@ -109,9 +112,9 @@
       </div>
     </div>
 
-   <!-- 헤더 -->
+    <!-- 헤더 -->
     <header class="header">
-    <div class="container">
+      <div class="container">
         <div class="header-top">
           <a href="/source/pages/index/index.html" class="logo">
             <svg
@@ -152,15 +155,20 @@
               <text x="44" y="37" class="logo-text">S</text>
               <text x="70" y="37" class="logo-text">P</text>
               <g class="logo-pin" transform="translate(95.5, 4) scale(0.93)">
-                <path d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z" 
-                      fill="url(#logoGradient)"/>
-                <circle cx="18" cy="13" r="8" fill="white"/>
+                <path
+                  d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z"
+                  fill="url(#logoGradient)"
+                />
+                <circle cx="18" cy="13" r="8" fill="white" />
               </g>
               <text x="128" y="37" class="logo-text">T</text>
             </svg>
           </a>
 
-          <div class="header-right" style="display: flex; gap: 8px; align-items: center">
+          <div
+            class="header-right"
+            style="display: flex; gap: 8px; align-items: center"
+          >
             <select class="lang-select" id="languageSelector">
               <option value="ko">한국어</option>
               <option value="en">English</option>
@@ -178,29 +186,39 @@
         </div>
 
         <nav class="nav">
-          <a href="/source/pages/index/index.html"
+          <a
+            href="/source/pages/index/index.html"
             class="nav-link"
             data-i18n="nav.home"
-            >홈</a>
+            >홈</a
+          >
           <a href="#content" class="nav-link" data-i18n="nav.content"
-            >콘텐츠별 여행지</a>
-          
-          <a href="/source/pages/aiCourse/aiSchedule.html"
+            >콘텐츠별 여행지</a
+          >
+
+          <a
+            href="/source/pages/aiCourse/aiSchedule.html"
             class="nav-link active"
             data-i18n="nav.ai"
-            >AI 코스 추천</a>
-          
-          <a href="/source/pages/map/map_page.html"
+            >AI 코스 추천</a
+          >
+
+          <a
+            href="/source/pages/map/map_page.html"
             class="nav-link"
             data-i18n="nav.region"
-            >K-콘텐츠 여행 지도</a>
+            >K-콘텐츠 여행 지도</a
+          >
           <a href="#routes" class="nav-link" data-i18n="nav.routes"
-            >인기 여행 루트</a>
-          
-          <a href="/source/pages/my-page/my-page.html"
+            >인기 여행 루트</a
+          >
+
+          <a
+            href="/source/pages/my-page/my-page.html"
             class="nav-link"
             data-i18n="nav.mypage"
-            >마이페이지</a>
+            >마이페이지</a
+          >
         </nav>
       </div>
 
@@ -231,8 +249,6 @@
         <div class="header-search-results" id="searchResults"></div>
       </div>
     </header>
-
-
 
     <div class="page-heading header-text">
       <div class="container">
@@ -504,11 +520,22 @@
 
     <!-- Scripts -->
     <!-- Bootstrap 핵심 JavaScript -->
-    <script src="jquery.min.js"></script>
-    <script src="bootstrap.min.js"></script>
-    <script src="isotope.min.js"></script>
-    <script src="owl-carousel.js"></script>
-    <script src="counter.js"></script>
-    <script src="custom.js"></script>
+    <script src="/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/isotope.min.js"></script>
+    <script src="/owl-carousel.js"></script>
+    <script src="/counter.js"></script>
+    <script src="/custom.js"></script>
+
+    <!-- 로그인 기능 스크립트 -->
+    <script src="/libs/userManager.js"></script>
+    <script>
+      // auth.js가 라우팅에 사용할 경로 정의
+      window.AUTH_PATHS = {
+        INDEX: "/",
+        SET_NICK: "/auth/set-nickname.html",
+      };
+    </script>
+    <script type="module" src="/auth/auth.js"></script>
   </body>
 </html>
