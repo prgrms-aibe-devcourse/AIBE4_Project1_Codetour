@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>여수 추천일정</title>
+    <style>
+      :root {
+        --brand: #e91e8c;
+        --txt: #0f172a;
+        --muted: #64748b;
+        --bg: #fff;
+        --card: #fff;
+        --line: #e2e8f0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, Apple SD Gothic Neo,
+          Malgun Gothic, Nanum Gothic, sans-serif;
+        background: var(--bg);
+        color: var(--txt);
+      }
+      .wrap {
+        width: min(980px, 92vw);
+        margin: 36px auto 64px;
+      }
+      header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        line-height: 1.2;
+      }
+      header p {
+        margin: 0 0 18px;
+        color: var(--muted);
+      }
+      .mapbox {
+        height: 500px;
+        background: #eef2ff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        color: #334155;
+        margin: 8px 0 18px;
+        overflow: hidden;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin: 12px 0 8px;
+        flex-wrap: wrap;
+      }
+      .tab {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #f1f5f9;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .tab.active {
+        background: var(--brand);
+        color: #fff;
+        border-color: var(--brand);
+      }
+      .pane {
+        display: none;
+      }
+      .pane.active {
+        display: block;
+      }
+      .item {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        margin: 10px 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+      }
+      .num {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+      }
+      .thumb {
+        width: 100px;
+        height: 75px;
+        border-radius: 10px;
+        background: #e2e8f0;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        color: #475569;
+        overflow: hidden;
+      }
+      .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+      .content .title {
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 2px;
+      }
+      .content .meta {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .content .rec {
+        font-size: 14px;
+        color: #334155;
+      }
+      .cta {
+        position: sticky;
+        bottom: 18px;
+        display: flex;
+        justify-content: center;
+        margin-top: 22px;
+      }
+      .cta button {
+        background: var(--brand);
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 12px 20px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header style="text-align: center">
+        <h1>
+          여수, 맞춤 <span style="color: var(--brand)">추천일정</span>입니다.
+        </h1>
+        <p>구도심·엑스포·돌산·남해안까지, 코스별로 가볍게 즐겨요.</p>
+      </header>
+
+      <div class="mapbox"><div id="map"></div></div>
+
+      <div class="tabs">
+        <button class="tab active" data-day="1" type="button">Day 1</button>
+        <button class="tab" data-day="2" type="button">Day 2</button>
+        <button class="tab" data-day="3" type="button">Day 3</button>
+      </div>
+
+      <!-- Day 1: 구도심·오동도 라인 -->
+      <section class="pane active" data-day="1">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/yi-square.jpg" alt="이순신광장" />
+          </div>
+          <div class="content">
+            <div class="title">이순신광장</div>
+            <div class="meta">
+              square · <span class="addr">전라남도 여수시 중앙동 413</span>
+            </div>
+            <div class="rec">거북선/장군동상과 분수, 밤 야경 산책 스타트.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/odongdo.jpg" alt="오동도" />
+          </div>
+          <div class="content">
+            <div class="title">오동도</div>
+            <div class="meta">
+              island walk ·
+              <span class="addr">전라남도 여수시 오동도로 222</span>
+            </div>
+            <div class="rec">
+              동백 숲섬 산책과 등대뷰. 데크길이 잘 정비돼 있어요.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/susan-market.jpg" alt="여수수산시장" />
+          </div>
+          <div class="content">
+            <div class="title">여수 수산시장</div>
+            <div class="meta">
+              seafood market ·
+              <span class="addr">전라남도 여수시 교동시장1길 16</span>
+            </div>
+            <div class="rec">
+              게장/회/새꼬막 등 현지 미식. 구입 후 식당에서 식사 가능.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/hamel.jpg" alt="하멜등대" />
+          </div>
+          <div class="content">
+            <div class="title">하멜등대 & 고소동 천사벽화골목</div>
+            <div class="meta">
+              spot · <span class="addr">전라남도 여수시 종화동 일대</span>
+            </div>
+            <div class="rec">
+              레트로 골목과 바다뷰 포토스팟. 석양 타임 추천.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/romance-pocha.png" alt="여수 낭만포차" />
+          </div>
+          <div class="content">
+            <div class="title">여수 낭만포차거리</div>
+            <div class="meta">
+              food street ·
+              <span class="addr">전라남도 여수시 종포해양공원 일대</span>
+            </div>
+            <div class="rec">밤바다 보며 해물라면/꼬막무침. 대기 줄 고려.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 2: 엑스포·돌산 라인 -->
+      <section class="pane" data-day="2">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/expo-park.jpg" alt="여수엑스포해양공원" />
+          </div>
+          <div class="content">
+            <div class="title">여수 엑스포해양공원</div>
+            <div class="meta">
+              park · <span class="addr">전라남도 여수시 박람회길 1</span>
+            </div>
+            <div class="rec">
+              해양공원 산책과 관람차, 전시관. 가족 여행 코스.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/aquaplanet.png" alt="아쿠아플라넷 여수" />
+          </div>
+          <div class="content">
+            <div class="title">아쿠아플라넷 여수</div>
+            <div class="meta">
+              aquarium ·
+              <span class="addr">전라남도 여수시 오동도로 61-11</span>
+            </div>
+            <div class="rec">
+              대형 수조와 해양생물 체험. 비 오는 날 대체코스로도 좋아요.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/cablecar.jpg" alt="여수해상케이블카" />
+          </div>
+          <div class="content">
+            <div class="title">여수 해상케이블카</div>
+            <div class="meta">
+              ride ·
+              <span class="addr"
+                >전라남도 여수시 돌산읍 우두리 1-3 (자산공원~돌산공원)</span
+              >
+            </div>
+            <div class="rec">
+              바다 위를 가르는 케이블카. 야간 탑승 시 야경이 특히 좋아요.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/dolsan-park.jpg" alt="돌산공원" />
+          </div>
+          <div class="content">
+            <div class="title">돌산공원 & 돌산대교 전망</div>
+            <div class="meta">
+              view ·
+              <span class="addr">전라남도 여수시 돌산읍 우두리 산1-11</span>
+            </div>
+            <div class="rec">
+              케이블카 하차 후 공원 산책. 돌산대교 야경 포인트.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/yeosu-night.jpg" alt="여수 밤바다" />
+          </div>
+          <div class="content">
+            <div class="title">여수 밤바다 산책</div>
+            <div class="meta">
+              night view ·
+              <span class="addr">전라남도 여수시 이순신광장~종포해양공원</span>
+            </div>
+            <div class="rec">
+              해안 산책로 조명과 버스킹을 즐기며 하루 마무리.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 3: 남해안·사찰·섬 라인 -->
+      <section class="pane" data-day="3">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/hyangiram.jpg" alt="향일암" />
+          </div>
+          <div class="content">
+            <div class="title">향일암(돌산)</div>
+            <div class="meta">
+              temple ·
+              <span class="addr">전라남도 여수시 돌산읍 향일암로 60</span>
+            </div>
+            <div class="rec">
+              태양을 맞는 절. 일출/석양 포인트로 유명한 해안 사찰.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/musulmok.jpg" alt="무술목해변" />
+          </div>
+          <div class="content">
+            <div class="title">무술목해변</div>
+            <div class="meta">
+              beach ·
+              <span class="addr">전라남도 여수시 돌산읍 무술목길 일대</span>
+            </div>
+            <div class="rec">
+              잔잔한 바다와 드라이브 코스. 카페와 함께 쉬어가기.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/geumo-bi.jpg" alt="금오도 비렁길" />
+          </div>
+          <div class="content">
+            <div class="title">금오도 비렁길</div>
+            <div class="meta">
+              hike · <span class="addr">전라남도 여수시 남면 금오도 일대</span>
+            </div>
+            <div class="rec">
+              섬 절벽 트레킹 명소. 배편·코스 시간 확인 필수.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/baekya.jpg" alt="백야도 다리 야경" />
+          </div>
+          <div class="content">
+            <div class="title">백야도 & 푸른다리</div>
+            <div class="meta">
+              view · <span class="addr">전라남도 여수시 화정면 백야리</span>
+            </div>
+            <div class="rec">
+              밤 조명으로 빛나는 해상 보도교. 드라이브 코스로 인기.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/gukbap.png" alt="여수 미식" />
+          </div>
+          <div class="content">
+            <div class="title">여수 미식 한 끼</div>
+            <div class="meta">food · <span class="addr">여수 전역</span></div>
+            <div class="rec">
+              서대회·새꼬막비빔밥·게장백반 등 지역 시그니처로 마무리.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="cta"><button>내 일정으로 담기</button></div>
+    </div>
+
+    <!-- Kakao Maps SDK -->
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
+    <script type="module">
+      let initAuthListener = () => {};
+      let getUserId = () => null;
+      let getUserNickname = () => null;
+      try {
+        const mod = await import("/libs/user-manager.js");
+        initAuthListener = mod.initAuthListener ?? initAuthListener;
+        getUserId = mod.getUserId ?? getUserId;
+        getUserNickname = mod.getUserNickname ?? getUserNickname;
+      } catch (e) {
+        console.warn(
+          "user-manager.js 로드 실패, 게스트 모드로 계속 진행합니다.",
+          e
+        );
+      }
+
+      // 사용자 정보 초기화
+      initAuthListener();
+      window.currentUser = null;
+      const userId = getUserId();
+      if (userId)
+        window.currentUser = { id: userId, nickname: getUserNickname() };
+
+      const panes = document.querySelectorAll(".pane");
+
+      // 각 DAY별 장소 데이터 추출 (키워드 검색용)
+      const dayData = {};
+      const dayPositions = {}; // 좌표 저장용
+
+      panes.forEach((pane) => {
+        const day = pane.dataset.day;
+        const items = pane.querySelectorAll(".item");
+        dayData[day] = Array.from(items).map((item) => ({
+          title: item.querySelector(".title").textContent,
+          address: item.querySelector(".addr").textContent.trim(),
+        }));
+        dayPositions[day] = [];
+      });
+
+      let map = null;
+      let markers = [];
+      let polyline = null;
+      let placesService = null;
+      let currentDay = "1";
+
+      function initKakaoMap() {
+        if (typeof kakao === "undefined" || !kakao.maps) {
+          setTimeout(initKakaoMap, 100);
+          return;
+        }
+        kakao.maps.load(function () {
+          const mapContainer = document.getElementById("map");
+          const mapOption = {
+            center: new kakao.maps.LatLng(34.7605, 127.6622), // 여수시청 근처 중심
+            level: 9,
+          };
+          map = new kakao.maps.Map(mapContainer, mapOption);
+          placesService = new kakao.maps.services.Places();
+          updateMap("1");
+        });
+      }
+
+      async function keywordToPosition(query) {
+        return new Promise((resolve) => {
+          placesService.keywordSearch(
+            query + " 여수",
+            function (result, status) {
+              if (status === kakao.maps.services.Status.OK && result[0]) {
+                const r = result[0];
+                resolve({ lat: parseFloat(r.y), lng: parseFloat(r.x) });
+              } else {
+                resolve(null);
+              }
+            }
+          );
+        });
+      }
+
+      async function updateMap(day) {
+        currentDay = day;
+        markers.forEach((m) => m.setMap(null));
+        markers = [];
+        if (polyline) {
+          polyline.setMap(null);
+          polyline = null;
+        }
+
+        const places = dayData[day];
+        if (!places || places.length === 0) return;
+
+        const positions = [];
+        for (let i = 0; i < places.length; i++) {
+          const place = places[i];
+          const pos = await keywordToPosition(place.title);
+          if (!pos) continue;
+          positions.push({
+            ...pos,
+            title: place.title,
+            address: place.address,
+          });
+
+          const markerPosition = new kakao.maps.LatLng(pos.lat, pos.lng);
+          const customMarker = createCustomMarker(
+            markerPosition,
+            i + 1,
+            i === 0,
+            i === places.length - 1,
+            place.title
+          );
+          customMarker.setMap(map);
+          markers.push(customMarker);
+        }
+
+        dayPositions[day] = positions;
+
+        if (positions.length >= 2) {
+          const path = positions.map(
+            (p) => new kakao.maps.LatLng(p.lat, p.lng)
+          );
+          polyline = new kakao.maps.Polyline({
+            path,
+            strokeWeight: 5,
+            strokeColor: "#e91e8c",
+            strokeOpacity: 0.7,
+            strokeStyle: "solid",
+          });
+          polyline.setMap(map);
+        }
+
+        if (positions.length > 0) {
+          const bounds = new kakao.maps.LatLngBounds();
+          positions.forEach((p) =>
+            bounds.extend(new kakao.maps.LatLng(p.lat, p.lng))
+          );
+          map.setBounds(bounds);
+        }
+      }
+
+      function createCustomMarker(position, label, isStart, isEnd, title) {
+        let bgColor = "#4f46e5";
+        if (isStart) bgColor = "#10b981";
+        if (isEnd) bgColor = "#e91e8c";
+        const content = document.createElement("div");
+        content.style.cssText = `position:relative;width:36px;height:36px;background:${bgColor};border:3px solid white;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-weight:bold;color:white;font-size:14px;cursor:pointer;transition:transform .2s ease;`;
+        content.innerHTML = label;
+        content.onmouseover = () => (content.style.transform = "scale(1.2)");
+        content.onmouseout = () => (content.style.transform = "scale(1)");
+        content.title = title;
+        return new kakao.maps.CustomOverlay({
+          position,
+          content,
+          yAnchor: 0.5,
+        });
+      }
+
+      const tabsWrap = document.querySelector(".tabs");
+      tabsWrap.addEventListener("click", (e) => {
+        const btn = e.target.closest(".tab");
+        if (!btn) return;
+        const day = btn.dataset.day;
+        document
+          .querySelectorAll(".tab")
+          .forEach((b) => b.classList.toggle("active", b === btn));
+        document
+          .querySelectorAll(".pane")
+          .forEach((p) => p.classList.toggle("active", p.dataset.day === day));
+        if (map) updateMap(day);
+      });
+
+      if (document.readyState === "loading")
+        document.addEventListener("DOMContentLoaded", initKakaoMap);
+      else initKakaoMap();
+
+      // 내 일정 담기
+      document
+        .querySelector(".cta button")
+        .addEventListener("click", async function () {
+          if (!window.currentUser) {
+            if (
+              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
+            )
+              window.location.href = "/auth";
+            return;
+          }
+          const currentDayPlaces = dayPositions[currentDay];
+          if (!currentDayPlaces || currentDayPlaces.length === 0) {
+            alert("장소 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
+          }
+          const userId = window.currentUser.id;
+          const courseName = prompt(
+            "코스 이름을 입력하세요",
+            `여수 여행 Day ${currentDay}`
+          );
+          if (!courseName) return;
+          try {
+            const places = currentDayPlaces.map((pos) => ({
+              name: pos.title,
+              lat: pos.lat,
+              lng: pos.lng,
+              mediaTitle: "",
+              placeId: null,
+            }));
+            const res = await fetch("/api/course", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId, name: courseName, places }),
+            });
+            const data = await res.json();
+            if (data.success)
+              alert(
+                `🎉 저장 완료!\n코스 ID: ${data.courseId}\n\n마이페이지에서 확인하실 수 있습니다.`
+              );
+            else alert("저장에 실패했습니다 😢");
+          } catch (err) {
+            console.error("코스 저장 오류:", err);
+            alert("저장 중 오류가 발생했습니다 😢");
+          }
+        });
+    </script>
+  </body>
+</html>

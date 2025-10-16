@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>속초 추천일정</title>
+    <style>
+      :root {
+        --brand: #e91e8c;
+        --txt: #0f172a;
+        --muted: #64748b;
+        --bg: #fff;
+        --card: #fff;
+        --line: #e2e8f0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, Apple SD Gothic Neo,
+          Malgun Gothic, Nanum Gothic, sans-serif;
+        background: var(--bg);
+        color: var(--txt);
+      }
+      .wrap {
+        width: min(980px, 92vw);
+        margin: 36px auto 64px;
+      }
+      header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        line-height: 1.2;
+      }
+      header p {
+        margin: 0 0 18px;
+        color: var(--muted);
+      }
+      .mapbox {
+        height: 500px;
+        background: #eef2ff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        color: #334155;
+        margin: 8px 0 18px;
+        overflow: hidden;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin: 12px 0 8px;
+        flex-wrap: wrap;
+      }
+      .tab {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #f1f5f9;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .tab.active {
+        background: var(--brand);
+        color: #fff;
+        border-color: var(--brand);
+      }
+      .pane {
+        display: none;
+      }
+      .pane.active {
+        display: block;
+      }
+      .item {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        margin: 10px 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+      }
+      .num {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+      }
+      .thumb {
+        width: 100px;
+        height: 75px;
+        border-radius: 10px;
+        background: #e2e8f0;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        color: #475569;
+        overflow: hidden;
+      }
+      .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+      .content .title {
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 2px;
+      }
+      .content .meta {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .content .rec {
+        font-size: 14px;
+        color: #334155;
+      }
+      .cta {
+        position: sticky;
+        bottom: 18px;
+        display: flex;
+        justify-content: center;
+        margin-top: 22px;
+      }
+      .cta button {
+        background: var(--brand);
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 12px 20px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header style="text-align: center">
+        <h1>
+          속초, 맞춤 <span style="color: var(--brand)">추천일정</span>입니다.
+        </h1>
+        <p>구도심·설악산·동해안 라인까지, 동선대로 가볍게 즐겨요.</p>
+      </header>
+
+      <div class="mapbox"><div id="map"></div></div>
+
+      <div class="tabs">
+        <button class="tab active" data-day="1" type="button">Day 1</button>
+        <button class="tab" data-day="2" type="button">Day 2</button>
+        <button class="tab" data-day="3" type="button">Day 3</button>
+      </div>
+
+      <!-- Day 1: 구도심/바다 라인 -->
+      <section class="pane active" data-day="1">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/central-market.jpg" alt="속초중앙시장" />
+          </div>
+          <div class="content">
+            <div class="title">속초 중앙시장</div>
+            <div class="meta">
+              market ·
+              <span class="addr">강원특별자치도 속초시 중앙로147번길 12</span>
+            </div>
+            <div class="rec">닭강정·오징어순대·아바이순대로 든든하게 시작!</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/abae-village.jpg" alt="아바이마을" />
+          </div>
+          <div class="content">
+            <div class="title">아바이마을 & 갯배</div>
+            <div class="meta">
+              experience ·
+              <span class="addr">강원특별자치도 속초시 청호로 122</span>
+            </div>
+            <div class="rec">손으로 끄는 갯배 체험 후 순대국밥 한 그릇.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/yeonggeumjeong.jpg" alt="영금정" />
+          </div>
+          <div class="content">
+            <div class="title">영금정 & 등대해변</div>
+            <div class="meta">
+              view · <span class="addr">강원특별자치도 속초시 영금정로 43</span>
+            </div>
+            <div class="rec">
+              파도 소리와 일출 포인트. 등대전망대에서 바다 조망.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/cheongcho-lake.jpg" alt="청초호 호수공원" />
+          </div>
+          <div class="content">
+            <div class="title">청초호 호수공원</div>
+            <div class="meta">
+              lake walk ·
+              <span class="addr">강원특별자치도 속초시 청초호반로 140</span>
+            </div>
+            <div class="rec">호수 산책과 카페 타임. 엑스포타워 뷰 스팟.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/expo-tower.jpg" alt="속초엑스포타워" />
+          </div>
+          <div class="content">
+            <div class="title">속초 엑스포타워</div>
+            <div class="meta">
+              view ·
+              <span class="addr">강원특별자치도 속초시 청초호반로 140</span>
+            </div>
+            <div class="rec">
+              야경 좋은 전망 타워. 청초호·설악산 능선이 한눈에.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 2: 설악산 코스 -->
+      <section class="pane" data-day="2">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/seorak-entrance.jpg" alt="설악산국립공원" />
+          </div>
+          <div class="content">
+            <div class="title">설악산국립공원 소공원</div>
+            <div class="meta">
+              park ·
+              <span class="addr">강원특별자치도 속초시 설악산로 1091</span>
+            </div>
+            <div class="rec">케이블카·트레킹 출발지. 이른 시간 방문 추천.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/gwongeumseong.jpg" alt="권금성" />
+          </div>
+          <div class="content">
+            <div class="title">설악 케이블카 · 권금성</div>
+            <div class="meta">
+              cable car ·
+              <span class="addr">강원특별자치도 속초시 설악산로 1137</span>
+            </div>
+            <div class="rec">
+              권금성 전망대에서 울산바위·동해 파노라마 감상.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/sinheungsa.jpg" alt="신흥사" />
+          </div>
+          <div class="content">
+            <div class="title">신흥사 & 통일대불</div>
+            <div class="meta">
+              temple ·
+              <span class="addr">강원특별자치도 속초시 설악산로 1137</span>
+            </div>
+            <div class="rec">
+              고즈넉한 산사 산책. 단풍철/설경 시즌 모두 아름다워요.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/biryong.jpg" alt="비룡폭포" />
+          </div>
+          <div class="content">
+            <div class="title">비룡폭포 트레킹</div>
+            <div class="meta">
+              trail ·
+              <span class="addr">강원특별자치도 속초시 설악동 일대</span>
+            </div>
+            <div class="rec">왕복 1~2시간 초중급 코스. 계단 구간 있음.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/daepo-harbor.jpg" alt="대포항" />
+          </div>
+          <div class="content">
+            <div class="title">대포항 수산시장</div>
+            <div class="meta">
+              seafood ·
+              <span class="addr">강원특별자치도 속초시 대포항희망길 39</span>
+            </div>
+            <div class="rec">
+              회·튀김·문어숙회로 단백질 보충! 해안 산책로 연계.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 3: 동해안 드라이브 라인 -->
+      <section class="pane" data-day="3">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/oyeongchi.jpg" alt="외옹치 바다향기로" />
+          </div>
+          <div class="content">
+            <div class="title">외옹치 바다향기로</div>
+            <div class="meta">
+              coast walk ·
+              <span class="addr">강원특별자치도 속초시 대포동 일대</span>
+            </div>
+            <div class="rec">해안 데크길로 걷는 시원한 바다 산책로.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/sokcho-beach.jpg" alt="속초해수욕장" />
+          </div>
+          <div class="content">
+            <div class="title">속초해수욕장</div>
+            <div class="meta">
+              beach ·
+              <span class="addr">강원특별자치도 속초시 해오름로 190</span>
+            </div>
+            <div class="rec">한적한 모래사장과 일출·서핑 포인트.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/yeongnang-lake.jpg" alt="영랑호" />
+          </div>
+          <div class="content">
+            <div class="title">영랑호 숲길</div>
+            <div class="meta">
+              lake walk ·
+              <span class="addr">강원특별자치도 속초시 영랑호반길 일대</span>
+            </div>
+            <div class="rec">
+              자전거·산책로 잘 조성. 호수 위 수변 경관 즐기기.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/jangsa-harbor.jpg" alt="장사항" />
+          </div>
+          <div class="content">
+            <div class="title">장사항(도루묵 축제지)</div>
+            <div class="meta">
+              harbor ·
+              <span class="addr">강원특별자치도 속초시 장사항해안길 2</span>
+            </div>
+            <div class="rec">겨울엔 도루묵, 평소엔 회·물회로 유명한 항구.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/cafe-street.jpg" alt="대포항 카페거리" />
+          </div>
+          <div class="content">
+            <div class="title">대포항 카페거리</div>
+            <div class="meta">
+              cafe ·
+              <span class="addr">강원특별자치도 속초시 대포항희망길 일대</span>
+            </div>
+            <div class="rec">바다 뷰 카페에서 노을 감상하며 마무리.</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="cta"><button>내 일정으로 담기</button></div>
+    </div>
+
+    <!-- Kakao Maps SDK -->
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
+    <script type="module">
+      let initAuthListener = () => {};
+      let getUserId = () => null;
+      let getUserNickname = () => null;
+      try {
+        const mod = await import("/libs/user-manager.js");
+        initAuthListener = mod.initAuthListener ?? initAuthListener;
+        getUserId = mod.getUserId ?? getUserId;
+        getUserNickname = mod.getUserNickname ?? getUserNickname;
+      } catch (e) {
+        console.warn(
+          "user-manager.js 로드 실패, 게스트 모드로 계속 진행합니다.",
+          e
+        );
+      }
+
+      // 사용자 정보 초기화
+      initAuthListener();
+      window.currentUser = null;
+      const userId = getUserId();
+      if (userId)
+        window.currentUser = { id: userId, nickname: getUserNickname() };
+
+      const panes = document.querySelectorAll(".pane");
+
+      // 각 DAY별 장소 데이터 추출 (키워드 검색용)
+      const dayData = {};
+      const dayPositions = {}; // 좌표 저장용
+
+      panes.forEach((pane) => {
+        const day = pane.dataset.day;
+        const items = pane.querySelectorAll(".item");
+        dayData[day] = Array.from(items).map((item) => ({
+          title: item.querySelector(".title").textContent,
+          address: item.querySelector(".addr").textContent.trim(),
+        }));
+        dayPositions[day] = [];
+      });
+
+      let map = null;
+      let markers = [];
+      let polyline = null;
+      let placesService = null;
+      let currentDay = "1";
+
+      function initKakaoMap() {
+        if (typeof kakao === "undefined" || !kakao.maps) {
+          setTimeout(initKakaoMap, 100);
+          return;
+        }
+        kakao.maps.load(function () {
+          const mapContainer = document.getElementById("map");
+          const mapOption = {
+            center: new kakao.maps.LatLng(38.207, 128.591), // 속초시청 근처 중심
+            level: 9,
+          };
+          map = new kakao.maps.Map(mapContainer, mapOption);
+          placesService = new kakao.maps.services.Places();
+          updateMap("1");
+        });
+      }
+
+      async function keywordToPosition(query) {
+        return new Promise((resolve) => {
+          placesService.keywordSearch(
+            query + " 속초",
+            function (result, status) {
+              if (status === kakao.maps.services.Status.OK && result[0]) {
+                const r = result[0];
+                resolve({ lat: parseFloat(r.y), lng: parseFloat(r.x) });
+              } else {
+                resolve(null);
+              }
+            }
+          );
+        });
+      }
+
+      async function updateMap(day) {
+        currentDay = day;
+        markers.forEach((m) => m.setMap(null));
+        markers = [];
+        if (polyline) {
+          polyline.setMap(null);
+          polyline = null;
+        }
+
+        const places = dayData[day];
+        if (!places || places.length === 0) return;
+
+        const positions = [];
+        for (let i = 0; i < places.length; i++) {
+          const place = places[i];
+          const pos = await keywordToPosition(place.title);
+          if (!pos) continue;
+          positions.push({
+            ...pos,
+            title: place.title,
+            address: place.address,
+          });
+
+          const markerPosition = new kakao.maps.LatLng(pos.lat, pos.lng);
+          const customMarker = createCustomMarker(
+            markerPosition,
+            i + 1,
+            i === 0,
+            i === places.length - 1,
+            place.title
+          );
+          customMarker.setMap(map);
+          markers.push(customMarker);
+        }
+
+        dayPositions[day] = positions;
+
+        if (positions.length >= 2) {
+          const path = positions.map(
+            (p) => new kakao.maps.LatLng(p.lat, p.lng)
+          );
+          polyline = new kakao.maps.Polyline({
+            path,
+            strokeWeight: 5,
+            strokeColor: "#e91e8c",
+            strokeOpacity: 0.7,
+            strokeStyle: "solid",
+          });
+          polyline.setMap(map);
+        }
+
+        if (positions.length > 0) {
+          const bounds = new kakao.maps.LatLngBounds();
+          positions.forEach((p) =>
+            bounds.extend(new kakao.maps.LatLng(p.lat, p.lng))
+          );
+          map.setBounds(bounds);
+        }
+      }
+
+      function createCustomMarker(position, label, isStart, isEnd, title) {
+        let bgColor = "#4f46e5";
+        if (isStart) bgColor = "#10b981";
+        if (isEnd) bgColor = "#e91e8c";
+        const content = document.createElement("div");
+        content.style.cssText = `position:relative;width:36px;height:36px;background:${bgColor};border:3px solid white;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-weight:bold;color:white;font-size:14px;cursor:pointer;transition:transform .2s ease;`;
+        content.innerHTML = label;
+        content.onmouseover = () => (content.style.transform = "scale(1.2)");
+        content.onmouseout = () => (content.style.transform = "scale(1)");
+        content.title = title;
+        return new kakao.maps.CustomOverlay({
+          position,
+          content,
+          yAnchor: 0.5,
+        });
+      }
+
+      const tabsWrap = document.querySelector(".tabs");
+      tabsWrap.addEventListener("click", (e) => {
+        const btn = e.target.closest(".tab");
+        if (!btn) return;
+        const day = btn.dataset.day;
+        document
+          .querySelectorAll(".tab")
+          .forEach((b) => b.classList.toggle("active", b === btn));
+        document
+          .querySelectorAll(".pane")
+          .forEach((p) => p.classList.toggle("active", p.dataset.day === day));
+        if (map) updateMap(day);
+      });
+
+      if (document.readyState === "loading")
+        document.addEventListener("DOMContentLoaded", initKakaoMap);
+      else initKakaoMap();
+
+      // 내 일정 담기
+      document
+        .querySelector(".cta button")
+        .addEventListener("click", async function () {
+          if (!window.currentUser) {
+            if (
+              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
+            )
+              window.location.href = "/auth";
+            return;
+          }
+          const currentDayPlaces = dayPositions[currentDay];
+          if (!currentDayPlaces || currentDayPlaces.length === 0) {
+            alert("장소 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
+          }
+          const userId = window.currentUser.id;
+          const courseName = prompt(
+            "코스 이름을 입력하세요",
+            `속초 여행 Day ${currentDay}`
+          );
+          if (!courseName) return;
+          try {
+            const places = currentDayPlaces.map((pos) => ({
+              name: pos.title,
+              lat: pos.lat,
+              lng: pos.lng,
+              mediaTitle: "",
+              placeId: null,
+            }));
+            const res = await fetch("/api/course", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId, name: courseName, places }),
+            });
+            const data = await res.json();
+            if (data.success)
+              alert(
+                `🎉 저장 완료!\n코스 ID: ${data.courseId}\n\n마이페이지에서 확인하실 수 있습니다.`
+              );
+            else alert("저장에 실패했습니다 😢");
+          } catch (err) {
+            console.error("코스 저장 오류:", err);
+            alert("저장 중 오류가 발생했습니다 😢");
+          }
+        });
+    </script>
+  </body>
+</html>

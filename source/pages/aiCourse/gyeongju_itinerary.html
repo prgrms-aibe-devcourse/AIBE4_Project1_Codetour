@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>경주 추천일정</title>
+    <style>
+      :root {
+        --brand: #e91e8c;
+        --txt: #0f172a;
+        --muted: #64748b;
+        --bg: #fff;
+        --card: #fff;
+        --line: #e2e8f0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, Apple SD Gothic Neo,
+          Malgun Gothic, Nanum Gothic, sans-serif;
+        background: var(--bg);
+        color: var(--txt);
+      }
+      .wrap {
+        width: min(980px, 92vw);
+        margin: 36px auto 64px;
+      }
+      header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        line-height: 1.2;
+      }
+      header p {
+        margin: 0 0 18px;
+        color: var(--muted);
+      }
+      .mapbox {
+        height: 500px;
+        background: #eef2ff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        color: #334155;
+        margin: 8px 0 18px;
+        overflow: hidden;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin: 12px 0 8px;
+        flex-wrap: wrap;
+      }
+      .tab {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #f1f5f9;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .tab.active {
+        background: var(--brand);
+        color: white;
+        border-color: var(--brand);
+      }
+      .pane {
+        display: none;
+      }
+      .pane.active {
+        display: block;
+      }
+      .item {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        margin: 10px 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+      }
+      .num {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+      }
+      .thumb {
+        width: 100px;
+        height: 75px;
+        border-radius: 10px;
+        background: #e2e8f0;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        color: #475569;
+        overflow: hidden;
+      }
+      .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+      .content .title {
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 2px;
+      }
+      .content .meta {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .content .rec {
+        font-size: 14px;
+        color: #334155;
+      }
+      .cta {
+        position: sticky;
+        bottom: 18px;
+        display: flex;
+        justify-content: center;
+        margin-top: 22px;
+      }
+      .cta button {
+        background: var(--brand);
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 12px 20px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header style="text-align: center">
+        <h1>
+          경주, 맞춤 <span style="color: var(--brand)">추천일정</span>입니다.
+        </h1>
+        <p>유네스코 세계유산부터 카페거리까지, 테마별로 즐겨보세요.</p>
+      </header>
+
+      <div class="mapbox"><div id="map"></div></div>
+
+      <div class="tabs">
+        <button class="tab active" data-day="1" type="button">Day 1</button>
+        <button class="tab" data-day="2" type="button">Day 2</button>
+        <button class="tab" data-day="3" type="button">Day 3</button>
+      </div>
+
+      <!-- Day 1: 황리단길·대릉원·동궁과월지 라인 -->
+      <section class="pane active" data-day="1">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/hwangnidan.jpg" alt="황리단길" />
+          </div>
+          <div class="content">
+            <div class="title">황리단길</div>
+            <div class="meta">
+              walk · <span class="addr">경상북도 경주시 포석로 일대</span>
+            </div>
+            <div class="rec">
+              한옥 감성 카페와 로컬 맛집 밀집. 아침 산책 겸 브런치 추천.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/daereungwon.jpg" alt="대릉원" />
+          </div>
+          <div class="content">
+            <div class="title">대릉원(경주고분공원)</div>
+            <div class="meta">
+              heritage · <span class="addr">경상북도 경주시 황남동 31-1</span>
+            </div>
+            <div class="rec">
+              봉분 산책로와 천마총 관람. 목조건축·소나무길이 사진 명소.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/cheomseongdae.jpg" alt="첨성대" />
+          </div>
+          <div class="content">
+            <div class="title">첨성대</div>
+            <div class="meta">
+              heritage · <span class="addr">경상북도 경주시 인왕동 839-1</span>
+            </div>
+            <div class="rec">
+              신라 천문대. 야간 경관조명으로 밤 산책 코스로도 인기.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/donggung-wolji.jpg" alt="동궁과 월지" />
+          </div>
+          <div class="content">
+            <div class="title">동궁과 월지(안압지)</div>
+            <div class="meta">
+              night view · <span class="addr">경상북도 경주시 원화로 102</span>
+            </div>
+            <div class="rec">
+              호수 반영 야경이 압도적. 해질녘 ~ 야간 방문 강력 추천.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/woljeonggyo.jpg" alt="월정교" />
+          </div>
+          <div class="content">
+            <div class="title">월정교</div>
+            <div class="meta">
+              view · <span class="addr">경상북도 경주시 교동 274-1</span>
+            </div>
+            <div class="rec">
+              복원 목교와 야경 포인트. 교촌마을과 연계 산책.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 2: 불국사·보문관광단지 라인 -->
+      <section class="pane" data-day="2">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/bulguksa.jpg" alt="불국사" />
+          </div>
+          <div class="content">
+            <div class="title">불국사</div>
+            <div class="meta">
+              UNESCO · <span class="addr">경상북도 경주시 불국로 385</span>
+            </div>
+            <div class="rec">
+              청운교·백운교, 석가탑·다보탑 필수. 아침 일찍 방문 추천.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/seokguram.jpg" alt="석굴암" />
+          </div>
+          <div class="content">
+            <div class="title">석굴암</div>
+            <div class="meta">
+              UNESCO · <span class="addr">경상북도 경주시 불국로 873-243</span>
+            </div>
+            <div class="rec">
+              신라인의 석조 예술 정수. 불국사에서 셔틀/차로 이동.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/bomun-lake.jpg" alt="보문호" />
+          </div>
+          <div class="content">
+            <div class="title">보문호 수변 산책</div>
+            <div class="meta">
+              lake walk · <span class="addr">경상북도 경주시 보문로 일대</span>
+            </div>
+            <div class="rec">
+              자전거·스wan보트·분수 야간 조명. 가족/커플 코스.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/gyeongju-tower.jpg" alt="경주타워" />
+          </div>
+          <div class="content">
+            <div class="title">경주타워(엑스포공원)</div>
+            <div class="meta">
+              view · <span class="addr">경상북도 경주시 보문로 507</span>
+            </div>
+            <div class="rec">
+              황룡사 9층목탑 형상 전망. 미디어아트/전시 관람.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/hanok-cafe.jpg" alt="한옥 카페" />
+          </div>
+          <div class="content">
+            <div class="title">교촌한옥마을 카페 타임</div>
+            <div class="meta">
+              cafe · <span class="addr">경상북도 경주시 교동 일대</span>
+            </div>
+            <div class="rec">
+              기와지붕 아래 한옥카페. 수제 한과/전통차 추천.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 3: 국립박물관·양동마을·동해안 라인 -->
+      <section class="pane" data-day="3">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/museum.jpg" alt="경주국립박물관" />
+          </div>
+          <div class="content">
+            <div class="title">경주국립박물관</div>
+            <div class="meta">
+              museum · <span class="addr">경상북도 경주시 일정로 186</span>
+            </div>
+            <div class="rec">
+              성덕대왕신종(에밀레종) 등 신라 유물 상설·특별전 관람.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/yangdong.jpg" alt="양동마을" />
+          </div>
+          <div class="content">
+            <div class="title">양동마을</div>
+            <div class="meta">
+              UNESCO ·
+              <span class="addr">경상북도 경주시 강동면 양동마을길 130</span>
+            </div>
+            <div class="rec">
+              전통 한옥 집성촌 산책. 관가정·향단 등 포토스팟.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/munmu.jpg" alt="문무대왕릉" />
+          </div>
+          <div class="content">
+            <div class="title">문무대왕릉(대왕암)</div>
+            <div class="meta">
+              coast ·
+              <span class="addr">경상북도 경주시 감포읍 대왕암길 26</span>
+            </div>
+            <div class="rec">
+              바다 위 임해전망과 파도소리. 일출 포인트로도 유명.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb"><img src="./images/gampo.jpg" alt="감포항" /></div>
+          <div class="content">
+            <div class="title">감포항 & 대게거리</div>
+            <div class="meta">
+              food ·
+              <span class="addr">경상북도 경주시 감포읍 감포로 일대</span>
+            </div>
+            <div class="rec">
+              제철 해산물. 겨울엔 대게, 봄·가을엔 회/물회가 인기.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/colonnade.jpg" alt="황성공원" />
+          </div>
+          <div class="content">
+            <div class="title">황성공원 산책</div>
+            <div class="meta">
+              park · <span class="addr">경상북도 경주시 황성공원로 29</span>
+            </div>
+            <div class="rec">소나무 숲길로 마무리 힐링 코스.</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="cta"><button>내 일정으로 담기</button></div>
+    </div>
+
+    <!-- Kakao Maps SDK (기존 키 그대로 사용) -->
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
+    <script type="module">
+      let initAuthListener = () => {};
+      let getUserId = () => null;
+      let getUserNickname = () => null;
+      try {
+        const mod = await import("/libs/user-manager.js");
+        initAuthListener = mod.initAuthListener ?? initAuthListener;
+        getUserId = mod.getUserId ?? getUserId;
+        getUserNickname = mod.getUserNickname ?? getUserNickname;
+      } catch (e) {
+        console.warn(
+          "user-manager.js 로드 실패, 게스트 모드로 계속 진행합니다.",
+          e
+        );
+      }
+
+      // 사용자 정보 초기화
+      initAuthListener();
+      window.currentUser = null;
+      const userId = getUserId();
+      if (userId)
+        window.currentUser = { id: userId, nickname: getUserNickname() };
+
+      const tabs = document.querySelectorAll(".tab");
+      const panes = document.querySelectorAll(".pane");
+
+      // 각 DAY별 장소 데이터 추출 (키워드 검색용)
+      const dayData = {};
+      const dayPositions = {}; // 좌표 저장용
+
+      panes.forEach((pane) => {
+        const day = pane.dataset.day;
+        const items = pane.querySelectorAll(".item");
+        dayData[day] = Array.from(items).map((item) => ({
+          title: item.querySelector(".title").textContent,
+          address: item.querySelector(".addr").textContent.trim(), // 표기용
+        }));
+        dayPositions[day] = [];
+      });
+
+      let map = null;
+      let markers = [];
+      let polyline = null;
+      let placesService = null;
+      let currentDay = "1";
+
+      function initKakaoMap() {
+        if (typeof kakao === "undefined" || !kakao.maps) {
+          setTimeout(initKakaoMap, 100);
+          return;
+        }
+        kakao.maps.load(function () {
+          const mapContainer = document.getElementById("map");
+          const mapOption = {
+            center: new kakao.maps.LatLng(35.8562, 129.2247), // 경주시청 근처 중심
+            level: 6,
+          };
+          map = new kakao.maps.Map(mapContainer, mapOption);
+          placesService = new kakao.maps.services.Places();
+          updateMap("1");
+        });
+      }
+
+      async function keywordToPosition(query) {
+        return new Promise((resolve) => {
+          placesService.keywordSearch(
+            query + " 경주",
+            function (result, status) {
+              if (status === kakao.maps.services.Status.OK && result[0]) {
+                const r = result[0];
+                resolve({ lat: parseFloat(r.y), lng: parseFloat(r.x) });
+              } else {
+                resolve(null);
+              }
+            }
+          );
+        });
+      }
+
+      async function updateMap(day) {
+        currentDay = day;
+        markers.forEach((m) => m.setMap(null));
+        markers = [];
+        if (polyline) {
+          polyline.setMap(null);
+          polyline = null;
+        }
+
+        const places = dayData[day];
+        if (!places || places.length === 0) return;
+
+        const positions = [];
+        for (let i = 0; i < places.length; i++) {
+          const place = places[i];
+          const pos = await keywordToPosition(place.title);
+          if (!pos) continue;
+          positions.push({
+            ...pos,
+            title: place.title,
+            address: place.address,
+          });
+
+          const markerPosition = new kakao.maps.LatLng(pos.lat, pos.lng);
+          const customMarker = createCustomMarker(
+            markerPosition,
+            i + 1,
+            i === 0,
+            i === places.length - 1,
+            place.title
+          );
+          customMarker.setMap(map);
+          markers.push(customMarker);
+        }
+
+        dayPositions[day] = positions;
+
+        if (positions.length >= 2) {
+          const path = positions.map(
+            (p) => new kakao.maps.LatLng(p.lat, p.lng)
+          );
+          polyline = new kakao.maps.Polyline({
+            path,
+            strokeWeight: 5,
+            strokeColor: "#e91e8c",
+            strokeOpacity: 0.7,
+            strokeStyle: "solid",
+          });
+          polyline.setMap(map);
+        }
+
+        if (positions.length > 0) {
+          const bounds = new kakao.maps.LatLngBounds();
+          positions.forEach((p) =>
+            bounds.extend(new kakao.maps.LatLng(p.lat, p.lng))
+          );
+          map.setBounds(bounds);
+        }
+      }
+
+      function createCustomMarker(position, label, isStart, isEnd, title) {
+        let bgColor = "#4f46e5";
+        if (isStart) bgColor = "#10b981";
+        if (isEnd) bgColor = "#e91e8c";
+        const content = document.createElement("div");
+        content.style.cssText = `position:relative;width:36px;height:36px;background:${bgColor};border:3px solid white;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-weight:bold;color:white;font-size:14px;cursor:pointer;transition:transform .2s ease;`;
+        content.innerHTML = label;
+        content.onmouseover = () => (content.style.transform = "scale(1.2)");
+        content.onmouseout = () => (content.style.transform = "scale(1)");
+        content.title = title;
+        return new kakao.maps.CustomOverlay({
+          position,
+          content,
+          yAnchor: 0.5,
+        });
+      }
+
+      const tabsWrap = document.querySelector(".tabs");
+      tabsWrap.addEventListener("click", (e) => {
+        const btn = e.target.closest(".tab");
+        if (!btn) return;
+        const day = btn.dataset.day;
+        document
+          .querySelectorAll(".tab")
+          .forEach((b) => b.classList.toggle("active", b === btn));
+        document
+          .querySelectorAll(".pane")
+          .forEach((p) => p.classList.toggle("active", p.dataset.day === day));
+        if (map) updateMap(day);
+      });
+
+      if (document.readyState === "loading")
+        document.addEventListener("DOMContentLoaded", initKakaoMap);
+      else initKakaoMap();
+
+      // 내 일정 담기
+      document
+        .querySelector(".cta button")
+        .addEventListener("click", async function () {
+          if (!window.currentUser) {
+            if (
+              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
+            )
+              window.location.href = "/auth";
+            return;
+          }
+          const currentDayPlaces = dayPositions[currentDay];
+          if (!currentDayPlaces || currentDayPlaces.length === 0) {
+            alert("장소 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
+          }
+          const userId = window.currentUser.id;
+          const courseName = prompt(
+            "코스 이름을 입력하세요",
+            `경주 여행 Day ${currentDay}`
+          );
+          if (!courseName) return;
+          try {
+            const places = currentDayPlaces.map((pos) => ({
+              name: pos.title,
+              lat: pos.lat,
+              lng: pos.lng,
+              mediaTitle: "",
+              placeId: null,
+            }));
+            const res = await fetch("/api/course", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId, name: courseName, places }),
+            });
+            const data = await res.json();
+            if (data.success)
+              alert(
+                `🎉 저장 완료!\n코스 ID: ${data.courseId}\n\n마이페이지에서 확인하실 수 있습니다.`
+              );
+            else alert("저장에 실패했습니다 😢");
+          } catch (err) {
+            console.error("코스 저장 오류:", err);
+            alert("저장 중 오류가 발생했습니다 😢");
+          }
+        });
+    </script>
+  </body>
+</html>

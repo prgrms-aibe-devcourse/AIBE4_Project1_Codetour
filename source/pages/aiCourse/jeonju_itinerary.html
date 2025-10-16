@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>전주 추천일정</title>
+    <style>
+      :root {
+        --brand: #e91e8c;
+        --txt: #0f172a;
+        --muted: #64748b;
+        --bg: #fff;
+        --card: #fff;
+        --line: #e2e8f0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, Apple SD Gothic Neo,
+          Malgun Gothic, Nanum Gothic, sans-serif;
+        background: var(--bg);
+        color: var(--txt);
+      }
+      .wrap {
+        width: min(980px, 92vw);
+        margin: 36px auto 64px;
+      }
+      header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        line-height: 1.2;
+      }
+      header p {
+        margin: 0 0 18px;
+        color: var(--muted);
+      }
+      .mapbox {
+        height: 500px;
+        background: #eef2ff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        color: #334155;
+        margin: 8px 0 18px;
+        overflow: hidden;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin: 12px 0 8px;
+        flex-wrap: wrap;
+      }
+      .tab {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #f1f5f9;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .tab.active {
+        background: var(--brand);
+        color: #fff;
+        border-color: var(--brand);
+      }
+      .pane {
+        display: none;
+      }
+      .pane.active {
+        display: block;
+      }
+      .item {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        margin: 10px 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+      }
+      .num {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+      }
+      .thumb {
+        width: 100px;
+        height: 75px;
+        border-radius: 10px;
+        background: #e2e8f0;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        color: #475569;
+        overflow: hidden;
+      }
+      .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+      .content .title {
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 2px;
+      }
+      .content .meta {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .content .rec {
+        font-size: 14px;
+        color: #334155;
+      }
+      .cta {
+        position: sticky;
+        bottom: 18px;
+        display: flex;
+        justify-content: center;
+        margin-top: 22px;
+      }
+      .cta button {
+        background: var(--brand);
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 12px 20px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header style="text-align: center">
+        <h1>
+          전주, 맞춤 <span style="color: var(--brand)">추천일정</span>입니다.
+        </h1>
+        <p>한옥마을과 미식·역사·야경까지, 지역 동선대로 알차게 담았어요.</p>
+      </header>
+
+      <div class="mapbox"><div id="map"></div></div>
+
+      <div class="tabs">
+        <button class="tab active" data-day="1" type="button">Day 1</button>
+        <button class="tab" data-day="2" type="button">Day 2</button>
+        <button class="tab" data-day="3" type="button">Day 3</button>
+      </div>
+
+      <!-- Day 1: 한옥마을 핵심 라인 -->
+      <section class="pane active" data-day="1">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/jeonju-hanok.jpg" alt="전주한옥마을" />
+          </div>
+          <div class="content">
+            <div class="title">전주한옥마을</div>
+            <div class="meta">
+              walk ·
+              <span class="addr"
+                >전북특별자치도 전주시 완산구 기린대로 일대</span
+              >
+            </div>
+            <div class="rec">
+              800여 채 한옥이 모인 전주의 상징. 한복 대여·카페 투어.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/gyeonggijeon.jpg" alt="경기전" />
+          </div>
+          <div class="content">
+            <div class="title">경기전</div>
+            <div class="meta">
+              heritage ·
+              <span class="addr"
+                >전북특별자치도 전주시 완산구 풍남동3가 102</span
+              >
+            </div>
+            <div class="rec">
+              태조 이성계 어진 봉안. 전통 정원과 전각이 아름다운 곳.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/jeondong-cathedral.jpg" alt="전동성당" />
+          </div>
+          <div class="content">
+            <div class="title">전동성당</div>
+            <div class="meta">
+              architecture ·
+              <span class="addr">전북특별자치도 전주시 완산구 기린대로 73</span>
+            </div>
+            <div class="rec">
+              로마네스크/비잔틴 양식의 랜드마크. 야간 조명 추천.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/omokdae.jpg" alt="오목대·이목대" />
+          </div>
+          <div class="content">
+            <div class="title">오목대 · 이목대</div>
+            <div class="meta">
+              view ·
+              <span class="addr">전북특별자치도 전주시 완산구 교동 산6-1</span>
+            </div>
+            <div class="rec">
+              한옥 지붕이 내려다보이는 전망 포인트. 해질녘이 특히 멋져요.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/nambu-market.jpg" alt="전주남부시장" />
+          </div>
+          <div class="content">
+            <div class="title">전주 남부시장 & 청년몰</div>
+            <div class="meta">
+              food market ·
+              <span class="addr"
+                >전북특별자치도 전주시 완산구 풍남문2길 49</span
+              >
+            </div>
+            <div class="rec">
+              비빔밥·콩나물국밥·막걸리 골목까지 전주 미식 한판.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 2: 도심·덕진 라인 -->
+      <section class="pane" data-day="2">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/deokjin-park.jpg" alt="덕진공원" />
+          </div>
+          <div class="content">
+            <div class="title">덕진공원</div>
+            <div class="meta">
+              park ·
+              <span class="addr"
+                >전북특별자치도 전주시 덕진구 권삼득로 390</span
+              >
+            </div>
+            <div class="rec">
+              연꽃 호수와 전통 정자. 여름 연밭/야간 조명이 아름다움.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img
+              src="./images/jeonju-national-museum.jpg"
+              alt="국립전주박물관"
+            />
+          </div>
+          <div class="content">
+            <div class="title">국립전주박물관</div>
+            <div class="meta">
+              museum ·
+              <span class="addr"
+                >전북특별자치도 전주시 완산구 쑥고개로 249</span
+              >
+            </div>
+            <div class="rec">
+              전라 지역 역사·유물 상설/특별전. 가족 방문지로 좋아요.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/pungnammun.jpg" alt="풍남문" />
+          </div>
+          <div class="content">
+            <div class="title">풍남문</div>
+            <div class="meta">
+              heritage ·
+              <span class="addr"
+                >전북특별자치도 전주시 완산구 풍남문2길 25</span
+              >
+            </div>
+            <div class="rec">
+              전주 읍성 남문. 야간 조명 아래 야경 산책로로 인기.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/gaeksa.jpg" alt="객사길" />
+          </div>
+          <div class="content">
+            <div class="title">객사길 카페거리</div>
+            <div class="meta">
+              cafe street ·
+              <span class="addr"
+                >전북특별자치도 전주시 완산구 전주객사2길 일대</span
+              >
+            </div>
+            <div class="rec">로스터리·디저트숍 밀집. 한옥마을과 도보 연계.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/jaman.jpg" alt="자만벽화마을" />
+          </div>
+          <div class="content">
+            <div class="title">자만벽화마을</div>
+            <div class="meta">
+              spot ·
+              <span class="addr"
+                >전북특별자치도 전주시 완산구 교동 68-15 일대</span
+              >
+            </div>
+            <div class="rec">
+              골목 벽화와 감성 카페. 사진 찍기 좋은 언덕 마을.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 3: 외곽·완주 라인 (자연·사찰) -->
+      <section class="pane" data-day="3">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/moaksan.jpg" alt="모악산도립공원" />
+          </div>
+          <div class="content">
+            <div class="title">모악산 도립공원</div>
+            <div class="meta">
+              hike ·
+              <span class="addr"
+                >전북특별자치도 완주군 구이면 모악산길 일대</span
+              >
+            </div>
+            <div class="rec">
+              전주시내 근교 인기 산행. 가벼운 등산 후 카페 한 잔.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/daejeonsa.jpg" alt="대원사/대둔산" />
+          </div>
+          <div class="content">
+            <div class="title">대원사(모악산)</div>
+            <div class="meta">
+              temple ·
+              <span class="addr">전북특별자치도 완주군 구이면 안덕길 365</span>
+            </div>
+            <div class="rec">고즈넉한 산사. 단풍철 산책 코스로 좋아요.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/hanbyeokdang.jpg" alt="한벽당" />
+          </div>
+          <div class="content">
+            <div class="title">한벽당</div>
+            <div class="meta">
+              pavilion ·
+              <span class="addr">전북특별자치도 전주시 완산구 교동 15</span>
+            </div>
+            <div class="rec">
+              전주 8경 중 하나. 전주천 따라 산책하며 사진 남기기.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/ajung-lake.jpg" alt="아중호수공원" />
+          </div>
+          <div class="content">
+            <div class="title">아중호수공원</div>
+            <div class="meta">
+              lake walk ·
+              <span class="addr">전북특별자치도 전주시 덕진구 아중로 31</span>
+            </div>
+            <div class="rec">
+              나무데크가 있는 호수 산책 코스. 노을 시간 추천.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/makgeolli.jpg" alt="막걸리 골목" />
+          </div>
+          <div class="content">
+            <div class="title">전주 막걸리 골목</div>
+            <div class="meta">
+              food ·
+              <span class="addr">전북특별자치도 전주시 완산구 동문길 일대</span>
+            </div>
+            <div class="rec">
+              한 상 가득한 푸짐한 안주로 유명. 대중교통 이용 권장.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="cta"><button>내 일정으로 담기</button></div>
+    </div>
+
+    <!-- Kakao Maps SDK -->
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
+    <script type="module">
+      let initAuthListener = () => {};
+      let getUserId = () => null;
+      let getUserNickname = () => null;
+      try {
+        const mod = await import("/libs/user-manager.js");
+        initAuthListener = mod.initAuthListener ?? initAuthListener;
+        getUserId = mod.getUserId ?? getUserId;
+        getUserNickname = mod.getUserNickname ?? getUserNickname;
+      } catch (e) {
+        console.warn(
+          "user-manager.js 로드 실패, 게스트 모드로 계속 진행합니다.",
+          e
+        );
+      }
+
+      // 사용자 정보 초기화
+      initAuthListener();
+      window.currentUser = null;
+      const userId = getUserId();
+      if (userId)
+        window.currentUser = { id: userId, nickname: getUserNickname() };
+
+      const tabs = document.querySelectorAll(".tab");
+      const panes = document.querySelectorAll(".pane");
+
+      // 각 DAY별 장소 데이터 추출 (키워드 검색용)
+      const dayData = {};
+      const dayPositions = {}; // 좌표 저장용
+
+      panes.forEach((pane) => {
+        const day = pane.dataset.day;
+        const items = pane.querySelectorAll(".item");
+        dayData[day] = Array.from(items).map((item) => ({
+          title: item.querySelector(".title").textContent,
+          address: item.querySelector(".addr").textContent.trim(),
+        }));
+        dayPositions[day] = [];
+      });
+
+      let map = null;
+      let markers = [];
+      let polyline = null;
+      let placesService = null;
+      let currentDay = "1";
+
+      function initKakaoMap() {
+        if (typeof kakao === "undefined" || !kakao.maps) {
+          setTimeout(initKakaoMap, 100);
+          return;
+        }
+        kakao.maps.load(function () {
+          const mapContainer = document.getElementById("map");
+          const mapOption = {
+            center: new kakao.maps.LatLng(35.8241, 127.148), // 전주시청 근처 중심
+            level: 8,
+          };
+          map = new kakao.maps.Map(mapContainer, mapOption);
+          placesService = new kakao.maps.services.Places();
+          updateMap("1");
+        });
+      }
+
+      async function keywordToPosition(query) {
+        return new Promise((resolve) => {
+          placesService.keywordSearch(
+            query + " 전주",
+            function (result, status) {
+              if (status === kakao.maps.services.Status.OK && result[0]) {
+                const r = result[0];
+                resolve({ lat: parseFloat(r.y), lng: parseFloat(r.x) });
+              } else {
+                resolve(null);
+              }
+            }
+          );
+        });
+      }
+
+      async function updateMap(day) {
+        currentDay = day;
+        markers.forEach((m) => m.setMap(null));
+        markers = [];
+        if (polyline) {
+          polyline.setMap(null);
+          polyline = null;
+        }
+
+        const places = dayData[day];
+        if (!places || places.length === 0) return;
+
+        const positions = [];
+        for (let i = 0; i < places.length; i++) {
+          const place = places[i];
+          const pos = await keywordToPosition(place.title);
+          if (!pos) continue;
+          positions.push({
+            ...pos,
+            title: place.title,
+            address: place.address,
+          });
+
+          const markerPosition = new kakao.maps.LatLng(pos.lat, pos.lng);
+          const customMarker = createCustomMarker(
+            markerPosition,
+            i + 1,
+            i === 0,
+            i === places.length - 1,
+            place.title
+          );
+          customMarker.setMap(map);
+          markers.push(customMarker);
+        }
+
+        dayPositions[day] = positions;
+
+        if (positions.length >= 2) {
+          const path = positions.map(
+            (p) => new kakao.maps.LatLng(p.lat, p.lng)
+          );
+          polyline = new kakao.maps.Polyline({
+            path,
+            strokeWeight: 5,
+            strokeColor: "#e91e8c",
+            strokeOpacity: 0.7,
+            strokeStyle: "solid",
+          });
+          polyline.setMap(map);
+        }
+
+        if (positions.length > 0) {
+          const bounds = new kakao.maps.LatLngBounds();
+          positions.forEach((p) =>
+            bounds.extend(new kakao.maps.LatLng(p.lat, p.lng))
+          );
+          map.setBounds(bounds);
+        }
+      }
+
+      function createCustomMarker(position, label, isStart, isEnd, title) {
+        let bgColor = "#4f46e5";
+        if (isStart) bgColor = "#10b981";
+        if (isEnd) bgColor = "#e91e8c";
+        const content = document.createElement("div");
+        content.style.cssText = `position:relative;width:36px;height:36px;background:${bgColor};border:3px solid white;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-weight:bold;color:white;font-size:14px;cursor:pointer;transition:transform .2s ease;`;
+        content.innerHTML = label;
+        content.onmouseover = () => (content.style.transform = "scale(1.2)");
+        content.onmouseout = () => (content.style.transform = "scale(1)");
+        content.title = title;
+        return new kakao.maps.CustomOverlay({
+          position,
+          content,
+          yAnchor: 0.5,
+        });
+      }
+
+      const tabsWrap = document.querySelector(".tabs");
+      tabsWrap.addEventListener("click", (e) => {
+        const btn = e.target.closest(".tab");
+        if (!btn) return;
+        const day = btn.dataset.day;
+        document
+          .querySelectorAll(".tab")
+          .forEach((b) => b.classList.toggle("active", b === btn));
+        document
+          .querySelectorAll(".pane")
+          .forEach((p) => p.classList.toggle("active", p.dataset.day === day));
+        if (map) updateMap(day);
+      });
+
+      if (document.readyState === "loading")
+        document.addEventListener("DOMContentLoaded", initKakaoMap);
+      else initKakaoMap();
+
+      // 내 일정 담기
+      document
+        .querySelector(".cta button")
+        .addEventListener("click", async function () {
+          if (!window.currentUser) {
+            if (
+              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
+            )
+              window.location.href = "/auth";
+            return;
+          }
+          const currentDayPlaces = dayPositions[currentDay];
+          if (!currentDayPlaces || currentDayPlaces.length === 0) {
+            alert("장소 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
+          }
+          const userId = window.currentUser.id;
+          const courseName = prompt(
+            "코스 이름을 입력하세요",
+            `전주 여행 Day ${currentDay}`
+          );
+          if (!courseName) return;
+          try {
+            const places = currentDayPlaces.map((pos) => ({
+              name: pos.title,
+              lat: pos.lat,
+              lng: pos.lng,
+              mediaTitle: "",
+              placeId: null,
+            }));
+            const res = await fetch("/api/course", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId, name: courseName, places }),
+            });
+            const data = await res.json();
+            if (data.success)
+              alert(
+                `🎉 저장 완료!\n코스 ID: ${data.courseId}\n\n마이페이지에서 확인하실 수 있습니다.`
+              );
+            else alert("저장에 실패했습니다 😢");
+          } catch (err) {
+            console.error("코스 저장 오류:", err);
+            alert("저장 중 오류가 발생했습니다 😢");
+          }
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>강릉 추천일정</title>
+    <style>
+      :root {
+        --brand: #e91e8c;
+        --txt: #0f172a;
+        --muted: #64748b;
+        --bg: #fff;
+        --card: #fff;
+        --line: #e2e8f0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, Apple SD Gothic Neo,
+          Malgun Gothic, Nanum Gothic, sans-serif;
+        background: var(--bg);
+        color: var(--txt);
+      }
+      .wrap {
+        width: min(980px, 92vw);
+        margin: 36px auto 64px;
+      }
+      header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        line-height: 1.2;
+      }
+      header p {
+        margin: 0 0 18px;
+        color: var(--muted);
+      }
+      .mapbox {
+        height: 500px;
+        background: #eef2ff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        color: #334155;
+        margin: 8px 0 18px;
+        overflow: hidden;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin: 12px 0 8px;
+        flex-wrap: wrap;
+      }
+      .tab {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #f1f5f9;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .tab.active {
+        background: var(--brand);
+        color: #fff;
+        border-color: var(--brand);
+      }
+      .pane {
+        display: none;
+      }
+      .pane.active {
+        display: block;
+      }
+      .item {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        margin: 10px 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+      }
+      .num {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+      }
+      .thumb {
+        width: 100px;
+        height: 75px;
+        border-radius: 10px;
+        background: #e2e8f0;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        color: #475569;
+        overflow: hidden;
+      }
+      .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+      .content .title {
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 2px;
+      }
+      .content .meta {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .content .rec {
+        font-size: 14px;
+        color: #334155;
+      }
+      .cta {
+        position: sticky;
+        bottom: 18px;
+        display: flex;
+        justify-content: center;
+        margin-top: 22px;
+      }
+      .cta button {
+        background: var(--brand);
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 12px 20px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header style="text-align: center">
+        <h1>
+          강릉, 맞춤 <span style="color: var(--brand)">추천일정</span>입니다.
+        </h1>
+        <p>
+          바다·카페·유산을 하루 동선에 담았어요. 북부·도심·남부로 나눠 여행해요.
+        </p>
+      </header>
+
+      <div class="mapbox"><div id="map"></div></div>
+
+      <div class="tabs">
+        <button class="tab active" data-day="1" type="button">Day 1</button>
+        <button class="tab" data-day="2" type="button">Day 2</button>
+        <button class="tab" data-day="3" type="button">Day 3</button>
+      </div>
+
+      <!-- Day 1: 도심·경포 라인 (안목-경포-오죽헌) -->
+      <section class="pane active" data-day="1">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/anmok.jpg" alt="안목커피거리" />
+          </div>
+          <div class="content">
+            <div class="title">안목 커피거리</div>
+            <div class="meta">
+              cafe street ·
+              <span class="addr">강원특별자치도 강릉시 창해로 일대</span>
+            </div>
+            <div class="rec">
+              바다 보며 로스터리 카페 투어. 아침 산책+브런치로 시작.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/gyeongpo-beach.jpg" alt="경포해변" />
+          </div>
+          <div class="content">
+            <div class="title">경포해변</div>
+            <div class="meta">
+              beach · <span class="addr">강원특별자치도 강릉시 창해로 514</span>
+            </div>
+            <div class="rec">
+              강릉 대표 해변. 보드대여/산책데크/포토스팟 풍부.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/gyeongpodae.jpg" alt="경포대" />
+          </div>
+          <div class="content">
+            <div class="title">경포대 & 경포호</div>
+            <div class="meta">
+              view · <span class="addr">강원특별자치도 강릉시 저동 33-6</span>
+            </div>
+            <div class="rec">
+              호수 순환 산책+정자 뷰. 벚꽃·단풍 시즌 특히 아름다움.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/ojukheon.jpg" alt="오죽헌" />
+          </div>
+          <div class="content">
+            <div class="title">오죽헌·시립박물관</div>
+            <div class="meta">
+              heritage ·
+              <span class="addr">강원특별자치도 강릉시 율곡로3139번길 24</span>
+            </div>
+            <div class="rec">
+              신사임당·율곡 이이 유적. 흑죽(오죽) 정원 산책.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/central-market.jpg" alt="강릉중앙시장" />
+          </div>
+          <div class="content">
+            <div class="title">강릉 중앙시장</div>
+            <div class="meta">
+              food market ·
+              <span class="addr">강원특별자치도 강릉시 금성로 21</span>
+            </div>
+            <div class="rec">
+              초당두부/장칼국수/순두부 아이스크림 등 길거리 먹거리.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 2: 남부 라인 (정동진-선크루즈-하슬라) -->
+      <section class="pane" data-day="2">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/jeongdongjin.jpg" alt="정동진" />
+          </div>
+          <div class="content">
+            <div class="title">정동진 모래시계공원</div>
+            <div class="meta">
+              sunrise ·
+              <span class="addr">강원특별자치도 강릉시 강동면 정동역길 17</span>
+            </div>
+            <div class="rec">
+              일출 명소. 모래시계·철길 포토존, 레일바이크 연계 가능.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/suncruise.jpg" alt="선크루즈 공원" />
+          </div>
+          <div class="content">
+            <div class="title">정동진 선크루즈 공원</div>
+            <div class="meta">
+              view ·
+              <span class="addr"
+                >강원특별자치도 강릉시 강동면 정동진리 290-1</span
+              >
+            </div>
+            <div class="rec">
+              바다 위 거대한 크루즈 조형과 절경 전망대 산책.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/haslla.jpg" alt="하슬라아트월드" />
+          </div>
+          <div class="content">
+            <div class="title">하슬라 아트월드</div>
+            <div class="meta">
+              art museum ·
+              <span class="addr"
+                >강원특별자치도 강릉시 강동면 정동해안로 1441</span
+              >
+            </div>
+            <div class="rec">
+              바다 보이는 조각공원·미술관. 감성 사진 스팟 많음.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/unification-park.jpg" alt="통일공원 잠수함" />
+          </div>
+          <div class="content">
+            <div class="title">강릉 통일공원(잠수함 전시관)</div>
+            <div class="meta">
+              museum ·
+              <span class="addr">강원특별자치도 강릉시 강동면 헌화로 476</span>
+            </div>
+            <div class="rec">
+              침투 잠수함 실물 관람. 아이들과 관람하기 좋음.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/sacheon.jpg" alt="사천진해변" />
+          </div>
+          <div class="content">
+            <div class="title">사천진/사천해변 노을</div>
+            <div class="meta">
+              beach ·
+              <span class="addr">강원특별자치도 강릉시 사천면 진리 일대</span>
+            </div>
+            <div class="rec">드라이브 핫스팟. 방파제 산책과 근처 카페거리.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 3: 북부 라인 (주문진-영진-향호) -->
+      <section class="pane" data-day="3">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/jumunjin-market.jpg" alt="주문진수산시장" />
+          </div>
+          <div class="content">
+            <div class="title">주문진 수산시장</div>
+            <div class="meta">
+              seafood market ·
+              <span class="addr">강원특별자치도 강릉시 주문진읍 주문로 16</span>
+            </div>
+            <div class="rec">
+              회/대게/해산물 한상. 구입 후 위판장 식당에서 식사 가능.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/bts-stop.jpg" alt="방탄소년단 버스정류장" />
+          </div>
+          <div class="content">
+            <div class="title">방탄소년단 버스정류장(주문진)</div>
+            <div class="meta">
+              spot ·
+              <span class="addr"
+                >강원특별자치도 강릉시 주문진읍 향호리 8-1 근처</span
+              >
+            </div>
+            <div class="rec">
+              앨범 재킷 촬영지로 유명한 포토스팟. 대기 줄 고려.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/yeongjin.jpg" alt="영진해변" />
+          </div>
+          <div class="content">
+            <div class="title">영진해변</div>
+            <div class="meta">
+              beach ·
+              <span class="addr"
+                >강원특별자치도 강릉시 주문진읍 영진리 일대</span
+              >
+            </div>
+            <div class="rec">
+              드라마 촬영지로 유명. 잔잔한 파도와 넓은 모래사장.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb"><img src="./images/hyangho.jpg" alt="향호" /></div>
+          <div class="content">
+            <div class="title">향호 호수 산책</div>
+            <div class="meta">
+              lake walk ·
+              <span class="addr">강원특별자치도 강릉시 주문진읍 향호리</span>
+            </div>
+            <div class="rec">바다와 맞닿은 담수호. 갈대·철새 시즌 포토 뷰.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/songjeong.jpg" alt="송정해변" />
+          </div>
+          <div class="content">
+            <div class="title">송정해변 & 카페거리</div>
+            <div class="meta">
+              beach ·
+              <span class="addr">강원특별자치도 강릉시 창해로 17-1 일대</span>
+            </div>
+            <div class="rec">
+              도심 가까운 바다로 여행 마무리. 석양 타이밍 추천.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="cta"><button>내 일정으로 담기</button></div>
+    </div>
+
+    <!-- Kakao Maps SDK -->
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
+    <script type="module">
+      let initAuthListener = () => {};
+      let getUserId = () => null;
+      let getUserNickname = () => null;
+      try {
+        const mod = await import("/libs/user-manager.js");
+        initAuthListener = mod.initAuthListener ?? initAuthListener;
+        getUserId = mod.getUserId ?? getUserId;
+        getUserNickname = mod.getUserNickname ?? getUserNickname;
+      } catch (e) {
+        console.warn(
+          "user-manager.js 로드 실패, 게스트 모드로 계속 진행합니다.",
+          e
+        );
+      }
+
+      // 사용자 정보 초기화
+      initAuthListener();
+      window.currentUser = null;
+      const userId = getUserId();
+      if (userId)
+        window.currentUser = { id: userId, nickname: getUserNickname() };
+
+      const tabs = document.querySelectorAll(".tab");
+      const panes = document.querySelectorAll(".pane");
+
+      // 각 DAY별 장소 데이터 추출 (키워드 검색용)
+      const dayData = {};
+      const dayPositions = {}; // 좌표 저장용
+
+      panes.forEach((pane) => {
+        const day = pane.dataset.day;
+        const items = pane.querySelectorAll(".item");
+        dayData[day] = Array.from(items).map((item) => ({
+          title: item.querySelector(".title").textContent,
+          address: item.querySelector(".addr").textContent.trim(),
+        }));
+        dayPositions[day] = [];
+      });
+
+      let map = null;
+      let markers = [];
+      let polyline = null;
+      let placesService = null;
+      let currentDay = "1";
+
+      function initKakaoMap() {
+        if (typeof kakao === "undefined" || !kakao.maps) {
+          setTimeout(initKakaoMap, 100);
+          return;
+        }
+        kakao.maps.load(function () {
+          const mapContainer = document.getElementById("map");
+          const mapOption = {
+            center: new kakao.maps.LatLng(37.7519, 128.8761), // 강릉시청 근처 중심
+            level: 9,
+          };
+          map = new kakao.maps.Map(mapContainer, mapOption);
+          placesService = new kakao.maps.services.Places();
+          updateMap("1");
+        });
+      }
+
+      async function keywordToPosition(query) {
+        return new Promise((resolve) => {
+          placesService.keywordSearch(
+            query + " 강릉",
+            function (result, status) {
+              if (status === kakao.maps.services.Status.OK && result[0]) {
+                const r = result[0];
+                resolve({ lat: parseFloat(r.y), lng: parseFloat(r.x) });
+              } else {
+                resolve(null);
+              }
+            }
+          );
+        });
+      }
+
+      async function updateMap(day) {
+        currentDay = day;
+        markers.forEach((m) => m.setMap(null));
+        markers = [];
+        if (polyline) {
+          polyline.setMap(null);
+          polyline = null;
+        }
+
+        const places = dayData[day];
+        if (!places || places.length === 0) return;
+
+        const positions = [];
+        for (let i = 0; i < places.length; i++) {
+          const place = places[i];
+          const pos = await keywordToPosition(place.title);
+          if (!pos) continue;
+          positions.push({
+            ...pos,
+            title: place.title,
+            address: place.address,
+          });
+
+          const markerPosition = new kakao.maps.LatLng(pos.lat, pos.lng);
+          const customMarker = createCustomMarker(
+            markerPosition,
+            i + 1,
+            i === 0,
+            i === places.length - 1,
+            place.title
+          );
+          customMarker.setMap(map);
+          markers.push(customMarker);
+        }
+
+        dayPositions[day] = positions;
+
+        if (positions.length >= 2) {
+          const path = positions.map(
+            (p) => new kakao.maps.LatLng(p.lat, p.lng)
+          );
+          polyline = new kakao.maps.Polyline({
+            path,
+            strokeWeight: 5,
+            strokeColor: "#e91e8c",
+            strokeOpacity: 0.7,
+            strokeStyle: "solid",
+          });
+          polyline.setMap(map);
+        }
+
+        if (positions.length > 0) {
+          const bounds = new kakao.maps.LatLngBounds();
+          positions.forEach((p) =>
+            bounds.extend(new kakao.maps.LatLng(p.lat, p.lng))
+          );
+          map.setBounds(bounds);
+        }
+      }
+
+      function createCustomMarker(position, label, isStart, isEnd, title) {
+        let bgColor = "#4f46e5";
+        if (isStart) bgColor = "#10b981";
+        if (isEnd) bgColor = "#e91e8c";
+        const content = document.createElement("div");
+        content.style.cssText = `position:relative;width:36px;height:36px;background:${bgColor};border:3px solid white;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-weight:bold;color:white;font-size:14px;cursor:pointer;transition:transform .2s ease;`;
+        content.innerHTML = label;
+        content.onmouseover = () => (content.style.transform = "scale(1.2)");
+        content.onmouseout = () => (content.style.transform = "scale(1)");
+        content.title = title;
+        return new kakao.maps.CustomOverlay({
+          position,
+          content,
+          yAnchor: 0.5,
+        });
+      }
+
+      const tabsWrap = document.querySelector(".tabs");
+      tabsWrap.addEventListener("click", (e) => {
+        const btn = e.target.closest(".tab");
+        if (!btn) return;
+        const day = btn.dataset.day;
+        document
+          .querySelectorAll(".tab")
+          .forEach((b) => b.classList.toggle("active", b === btn));
+        document
+          .querySelectorAll(".pane")
+          .forEach((p) => p.classList.toggle("active", p.dataset.day === day));
+        if (map) updateMap(day);
+      });
+
+      if (document.readyState === "loading")
+        document.addEventListener("DOMContentLoaded", initKakaoMap);
+      else initKakaoMap();
+
+      // 내 일정 담기
+      document
+        .querySelector(".cta button")
+        .addEventListener("click", async function () {
+          if (!window.currentUser) {
+            if (
+              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
+            )
+              window.location.href = "/auth";
+            return;
+          }
+          const currentDayPlaces = dayPositions[currentDay];
+          if (!currentDayPlaces || currentDayPlaces.length === 0) {
+            alert("장소 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
+          }
+          const userId = window.currentUser.id;
+          const courseName = prompt(
+            "코스 이름을 입력하세요",
+            `강릉 여행 Day ${currentDay}`
+          );
+          if (!courseName) return;
+          try {
+            const places = currentDayPlaces.map((pos) => ({
+              name: pos.title,
+              lat: pos.lat,
+              lng: pos.lng,
+              mediaTitle: "",
+              placeId: null,
+            }));
+            const res = await fetch("/api/course", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId, name: courseName, places }),
+            });
+            const data = await res.json();
+            if (data.success)
+              alert(
+                `🎉 저장 완료!\n코스 ID: ${data.courseId}\n\n마이페이지에서 확인하실 수 있습니다.`
+              );
+            else alert("저장에 실패했습니다 😢");
+          } catch (err) {
+            console.error("코스 저장 오류:", err);
+            alert("저장 중 오류가 발생했습니다 😢");
+          }
+        });
+    </script>
+  </body>
+</html>

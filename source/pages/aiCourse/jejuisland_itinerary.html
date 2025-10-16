@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>제주 추천일정</title>
+    <style>
+      :root {
+        --brand: #e91e8c;
+        --txt: #0f172a;
+        --muted: #64748b;
+        --bg: #fff;
+        --card: #fff;
+        --line: #e2e8f0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, Apple SD Gothic Neo,
+          Malgun Gothic, Nanum Gothic, sans-serif;
+        background: var(--bg);
+        color: var(--txt);
+      }
+      .wrap {
+        width: min(980px, 92vw);
+        margin: 36px auto 64px;
+      }
+      header h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        line-height: 1.2;
+      }
+      header p {
+        margin: 0 0 18px;
+        color: var(--muted);
+      }
+      .mapbox {
+        height: 500px;
+        background: #eef2ff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        color: #334155;
+        margin: 8px 0 18px;
+        overflow: hidden;
+      }
+      #map {
+        width: 100%;
+        height: 100%;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin: 12px 0 8px;
+        flex-wrap: wrap;
+      }
+      .tab {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #f1f5f9;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .tab.active {
+        background: var(--brand);
+        color: #fff;
+        border-color: var(--brand);
+      }
+      .pane {
+        display: none;
+      }
+      .pane.active {
+        display: block;
+      }
+      .item {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 14px;
+        margin: 10px 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+      }
+      .num {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #4f46e5;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+      }
+      .thumb {
+        width: 100px;
+        height: 75px;
+        border-radius: 10px;
+        background: #e2e8f0;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        color: #475569;
+        overflow: hidden;
+      }
+      .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+      }
+      .content .title {
+        font-size: 18px;
+        font-weight: 800;
+        margin-bottom: 2px;
+      }
+      .content .meta {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .content .rec {
+        font-size: 14px;
+        color: #334155;
+      }
+      .cta {
+        position: sticky;
+        bottom: 18px;
+        display: flex;
+        justify-content: center;
+        margin-top: 22px;
+      }
+      .cta button {
+        background: var(--brand);
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 12px 20px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header style="text-align: center">
+        <h1>
+          제주, 맞춤 <span style="color: var(--brand)">추천일정</span>입니다.
+        </h1>
+        <p>
+          유네스코 자연유산부터 카페·바닷길까지, 동·서·남 코스로 즐겨보세요.
+        </p>
+      </header>
+
+      <div class="mapbox"><div id="map"></div></div>
+
+      <div class="tabs">
+        <button class="tab active" data-day="1" type="button">Day 1</button>
+        <button class="tab" data-day="2" type="button">Day 2</button>
+        <button class="tab" data-day="3" type="button">Day 3</button>
+      </div>
+
+      <!-- Day 1: 제주시·동부 라인 (함덕-성산-만장굴) -->
+      <section class="pane active" data-day="1">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/hamdeok.jpg" alt="함덕서우봉해변" />
+          </div>
+          <div class="content">
+            <div class="title">함덕서우봉해변</div>
+            <div class="meta">
+              beach ·
+              <span class="addr">제주특별자치도 제주시 조천읍 함덕리 일대</span>
+            </div>
+            <div class="rec">
+              에메랄드 빛 얕은 바다와 산책데크. 오전 바다 감상+브런치.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/seongsan.jpg" alt="성산일출봉" />
+          </div>
+          <div class="content">
+            <div class="title">성산일출봉</div>
+            <div class="meta">
+              UNESCO ·
+              <span class="addr">제주특별자치도 서귀포시 성산읍 성산리 1</span>
+            </div>
+            <div class="rec">
+              분화구 정상 트레킹. 일출/석양 뷰 포인트로 최강.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/seopjikoji.jpg" alt="섭지코지" />
+          </div>
+          <div class="content">
+            <div class="title">섭지코지</div>
+            <div class="meta">
+              coast walk ·
+              <span class="addr"
+                >제주특별자치도 서귀포시 성산읍 고성리 226-1</span
+              >
+            </div>
+            <div class="rec">
+              드라마 촬영지로 유명한 해안 산책로와 등대, 포토스팟.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/manjanggul.jpg" alt="만장굴" />
+          </div>
+          <div class="content">
+            <div class="title">만장굴</div>
+            <div class="meta">
+              UNESCO ·
+              <span class="addr"
+                >제주특별자치도 제주시 구좌읍 만장굴길 182</span
+              >
+            </div>
+            <div class="rec">
+              세계적 용암동굴. 내부 온도 낮으니 겉옷 챙기기.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/blackpork.jpg" alt="흑돼지 거리" />
+          </div>
+          <div class="content">
+            <div class="title">제주 흑돼지 거리(연삼로/광평동)</div>
+            <div class="meta">
+              food · <span class="addr">제주특별자치도 제주시 일대</span>
+            </div>
+            <div class="rec">
+              숙성 흑돼지와 멜젓 조합. 대기 줄 감안해 일찍 방문.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 2: 서귀포·중문 라인 (폭포-주상절리-올레) -->
+      <section class="pane" data-day="2">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/cheonjeyeon.jpg" alt="천제연폭포" />
+          </div>
+          <div class="content">
+            <div class="title">천제연폭포</div>
+            <div class="meta">
+              nature ·
+              <span class="addr">제주특별자치도 서귀포시 천제연로 132</span>
+            </div>
+            <div class="rec">제1·2·3폭포 순환 산책. 선녀다리 뷰 포인트.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/jusangjeolli.jpg" alt="대포주상절리대" />
+          </div>
+          <div class="content">
+            <div class="title">대포주상절리대</div>
+            <div class="meta">
+              geosite ·
+              <span class="addr">제주특별자치도 서귀포시 이어도로 36-24</span>
+            </div>
+            <div class="rec">
+              육각기둥 현무암 절벽 감상. 파도치는 날이 더 장관.
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/iecjungmun.jpg" alt="중문색달해변" />
+          </div>
+          <div class="content">
+            <div class="title">중문색달해변</div>
+            <div class="meta">
+              beach ·
+              <span class="addr">제주특별자치도 서귀포시 색달로 303-3</span>
+            </div>
+            <div class="rec">부드러운 모래와 파도. 파라솔/보드 대여 가능.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/saeyeongyo.jpg" alt="새연교·새섬" />
+          </div>
+          <div class="content">
+            <div class="title">새연교 · 새섬 야경</div>
+            <div class="meta">
+              night view ·
+              <span class="addr">제주특별자치도 서귀포시 남성중로 40</span>
+            </div>
+            <div class="rec">형형색색 조명 다리 산책. 이중섭거리와 연계.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/olle.jpg" alt="올레시장" />
+          </div>
+          <div class="content">
+            <div class="title">서귀포 매일올레시장</div>
+            <div class="meta">
+              food market ·
+              <span class="addr">제주특별자치도 서귀포시 중앙로62번길 18</span>
+            </div>
+            <div class="rec">
+              귤주스·고기국수·튀김만두 등 길거리 먹거리 투어.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 3: 서부 라인 (협재-한림-오설록-산방산) -->
+      <section class="pane" data-day="3">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb">
+            <img src="./images/hyeopjae.jpg" alt="협재해수욕장" />
+          </div>
+          <div class="content">
+            <div class="title">협재해수욕장</div>
+            <div class="meta">
+              beach ·
+              <span class="addr"
+                >제주특별자치도 제주시 한림읍 협재리 2497-1</span
+              >
+            </div>
+            <div class="rec">비양도 뷰와 에메랄드 바다. 오전 물색 최고.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb">
+            <img src="./images/hallimpark.jpg" alt="한림공원" />
+          </div>
+          <div class="content">
+            <div class="title">한림공원</div>
+            <div class="meta">
+              garden ·
+              <span class="addr">제주특별자치도 제주시 한림읍 한림로 300</span>
+            </div>
+            <div class="rec">야자수길·협재석굴·쌍용굴. 남녀노소 산책 코스.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb">
+            <img src="./images/osulloc.jpg" alt="오설록 티뮤지엄" />
+          </div>
+          <div class="content">
+            <div class="title">오설록 티뮤지엄 & 녹차밭</div>
+            <div class="meta">
+              cafe ·
+              <span class="addr"
+                >제주특별자치도 서귀포시 안덕면 신화역사로 15</span
+              >
+            </div>
+            <div class="rec">초록 녹차밭 배경 사진+그린티 아이스크림 필수.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb">
+            <img src="./images/sanbangsan.jpg" alt="산방산·용머리해안" />
+          </div>
+          <div class="content">
+            <div class="title">산방산 · 용머리해안</div>
+            <div class="meta">
+              geosite ·
+              <span class="addr"
+                >제주특별자치도 서귀포시 안덕면 사계리 112-3</span
+              >
+            </div>
+            <div class="rec">
+              해식절벽 트레킹. 밀물시간 체크 필수(입장 통제 있음).
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb">
+            <img src="./images/aewol.jpg" alt="애월 카페거리" />
+          </div>
+          <div class="content">
+            <div class="title">애월 카페거리</div>
+            <div class="meta">
+              cafe street ·
+              <span class="addr">제주특별자치도 제주시 애월읍 애월로 일대</span>
+            </div>
+            <div class="rec">
+              오션뷰 카페로 마무리. 노을 타이밍에 맞춰 방문.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="cta"><button>내 일정으로 담기</button></div>
+    </div>
+
+    <!-- Kakao Maps SDK -->
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
+    <script type="module">
+      let initAuthListener = () => {};
+      let getUserId = () => null;
+      let getUserNickname = () => null;
+      try {
+        const mod = await import("/libs/user-manager.js");
+        initAuthListener = mod.initAuthListener ?? initAuthListener;
+        getUserId = mod.getUserId ?? getUserId;
+        getUserNickname = mod.getUserNickname ?? getUserNickname;
+      } catch (e) {
+        console.warn(
+          "user-manager.js 로드 실패, 게스트 모드로 계속 진행합니다.",
+          e
+        );
+      }
+
+      // 사용자 정보 초기화
+      initAuthListener();
+      window.currentUser = null;
+      const userId = getUserId();
+      if (userId)
+        window.currentUser = { id: userId, nickname: getUserNickname() };
+
+      const tabs = document.querySelectorAll(".tab");
+      const panes = document.querySelectorAll(".pane");
+
+      // 각 DAY별 장소 데이터 추출 (키워드 검색용)
+      const dayData = {};
+      const dayPositions = {}; // 좌표 저장용
+
+      panes.forEach((pane) => {
+        const day = pane.dataset.day;
+        const items = pane.querySelectorAll(".item");
+        dayData[day] = Array.from(items).map((item) => ({
+          title: item.querySelector(".title").textContent,
+          address: item.querySelector(".addr").textContent.trim(),
+        }));
+        dayPositions[day] = [];
+      });
+
+      let map = null;
+      let markers = [];
+      let polyline = null;
+      let placesService = null;
+      let currentDay = "1";
+
+      function initKakaoMap() {
+        if (typeof kakao === "undefined" || !kakao.maps) {
+          setTimeout(initKakaoMap, 100);
+          return;
+        }
+        kakao.maps.load(function () {
+          const mapContainer = document.getElementById("map");
+          const mapOption = {
+            center: new kakao.maps.LatLng(33.4996, 126.5312), // 제주시청 근처 중심
+            level: 9,
+          };
+          map = new kakao.maps.Map(mapContainer, mapOption);
+          placesService = new kakao.maps.services.Places();
+          updateMap("1");
+        });
+      }
+
+      async function keywordToPosition(query) {
+        return new Promise((resolve) => {
+          placesService.keywordSearch(
+            query + " 제주",
+            function (result, status) {
+              if (status === kakao.maps.services.Status.OK && result[0]) {
+                const r = result[0];
+                resolve({ lat: parseFloat(r.y), lng: parseFloat(r.x) });
+              } else {
+                resolve(null);
+              }
+            }
+          );
+        });
+      }
+
+      async function updateMap(day) {
+        currentDay = day;
+        markers.forEach((m) => m.setMap(null));
+        markers = [];
+        if (polyline) {
+          polyline.setMap(null);
+          polyline = null;
+        }
+
+        const places = dayData[day];
+        if (!places || places.length === 0) return;
+
+        const positions = [];
+        for (let i = 0; i < places.length; i++) {
+          const place = places[i];
+          const pos = await keywordToPosition(place.title);
+          if (!pos) continue;
+          positions.push({
+            ...pos,
+            title: place.title,
+            address: place.address,
+          });
+
+          const markerPosition = new kakao.maps.LatLng(pos.lat, pos.lng);
+          const customMarker = createCustomMarker(
+            markerPosition,
+            i + 1,
+            i === 0,
+            i === places.length - 1,
+            place.title
+          );
+          customMarker.setMap(map);
+          markers.push(customMarker);
+        }
+
+        dayPositions[day] = positions;
+
+        if (positions.length >= 2) {
+          const path = positions.map(
+            (p) => new kakao.maps.LatLng(p.lat, p.lng)
+          );
+          polyline = new kakao.maps.Polyline({
+            path,
+            strokeWeight: 5,
+            strokeColor: "#e91e8c",
+            strokeOpacity: 0.7,
+            strokeStyle: "solid",
+          });
+          polyline.setMap(map);
+        }
+
+        if (positions.length > 0) {
+          const bounds = new kakao.maps.LatLngBounds();
+          positions.forEach((p) =>
+            bounds.extend(new kakao.maps.LatLng(p.lat, p.lng))
+          );
+          map.setBounds(bounds);
+        }
+      }
+
+      function createCustomMarker(position, label, isStart, isEnd, title) {
+        let bgColor = "#4f46e5";
+        if (isStart) bgColor = "#10b981";
+        if (isEnd) bgColor = "#e91e8c";
+        const content = document.createElement("div");
+        content.style.cssText = `position:relative;width:36px;height:36px;background:${bgColor};border:3px solid white;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-weight:bold;color:white;font-size:14px;cursor:pointer;transition:transform .2s ease;`;
+        content.innerHTML = label;
+        content.onmouseover = () => (content.style.transform = "scale(1.2)");
+        content.onmouseout = () => (content.style.transform = "scale(1)");
+        content.title = title;
+        return new kakao.maps.CustomOverlay({
+          position,
+          content,
+          yAnchor: 0.5,
+        });
+      }
+
+      const tabsWrap = document.querySelector(".tabs");
+      tabsWrap.addEventListener("click", (e) => {
+        const btn = e.target.closest(".tab");
+        if (!btn) return;
+        const day = btn.dataset.day;
+        document
+          .querySelectorAll(".tab")
+          .forEach((b) => b.classList.toggle("active", b === btn));
+        document
+          .querySelectorAll(".pane")
+          .forEach((p) => p.classList.toggle("active", p.dataset.day === day));
+        if (map) updateMap(day);
+      });
+
+      if (document.readyState === "loading")
+        document.addEventListener("DOMContentLoaded", initKakaoMap);
+      else initKakaoMap();
+
+      // 내 일정 담기
+      document
+        .querySelector(".cta button")
+        .addEventListener("click", async function () {
+          if (!window.currentUser) {
+            if (
+              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
+            )
+              window.location.href = "/auth";
+            return;
+          }
+          const currentDayPlaces = dayPositions[currentDay];
+          if (!currentDayPlaces || currentDayPlaces.length === 0) {
+            alert("장소 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
+          }
+          const userId = window.currentUser.id;
+          const courseName = prompt(
+            "코스 이름을 입력하세요",
+            `제주 여행 Day ${currentDay}`
+          );
+          if (!courseName) return;
+          try {
+            const places = currentDayPlaces.map((pos) => ({
+              name: pos.title,
+              lat: pos.lat,
+              lng: pos.lng,
+              mediaTitle: "",
+              placeId: null,
+            }));
+            const res = await fetch("/api/course", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId, name: courseName, places }),
+            });
+            const data = await res.json();
+            if (data.success)
+              alert(
+                `🎉 저장 완료!\n코스 ID: ${data.courseId}\n\n마이페이지에서 확인하실 수 있습니다.`
+              );
+            else alert("저장에 실패했습니다 😢");
+          } catch (err) {
+            console.error("코스 저장 오류:", err);
+            alert("저장 중 오류가 발생했습니다 😢");
+          }
+        });
+    </script>
+  </body>
+</html>

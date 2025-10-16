@@ -2,510 +2,367 @@
 <html lang="ko">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>서울 추천일정 — 장소 선택</title>
-
-    <!-- Leaflet CSS -->
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
-
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>부산 추천일정</title>
     <style>
       :root {
         --brand: #e91e8c;
         --txt: #0f172a;
         --muted: #64748b;
-        --bg: #f8fafc;
-        --card: #ffffff;
+        --bg: #fff;
+        --card: #fff;
         --line: #e2e8f0;
-        --chip: #f1f5f9;
       }
       * { box-sizing: border-box; }
       body {
         margin: 0;
-        font-family: ui-sans-serif, system-ui, -apple-system,
-          "Apple SD Gothic Neo", "Malgun Gothic", "Nanum Gothic", sans-serif;
-        color: var(--txt);
+        font-family: ui-sans-serif, system-ui, Apple SD Gothic Neo, Malgun Gothic, Nanum Gothic, sans-serif;
         background: var(--bg);
+        color: var(--txt);
       }
-      a { color: inherit; }
-
-      .wrap { width: min(1200px, 94vw); margin: 28px auto 80px; }
-
-      /* ── 헤더/스텝 ─────────────────────────────────────────── */
-      header {
-        display: flex; align-items: center; justify-content: space-between;
-        gap: 12px; margin-bottom: 14px;
-      }
-      header h1 { margin: 0; font-size: 24px; }
-      .steps { display: flex; gap: 18px; align-items: center; color: var(--muted); }
-      .step { display: grid; grid-template-columns: 28px auto; align-items: center; gap: 8px; }
-      .step .dot {
-        width: 28px; height: 28px; border-radius: 999px; display: grid; place-items: center;
-        border: 2px solid var(--line); color: #475569; background: #fff; font-weight: 700;
-      }
-      .step.active .dot { background: var(--brand); color: #fff; border-color: var(--brand); }
-      .step .label { font-weight: 600; font-size: 14px; }
-
-      /* ── 레이아웃 ─────────────────────────────────────────── */
-      .grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; align-items: start; }
-      @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
-
-      /* ── 지도 패널 ───────────────────────────────────────── */
-      .map-panel {
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        padding: 12px;
-        margin: 10px 0 16px;
-      }
-      .map-head {
-        display: flex; align-items: center; justify-content: space-between;
-        gap: 8px; margin-bottom: 10px;
-      }
-      .map-head h2 { margin: 0; font-size: 16px; }
-      #map { height: 320px; width: 100%; border-radius: 10px; }
-      @media (max-width: 980px) { #map { height: 260px; } }
-
-      /* ── 좌측: 검색/필터/목록 ─────────────────────────────── */
-      .searchbar {
-        display: flex; gap: 8px; align-items: center; background: var(--card);
-        border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px;
-      }
-      .searchbar input {
-        width: 100%; border: none; outline: none; font-size: 15px; background: transparent;
-      }
-      .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
-      .chip {
-        border: 1px solid var(--line); background: var(--chip);
-        padding: 7px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; cursor: pointer;
-      }
-      .chip.active { background: var(--brand); color: #fff; border-color: var(--brand); }
-
-      .result-count { color: var(--muted); font-size: 13px; margin: 10px 0; }
-
-      .list { display: grid; gap: 10px; }
-      .card {
-        display: grid; grid-template-columns: 108px auto 88px; gap: 12px;
-        background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
-      }
-      .card .thumb { height: 84px; width: 108px; background: #e2e8f0; object-fit: cover; }
-      .card .content { padding: 12px 0; display: grid; align-content: center; gap: 4px; }
-      .title { font-weight: 800; }
-      .meta { color: var(--muted); font-size: 12px; }
-      .tags { display: flex; gap: 6px; flex-wrap: wrap; }
-      .tag {
-        font-size: 11px; padding: 3px 8px; border-radius: 999px; background: #f8fafc;
-        border: 1px solid var(--line); color: #334155;
-      }
-      .actions { display: grid; place-items: center; padding: 10px; }
-      .btn {
-        border: none; border-radius: 10px; padding: 10px 12px; font-weight: 800; cursor: pointer;
-        background: var(--brand); color: #fff; width: 100%;
-      }
-      .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
-      .btn.secondary { background: #e2e8f0; color: #0f172a; font-weight: 700; }
-
-      /* ── 우측: 선택한 장소 ───────────────────────────────── */
-      aside {
-        position: sticky; top: 16px; background: var(--card); border: 1px solid var(--line);
-        border-radius: 14px; padding: 14px;
-      }
-      aside h3 { margin: 4px 0 10px; font-size: 16px; }
-      .count { color: var(--muted); font-size: 13px; }
-      .chosen { display: grid; gap: 10px; margin-top: 10px; }
-      .chosen-item {
-        display: grid; grid-template-columns: 64px auto 24px; gap: 10px; align-items: center;
-        border: 1px dashed var(--line); border-radius: 12px; padding: 8px;
-      }
-      .chosen-item img { width: 64px; height: 48px; object-fit: cover; border-radius: 8px; }
-      .chosen-item .nm { font-weight: 700; font-size: 14px; }
-      .x { cursor: pointer; font-weight: 900; color: #334155; text-align: center; }
-      .empty { text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 12px; padding: 18px 10px; }
-
-      /* ── CTA ─────────────────────────────────────────────── */
-      .cta { margin-top: 16px; display: flex; justify-content: flex-end; gap: 8px; }
-      .progress { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; }
-      .next {
-        background: var(--brand); color: white; border: none; border-radius: 999px;
-        padding: 12px 18px; font-weight: 800; cursor: pointer;
-      }
-      .next[disabled] { opacity: 0.5; cursor: not-allowed; }
-
-      /* 모바일 하단 고정 CTA */
-      .mobile-cta {
-        position: fixed; left: 50%; transform: translateX(-50%); bottom: 16px; z-index: 20;
-        border: none; border-radius: 999px; padding: 14px 22px; font-weight: 800;
-        background: var(--brand); color: #fff; display: none; box-shadow: 0 12px 24px rgba(0,0,0,.12);
-      }
-      .mobile-cta.show { display: inline-block; }
-      @media (min-width: 981px) { .mobile-cta { display: none !important; } }
-
-      /* ── 접근성 유틸 ─────────────────────────────────────── */
-      .sr-only {
-        position: absolute; clip: rect(1px, 1px, 1px, 1px);
-        padding: 0; border: 0; height: 1px; width: 1px; overflow: hidden;
-      }
-      .chip:focus-visible,
-      .btn:focus-visible,
-      .next:focus-visible,
-      .x:focus-visible,
-      .searchbar input:focus-visible {
-        outline: 3px solid #94a3b8;
-        outline-offset: 2px;
-        border-radius: 8px;
-      }
+      .wrap { width: min(980px, 92vw); margin: 36px auto 64px; }
+      header h1 { margin: 0 0 8px; font-size: 32px; line-height: 1.2; }
+      header p { margin: 0 0 18px; color: var(--muted); }
+      .mapbox { height: 500px; background: #eef2ff; border: 1px solid var(--line); border-radius: 16px; color: #334155; margin: 8px 0 18px; overflow: hidden; }
+      #map { width: 100%; height: 100%; }
+      .tabs { display: flex; gap: 8px; margin: 12px 0 8px; flex-wrap: wrap; }
+      .tab { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: #f1f5f9; cursor: pointer; font-weight: 600; }
+      .tab.active { background: var(--brand); color: white; border-color: var(--brand); }
+      .pane { display: none; }
+      .pane.active { display: block; }
+      .item { display: flex; gap: 14px; align-items: flex-start; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 10px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+      .num { width: 28px; height: 28px; border-radius: 999px; background: #eef2ff; color: #4f46e5; display: grid; place-items: center; font-weight: 700; }
+      .thumb { width: 64px; height: 48px; border-radius: 10px; background: #e2e8f0; display: grid; place-items: center; font-weight: 800; color: #475569; overflow: hidden; }
+      .thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+      .content .title { font-size: 18px; font-weight: 800; margin-bottom: 2px; }
+      .content .meta { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+      .content .rec { font-size: 14px; color: #334155; }
+      .cta { position: sticky; bottom: 18px; display: flex; justify-content: center; margin-top: 22px; }
+      .cta button { background: var(--brand); color: #fff; border: none; border-radius: 999px; padding: 12px 20px; font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(59,130,246,0.3); }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <header>
-        <h1>서울 추천일정</h1>
-        <nav class="steps" aria-label="단계">
-          <div class="step active"><div class="dot">1</div><div class="label">장소 선택</div></div>
-          <div class="step"><div class="dot">2</div><div class="label">기간 설정</div></div>
-          <div class="step"><div class="dot">3</div><div class="label">이동 수단</div></div>
-          <div class="step"><div class="dot">4</div><div class="label">예산 설정</div></div>
-          <div class="step"><div class="dot">5</div><div class="label">동행자 정보</div></div>
-        </nav>
+      <header style="text-align: center">
+        <h1>부산, 맞춤 <span style="color: var(--brand)">추천일정</span>입니다.</h1>
+        <p>단계별로 여행 계획을 세워보세요.</p>
       </header>
 
-      <!-- === 지도 패널 (추가) ========================================== -->
-      <section class="map-panel" aria-label="지도">
-        <div class="map-head">
-          <h2>지도로 미리 보기</h2>
-          <small style="color:var(--muted)">목록/검색 결과와 동기화됩니다</small>
-        </div>
-        <div id="map" role="application" aria-label="서울 관광지 지도"></div>
-      </section>
-      <!-- =============================================================== -->
+      <div class="mapbox"><div id="map"></div></div>
 
-      <div class="grid">
-        <!-- 좌측: 검색 + 결과목록 -->
-        <main>
-          <h2 class="sr-only" id="placeHeading">관심 장소 선택</h2>
-          <div class="searchbar" role="search" aria-labelledby="searchLabel">
-            <span id="searchLabel" class="sr-only">장소 검색</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M21 21l-4.3-4.3" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
-              <circle cx="11" cy="11" r="7" stroke="#64748b" stroke-width="2" />
-            </svg>
-            <input id="q" placeholder="장소 검색... (예: 남산, 시장, 치킨)" autocomplete="off" aria-describedby="resultCount" />
-          </div>
-          <div class="chips" id="chips" role="group" aria-label="분류 필터"></div>
-          <div class="result-count" id="resultCount" aria-live="polite"></div>
-          <section id="list" class="list" aria-labelledby="placeHeading" aria-live="polite"></section>
-        </main>
-
-        <!-- 우측: 선택된 장소 -->
-        <aside aria-label="선택한 장소">
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-            <h3>선택한 장소</h3>
-            <span class="count" id="selCount">0개</span>
-          </div>
-          <div id="chosen" class="chosen">
-            <div class="empty" id="emptyMsg">아직 선택한 장소가 없습니다.</div>
-          </div>
-          <div class="cta">
-            <div class="progress">1/5 단계</div>
-            <button class="next" id="nextBtn" type="button" disabled>다음</button>
-          </div>
-        </aside>
+      <div class="tabs">
+        <button class="tab active" data-day="1" type="button">Day 1</button>
+        <button class="tab" data-day="2" type="button">Day 2</button>
+        <button class="tab" data-day="3" type="button">Day 3</button>
       </div>
 
-      <!-- 모바일 전용 하단 CTA -->
-      <button type="button" id="mobileNext" class="mobile-cta" aria-live="polite">다음</button>
+      <!-- Day 1: 남포동·중구 시티워크 -->
+      <section class="pane active" data-day="1">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb"><img src="./images/biff.jpg" alt="BIFF 광장" /></div>
+          <div class="content">
+            <div class="title">BIFF 광장</div>
+            <div class="meta">hotspot · <span class="addr">부산광역시 중구 비프광장로 일대</span></div>
+            <div class="rec">부산국제영화제의 상징. 길거리 간식과 포토스팟이 많아요.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb"><img src="./images/jagalchi.jpg" alt="자갈치시장" /></div>
+          <div class="content">
+            <div class="title">자갈치시장</div>
+            <div class="meta">food · <span class="addr">부산광역시 중구 자갈치해안로 52</span></div>
+            <div class="rec">싱싱한 회와 해산물 한상! 실내 시장 2층 식당가 이용 추천.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb"><img src="./images/gukje.jpg" alt="국제시장" /></div>
+          <div class="content">
+            <div class="title">국제시장</div>
+            <div class="meta">shopping · <span class="addr">부산광역시 중구 국제시장2길 일대</span></div>
+            <div class="rec">먹거리·소품 쇼핑 천국. 근처 부평깡통시장 야시장과 함께.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb"><img src="./images/yongdusan.jpg" alt="용두산공원·부산타워" /></div>
+          <div class="content">
+            <div class="title">용두산공원 · 부산타워</div>
+            <div class="meta">view · <span class="addr">부산광역시 중구 용두산길 37-55</span></div>
+            <div class="rec">남포동 전경과 부산항 야경을 한눈에.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb"><img src="./images/bosu.jpg" alt="보수동 책방골목" /></div>
+          <div class="content">
+            <div class="title">보수동 책방골목</div>
+            <div class="meta">culture · <span class="addr">부산광역시 중구 보수동 책방골목길 일대</span></div>
+            <div class="rec">레트로 감성의 헌책방 거리. 카페와 함께 여유롭게 산책.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 2: 해운대·동백섬 라인 -->
+      <section class="pane" data-day="2">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb"><img src="./images/haeundae.jpg" alt="해운대해수욕장" /></div>
+          <div class="content">
+            <div class="title">해운대해수욕장</div>
+            <div class="meta">beach · <span class="addr">부산광역시 해운대구 해운대해변로 일대</span></div>
+            <div class="rec">부산 대표 바다. 오전 산책과 모래놀이터, 서핑 체험까지.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb"><img src="./images/dongbaek.jpg" alt="동백섬·누리마루" /></div>
+          <div class="content">
+            <div class="title">동백섬 · 누리마루 APEC 하우스</div>
+            <div class="meta">trail · <span class="addr">부산광역시 해운대구 동백로 116</span></div>
+            <div class="rec">해안 산책로와 전망 포인트가 이어지는 힐링 코스.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb"><img src="./images/bay101.jpg" alt="더베이101" /></div>
+          <div class="content">
+            <div class="title">더베이101</div>
+            <div class="meta">view · <span class="addr">부산광역시 해운대구 동백로 52</span></div>
+            <div class="rec">마린시티 야경과 요트 선셋 포인트. 야간 방문 추천.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb"><img src="./images/blueline.jpg" alt="블루라인파크 미포" /></div>
+          <div class="content">
+            <div class="title">블루라인파크 미포정거장</div>
+            <div class="meta">ride · <span class="addr">부산광역시 해운대구 달맞이길62번길 13</span></div>
+            <div class="rec">해변열차·스카이캡슐 타고 청사포/송정까지 시원하게.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb"><img src="./images/cheongsapo.jpg" alt="청사포 다릿돌전망대" /></div>
+          <div class="content">
+            <div class="title">청사포 다릿돌전망대</div>
+            <div class="meta">view · <span class="addr">부산광역시 해운대구 청사포로 167</span></div>
+            <div class="rec">유리데크 위 바다 산책. 카페 스트리트와 함께 즐겨요.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Day 3: 영도·사하 절경 라인 -->
+      <section class="pane" data-day="3">
+        <div class="item">
+          <div class="num">1</div>
+          <div class="thumb"><img src="./images/gamcheon.jpg" alt="감천문화마을" /></div>
+          <div class="content">
+            <div class="title">감천문화마을</div>
+            <div class="meta">culture · <span class="addr">부산광역시 사하구 감내2로 203</span></div>
+            <div class="rec">형형색색 골목과 포토존. 스탬프 투어로 재미 더하기.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">2</div>
+          <div class="thumb"><img src="./images/huinnyeoul.jpg" alt="흰여울문화마을" /></div>
+          <div class="content">
+            <div class="title">흰여울문화마을</div>
+            <div class="meta">walk · <span class="addr">부산광역시 영도구 흰여울길 245</span></div>
+            <div class="rec">영도 바다 절벽 위 카페·전망 스폿. 파도 소리와 함께.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">3</div>
+          <div class="thumb"><img src="./images/taejongdae.jpg" alt="태종대" /></div>
+          <div class="content">
+            <div class="title">태종대</div>
+            <div class="meta">nature · <span class="addr">부산광역시 영도구 전망로 24</span></div>
+            <div class="rec">다누비열차로 등대·전망대 순환. 일몰 명소로 유명.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">4</div>
+          <div class="thumb"><img src="./images/songdo.jpg" alt="송도 구름다리" /></div>
+          <div class="content">
+            <div class="title">송도해상케이블카 & 구름다리</div>
+            <div class="meta">ride · <span class="addr">부산광역시 서구 송도해변로 171</span></div>
+            <div class="rec">바다 위를 가르는 케이블카와 유리다리 산책 코스.</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="num">5</div>
+          <div class="thumb"><img src="./images/oryukdo.jpg" alt="오륙도 스카이워크" /></div>
+          <div class="content">
+            <div class="title">오륙도 스카이워크</div>
+            <div class="meta">view · <span class="addr">부산광역시 남구 오륙도로 137</span></div>
+            <div class="rec">유리데크 위 아찔한 바다 전망. 근처 용호동 카페거리도 좋아요.</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="cta"><button>내 일정으로 담기</button></div>
     </div>
 
-    <template id="cardTmpl">
-      <article class="card" data-id="">
-        <img class="thumb" alt="" loading="lazy" />
-        <div class="content">
-          <div class="title"></div>
-          <div class="meta"></div>
-          <div class="tags"></div>
-        </div>
-        <div class="actions">
-          <button class="btn add" type="button">담기</button>
-        </div>
-      </article>
-    </template>
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
+    <script type="module">
+      let initAuthListener = () => {};
+      let getUserId = () => null;
+      let getUserNickname = () => null;
+      try {
+        const mod = await import("/libs/user-manager.js");
+        initAuthListener = mod.initAuthListener ?? initAuthListener;
+        getUserId = mod.getUserId ?? getUserId;
+        getUserNickname = mod.getUserNickname ?? getUserNickname;
+      } catch (e) { console.warn("user-manager.js 로드 실패, 게스트 모드로 계속 진행합니다.", e); }
 
-    <template id="chosenTmpl">
-      <div class="chosen-item">
-        <img alt="" loading="lazy" />
-        <div>
-          <div class="nm"></div>
-          <div class="meta"></div>
-        </div>
-        <button class="x" title="삭제" aria-label="삭제" type="button">×</button>
-      </div>
-    </template>
+      // 사용자 정보 초기화
+      initAuthListener();
+      window.currentUser = null;
+      const userId = getUserId();
+      if (userId) window.currentUser = { id: userId, nickname: getUserNickname() };
 
-    <!-- Leaflet JS -->
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
+      const tabs = document.querySelectorAll(".tab");
+      const panes = document.querySelectorAll(".pane");
 
-    <script>
-      // --- 데이터 샘플 (+ 지도 좌표 추가) -----------------------------------
-      const ALL = [
-        { id: "namsan",    name: "남산타워",       addr: "서울 중구",   type: "관광지", tags: ["전망","야경"],      img: "https://images.unsplash.com/photo-1557064383-7f1b4e3a5e4c?q=80&w=800&auto=format&fit=crop",  lat:37.5512, lng:126.9882 },
-        { id: "gwangjang", name: "광장시장",       addr: "서울 종로구", type: "시장",   tags: ["먹거리","전통"],      img: "https://images.unsplash.com/photo-1526481280698-8fcc12fdf7d5?q=80&w=800&auto=format&fit=crop",  lat:37.5704, lng:126.9997 },
-        { id: "myeongdong",name: "명동 거리",      addr: "서울 중구",   type: "쇼핑",   tags: ["쇼핑","스트리트"],    img: "https://images.unsplash.com/photo-1554784789-0df4b3f9b5ba?q=80&w=800&auto=format&fit=crop",  lat:37.5636, lng:126.9820 },
-        { id: "bukchon",   name: "북촌 한옥마을",   addr: "서울 종로구", type: "문화",   tags: ["한옥","산책"],        img: "https://images.unsplash.com/photo-1576468125261-8f6b5fead5dc?q=80&w=800&auto=format&fit=crop",  lat:37.5826, lng:126.9830 },
-        { id: "garosu",    name: "가로수길",       addr: "서울 강남구", type: "카페",   tags: ["감성","디저트"],      img: "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?q=80&w=800&auto=format&fit=crop",  lat:37.5219, lng:127.0225 },
-        { id: "hanriver",  name: "한강공원(여의도)", addr:"서울 영등포구", type:"자연", tags:["피크닉","자전거"],     img: "https://images.unsplash.com/photo-1581594697960-ccb4c4a9dc0b?q=80&w=800&auto=format&fit=crop",  lat:37.5271, lng:126.9326 },
-        { id: "hongdae",   name: "홍대 거리",       addr:"서울 마포구",  type:"쇼핑",   tags:["공연","스트리트"],     img: "https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?q=80&w=800&auto=format&fit=crop",  lat:37.5563, lng:126.9220 },
-        { id: "63bldg",    name: "63스퀘어",       addr:"서울 영등포구", type:"전망",   tags:["전망대","수족관"],     img: "https://images.unsplash.com/photo-1491553895911-0055eca6402d?q=80&w=800&auto=format&fit=crop",  lat:37.5194, lng:126.9407 },
-      ];
-      const TYPES = ["전체", ...Array.from(new Set(ALL.map((v) => v.type)))];
+      // 각 DAY별 장소 데이터 추출 (키워드 검색용)
+      const dayData = {};
+      const dayPositions = {}; // 좌표 저장용
 
-      // --- 상태 --------------------------------------------------------------
-      const state = { q: "", type: "전체", chosen: loadChosen() };
-
-      // --- 엘리먼트 ---------------------------------------------------------
-      const $chips = document.getElementById("chips");
-      const $list = document.getElementById("list");
-      const $q = document.getElementById("q");
-      const $resultCount = document.getElementById("resultCount");
-      const $chosen = document.getElementById("chosen");
-      const $selCount = document.getElementById("selCount");
-      const $emptyMsg = document.getElementById("emptyMsg");
-      const $nextBtn = document.getElementById("nextBtn");
-      const $mobileNext = document.getElementById("mobileNext");
-
-      // --- 지도 초기화 -------------------------------------------------------
-      const map = L.map('map', { zoomControl: true }).setView([37.5665, 126.9780], 12); // 서울시청 근방
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution:'&copy; OpenStreetMap'
-      }).addTo(map);
-
-      // 마커 레이어 그룹(필터링/갱신 편의)
-      const markersLayer = L.layerGroup().addTo(map);
-      const markerIndex = new Map(); // id -> marker
-
-      // 선택/일반 스타일
-      const normalStyle = { radius: 8, weight: 2, color: '#2563eb', fillColor: '#3b82f6', fillOpacity: 0.85 };
-      const pickedStyle = { radius: 10, weight: 3, color: '#bf125d', fillColor: '#e91e8c', fillOpacity: 0.9 };
-
-      // --- 초기화 -----------------------------------------------------------
-      buildChips();
-      buildMarkers(ALL); // 최초 전체 마커 생성
-      render();
-
-      // --- 이벤트 -----------------------------------------------------------
-      $q.addEventListener("input", (e) => { state.q = e.target.value.trim(); render(); });
-      $q.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") { e.currentTarget.value = ""; state.q = ""; render(); }
+      panes.forEach((pane) => {
+        const day = pane.dataset.day;
+        const items = pane.querySelectorAll(".item");
+        dayData[day] = Array.from(items).map((item) => ({
+          title: item.querySelector(".title").textContent,
+          address: item.querySelector(".addr").textContent.trim(), // 표기용
+        }));
+        dayPositions[day] = [];
       });
-      $nextBtn.addEventListener("click", onNext);
-      $mobileNext.addEventListener("click", onNext);
 
-      // --- 지도: 마커 생성/갱신 ---------------------------------------------
-      function buildMarkers(data) {
-        markersLayer.clearLayers();
-        markerIndex.clear();
-        data.forEach(item => {
-          if (typeof item.lat !== 'number' || typeof item.lng !== 'number') return;
-          const isPicked = state.chosen.includes(item.id);
-          const m = L.circleMarker([item.lat, item.lng], isPicked ? pickedStyle : normalStyle)
-            .bindPopup(`<strong>${item.name}</strong><br/><small>${item.addr}</small>`);
-          m.on('click', () => {
-            // 해당 카드로 스크롤 & 버튼 포커스
-            const card = document.querySelector(\`.card[data-id="\${item.id}"] .add\`) || document.querySelector(\`.card[data-id="\${item.id}"]\`);
-            card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            card?.focus?.();
+      let map = null;
+      let markers = [];
+      let polyline = null;
+      let placesService = null;
+      let currentDay = "1";
+
+      function initKakaoMap() {
+        if (typeof kakao === "undefined" || !kakao.maps) { setTimeout(initKakaoMap, 100); return; }
+        kakao.maps.load(function () {
+          const mapContainer = document.getElementById("map");
+          const mapOption = {
+            center: new kakao.maps.LatLng(35.1796, 129.0756), // 부산 시청 기준
+            level: 6,
+          };
+          map = new kakao.maps.Map(mapContainer, mapOption);
+          placesService = new kakao.maps.services.Places();
+          updateMap("1");
+        });
+      }
+
+      async function keywordToPosition(query) {
+        return new Promise((resolve) => {
+          placesService.keywordSearch(query, function (result, status) {
+            if (status === kakao.maps.services.Status.OK && result[0]) {
+              const r = result[0];
+              resolve({ lat: parseFloat(r.y), lng: parseFloat(r.x) });
+            } else {
+              resolve(null);
+            }
           });
-          m.addTo(markersLayer);
-          markerIndex.set(item.id, m);
         });
-        fitBoundsToVisible();
       }
 
-      function updateMarkerStylesAndVisibility(visibleIds) {
-        markerIndex.forEach((m, id) => {
-          // 보이기/숨기기
-          if (visibleIds.has(id)) {
-            if (!markersLayer.hasLayer(m)) markersLayer.addLayer(m);
-          } else {
-            if (markersLayer.hasLayer(m)) markersLayer.removeLayer(m);
-          }
-          // 스타일 (선택 여부에 따른 하이라이트)
-          const isPicked = state.chosen.includes(id);
-          m.setStyle(isPicked ? pickedStyle : normalStyle);
-        });
-        fitBoundsToVisible();
-      }
+      async function updateMap(day) {
+        currentDay = day;
+        markers.forEach((m) => m.setMap(null));
+        markers = [];
+        if (polyline) { polyline.setMap(null); polyline = null; }
 
-      function fitBoundsToVisible() {
-        const pts = [];
-        markerIndex.forEach((m) => { if (markersLayer.hasLayer(m)) pts.push(m.getLatLng()); });
-        if (pts.length >= 1) {
-          const bounds = L.latLngBounds(pts);
-          map.fitBounds(bounds, { padding: [20, 20] });
+        const places = dayData[day];
+        if (!places || places.length === 0) return;
+
+        const positions = [];
+        for (let i = 0; i < places.length; i++) {
+          const place = places[i];
+          const pos = await keywordToPosition(place.title);
+          if (!pos) continue;
+          positions.push({ ...pos, title: place.title, address: place.address });
+
+          const markerPosition = new kakao.maps.LatLng(pos.lat, pos.lng);
+          const customMarker = createCustomMarker(
+            markerPosition,
+            i + 1,
+            i === 0,
+            i === places.length - 1,
+            place.title
+          );
+          customMarker.setMap(map);
+          markers.push(customMarker);
+        }
+
+        dayPositions[day] = positions;
+
+        if (positions.length >= 2) {
+          const path = positions.map((p) => new kakao.maps.LatLng(p.lat, p.lng));
+          polyline = new kakao.maps.Polyline({ path, strokeWeight: 5, strokeColor: "#e91e8c", strokeOpacity: 0.7, strokeStyle: "solid" });
+          polyline.setMap(map);
+        }
+
+        if (positions.length > 0) {
+          const bounds = new kakao.maps.LatLngBounds();
+          positions.forEach((p) => bounds.extend(new kakao.maps.LatLng(p.lat, p.lng)));
+          map.setBounds(bounds);
         }
       }
 
-      // --- 함수: 렌더 -------------------------------------------------------
-      function render() {
-        const results = ALL.filter(byQuery).filter(byType);
-        $resultCount.textContent = `${results.length}개 결과`;
+      function createCustomMarker(position, label, isStart, isEnd, title) {
+        let bgColor = "#4f46e5"; if (isStart) bgColor = "#10b981"; if (isEnd) bgColor = "#e91e8c";
+        const content = document.createElement("div");
+        content.style.cssText = `position:relative;width:36px;height:36px;background:${bgColor};border:3px solid white;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-weight:bold;color:white;font-size:14px;cursor:pointer;transition:transform .2s ease;`;
+        content.innerHTML = label;
+        content.onmouseover = () => (content.style.transform = "scale(1.2)");
+        content.onmouseout = () => (content.style.transform = "scale(1)");
+        content.title = title;
+        return new kakao.maps.CustomOverlay({ position, content, yAnchor: 0.5 });
+      }
 
-        // 목록
-        $list.innerHTML = "";
-        const frag = document.createDocumentFragment();
-        results.forEach((item) => frag.appendChild(makeCard(item)));
-        $list.appendChild(frag);
+      const tabsWrap = document.querySelector(".tabs");
+      tabsWrap.addEventListener("click", (e) => {
+        const btn = e.target.closest(".tab");
+        if (!btn) return;
+        const day = btn.dataset.day;
+        document.querySelectorAll(".tab").forEach((b) => b.classList.toggle("active", b === btn));
+        document.querySelectorAll(".pane").forEach((p) => p.classList.toggle("active", p.dataset.day === day));
+        if (map) updateMap(day);
+      });
 
-        // 지도 마커 갱신(현재 결과만 보이도록)
-        const visibleIds = new Set(results.map(v => v.id));
-        updateMarkerStylesAndVisibility(visibleIds);
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initKakaoMap);
+      else initKakaoMap();
 
-        // 선택영역
-        $chosen.innerHTML = "";
-        if (state.chosen.length === 0) {
-          $chosen.appendChild($emptyMsg);
-        } else {
-          state.chosen.forEach((id) => {
-            const info = ALL.find((v) => v.id === id);
-            if (!info) return;
-            $chosen.appendChild(makeChosen(info));
-          });
+      // 내 일정 담기
+      document.querySelector(".cta button").addEventListener("click", async function () {
+        if (!window.currentUser) {
+          if (confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) window.location.href = "/auth";
+          return;
         }
-        $selCount.textContent = `${state.chosen.length}개`;
-        const hasSel = state.chosen.length > 0;
-        $nextBtn.disabled = !hasSel;
-        $mobileNext.classList.toggle("show", hasSel);
-
-        saveChosen();
-      }
-
-      function byQuery(v) {
-        if (!state.q) return true;
-        const s = state.q.toLowerCase();
-        return (
-          v.name.toLowerCase().includes(s) ||
-          v.addr.toLowerCase().includes(s) ||
-          v.type.toLowerCase().includes(s) ||
-          v.tags.join(" ").toLowerCase().includes(s)
-        );
-      }
-      function byType(v) {
-        return state.type === "전체" ? true : v.type === state.type;
-      }
-
-      // --- UI 빌더 ---------------------------------------------------------
-      function buildChips() {
-        $chips.innerHTML = "";
-        TYPES.forEach((t) => {
-          const b = document.createElement("button");
-          b.className = "chip";
-          b.type = "button";
-          b.textContent = t;
-          b.setAttribute("aria-pressed", t === state.type ? "true" : "false");
-          if (t === state.type) b.classList.add("active");
-          b.addEventListener("click", () => {
-            state.type = t;
-            document.querySelectorAll(".chip").forEach((c) => {
-              c.classList.remove("active");
-              c.setAttribute("aria-pressed", "false");
-            });
-            b.classList.add("active");
-            b.setAttribute("aria-pressed", "true");
-            render();
-          });
-          $chips.appendChild(b);
-        });
-      }
-
-      function makeCard(item) {
-        const tmpl = document.getElementById("cardTmpl").content.cloneNode(true);
-        const el = tmpl.querySelector(".card");
-        el.dataset.id = item.id;
-        const img = el.querySelector("img");
-        const title = el.querySelector(".title");
-        const meta = el.querySelector(".meta");
-        const tags = el.querySelector(".tags");
-        const addBtn = el.querySelector(".add");
-
-        img.src = item.img;
-        img.alt = item.name;
-        title.textContent = item.name;
-        meta.textContent = `${item.type} · ${item.addr}`;
-        tags.innerHTML = item.tags.map((t) => `<span class="tag">${t}</span>`).join("");
-
-        const isPicked = state.chosen.includes(item.id);
-        addBtn.textContent = isPicked ? "담김" : "담기";
-        addBtn.disabled = isPicked;
-        addBtn.addEventListener("click", () => {
-          if (!state.chosen.includes(item.id)) {
-            state.chosen.push(item.id);
-            // 마커 하이라이트 즉시 반영
-            const m = markerIndex.get(item.id);
-            m?.setStyle(pickedStyle);
-            render();
-          }
-        });
-
-        // 카드 클릭 시 해당 위치로 지도 이동
-        el.addEventListener('click', (e) => {
-          if (e.target.closest('.add')) return;
-          const m = markerIndex.get(item.id);
-          if (m) {
-            map.setView(m.getLatLng(), 14, { animate: true });
-            m.openPopup();
-          }
-        });
-
-        return el;
-      }
-
-      function makeChosen(item) {
-        const tmpl = document.getElementById("chosenTmpl").content.cloneNode(true);
-        const el = tmpl.querySelector(".chosen-item");
-        const img = el.querySelector("img");
-        const nameEl = el.querySelector(".nm");
-        const metaEl = el.querySelector(".meta");
-        const delBtn = el.querySelector(".x");
-
-        img.src = item.img;
-        img.alt = item.name;
-        nameEl.textContent = item.name;
-        metaEl.textContent = `${item.type} · ${item.addr}`;
-        delBtn.addEventListener("click", () => {
-          state.chosen = state.chosen.filter((id) => id !== item.id);
-          // 마커 스타일 원복
-          markerIndex.get(item.id)?.setStyle(normalStyle);
-          render();
-          // 삭제 후 포커스 이동
-          const nextFocusable = $chosen.querySelector(".x") || document.getElementById("q");
-          nextFocusable?.focus?.();
-        });
-        return el;
-      }
-
-      // --- 저장/불러오기 ----------------------------------------------------
-      function saveChosen() {
-        try { localStorage.setItem("chosenPlaces", JSON.stringify(state.chosen)); } catch (_) {}
-      }
-      function loadChosen() {
-        try { return JSON.parse(localStorage.getItem("chosenPlaces") || "[]"); } catch (_) { return []; }
-      }
-
-      // --- 다음 버튼 핸들러 -------------------------------------------------
-      function onNext() {
-        if (state.chosen.length === 0) return;
-        const names = state.chosen.map((id) => ALL.find((v) => v.id === id)?.name).filter(Boolean);
-        alert(`다음 단계로 이동합니다.\n선택한 장소: ${names.join(", ")}`);
-        console.log("[NEXT]", names);
-        window.location.hash = "#step2";
-      }
+        const currentDayPlaces = dayPositions[currentDay];
+        if (!currentDayPlaces || currentDayPlaces.length === 0) { alert("장소 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요."); return; }
+        const userId = window.currentUser.id;
+        const courseName = prompt("코스 이름을 입력하세요", `부산 여행 Day ${currentDay}`);
+        if (!courseName) return;
+        try {
+          const places = currentDayPlaces.map((pos) => ({ name: pos.title, lat: pos.lat, lng: pos.lng, mediaTitle: "", placeId: null }));
+          const res = await fetch("/api/course", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId, name: courseName, places }) });
+          const data = await res.json();
+          if (data.success) alert(`🎉 저장 완료!\n코스 ID: ${data.courseId}\n\n마이페이지에서 확인하실 수 있습니다.`);
+          else alert("저장에 실패했습니다 😢");
+        } catch (err) {
+          console.error("코스 저장 오류:", err);
+          alert("저장 중 오류가 발생했습니다 😢");
+        }
+      });
     </script>
   </body>
 </html>
