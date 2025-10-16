@@ -1070,7 +1070,15 @@
         }
       }
 
-      kakao.maps.load(function () {
+      // Kakao Maps SDK 로드 대기 및 초기화
+      function initKakaoMap() {
+        if (typeof kakao === 'undefined' || !kakao.maps) {
+          console.log('Kakao Maps SDK 로드 대기 중...');
+          setTimeout(initKakaoMap, 100);
+          return;
+        }
+
+        kakao.maps.load(function () {
         var map = new kakao.maps.Map(document.getElementById("map"), {
           center: new kakao.maps.LatLng(37.5665, 126.978),
           level: 5,
@@ -1641,6 +1649,14 @@
           }
         };
       });
+      }
+
+      // 페이지 로드 완료 후 Kakao Maps 초기화
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initKakaoMap);
+      } else {
+        initKakaoMap();
+      }
     </script>
   </body>
 </html>

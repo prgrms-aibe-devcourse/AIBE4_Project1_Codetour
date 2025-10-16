@@ -520,11 +520,22 @@
 
     <!-- Scripts -->
     <!-- Bootstrap 핵심 JavaScript -->
-    <script src="jquery.min.js"></script>
-    <script src="bootstrap.min.js"></script>
-    <script src="isotope.min.js"></script>
-    <script src="owl-carousel.js"></script>
-    <script src="counter.js"></script>
-    <script src="custom.js"></script>
+    <script src="/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/isotope.min.js"></script>
+    <script src="/owl-carousel.js"></script>
+    <script src="/counter.js"></script>
+    <script src="/custom.js"></script>
+
+    <!-- 로그인 기능 스크립트 -->
+    <script src="/libs/userManager.js"></script>
+    <script>
+      // auth.js가 라우팅에 사용할 경로 정의
+      window.AUTH_PATHS = {
+        INDEX: "/",
+        SET_NICK: "/auth/set-nickname.html",
+      };
+    </script>
+    <script type="module" src="/auth/auth.js"></script>
   </body>
 </html>
