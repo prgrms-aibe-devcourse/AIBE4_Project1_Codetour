@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>상세 정보 - CodeTour</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="contentstyle.css" />
+    <link rel="stylesheet" href="/source/pages/index/style.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/swiper/swiper-bundle.min.css"
@@ -13,24 +14,80 @@
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
   </head>
   <body>
-    <header>
+    <header class="header">
       <div class="container">
-        <div class="logo-container">
-          <div class="logo-text">CodeTour</div>
+        <div class="header-top">
+          <a href="/source/pages/index/index.html" class="logo">
+            <svg
+              width="200"
+              height="50"
+              viewBox="0 0 200 50"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient
+                  id="logoGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
+                  <stop
+                    offset="0%"
+                    style="stop-color: #e91e8c; stop-opacity: 1"
+                  />
+                  <stop
+                    offset="100%"
+                    style="stop-color: #ff6b9d; stop-opacity: 1"
+                  />
+                </linearGradient>
+                <style>
+                  .logo-text {
+                    font-family: "Pretendard", sans-serif;
+                    font-weight: 800;
+                    font-size: 40px;
+                    fill: url(#logoGradient);
+                    letter-spacing: -1px;
+                  }
+                </style>
+              </defs>
+              <text x="0" y="37" class="logo-text">K</text>
+              <text x="30" y="37" class="logo-text">-</text>
+              <text x="44" y="37" class="logo-text">S</text>
+              <text x="70" y="37" class="logo-text">P</text>
+              <g class="logo-pin" transform="translate(95.5, 4) scale(0.93)">
+                <path
+                  d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z"
+                  fill="url(#logoGradient)"
+                />
+                <circle cx="18" cy="13" r="8" fill="white" />
+              </g>
+              <text x="128" y="37" class="logo-text">T</text>
+            </svg>
+          </a>
+
+          <div
+            class="header-right"
+            style="display: flex; gap: 8px; align-items: center"
+          >
+            <button class="btn-search" id="searchToggle">🔍</button>
+
+            <span id="greeting" class="hide"
+              >안녕하세요, <span id="nickname"></span>님</span
+            >
+            <button id="loginBtn">로그인</button>
+            <button id="logoutBtn" class="hide">로그아웃</button>
+          </div>
         </div>
-        <div class="action-container">
-          <button>로그인</button>
-          <button>회원가입</button>
-        </div>
-      </div>
-      <nav>
-        <a href="index.html">홈</a>
-        <a href="contents.html">콘텐츠별 여행지</a>
-        <a href="#">지역별 탐색</a>
-        <a href="#">여행 코스</a>
-        <a href="#">인기 여행 루트</a>
-        <a href="#">마이페이지</a>
-      </nav>
+
+        <nav class="nav">
+          <a href="/source/pages/index/index.html" class="nav-link">홈</a>
+          <a href="/source/pages/contents/contents.html" class="nav-link">콘텐츠별 여행지</a>
+          <a href="/source/pages/aiCourse/aiSchedule.html" class="nav-link">AI 코스 추천</a>
+          <a href="/source/pages/map/map_page.html" class="nav-link">K-콘텐츠 여행 지도</a>
+          <a href="/source/pages/index/index.html#routes" class="nav-link">인기 여행 루트</a>
+          <a href="/my-page" class="nav-link">마이페이지</a>
+        </nav>
     </header>
 
     <main>
@@ -42,6 +99,18 @@
     <footer>
       <p>&copy; Kspot</p>
     </footer>
+
+    <script>
+      // auth.js에서 사용할 경로 설정
+      window.AUTH_PATHS = {
+        INDEX: "/source/pages/index/index.html",
+        SET_NICK: "/auth/set-nickname.html",
+      };
+    </script>
+    <script type="module" src="/auth/auth.js"></script>
+
+    <!-- 헤더 인라인 검색 스크립트 (index.html과 동일) -->
+    <script type="module" src="/source/pages/index/header-search.js"></script>
 
     <script type="module">
       let supabase;

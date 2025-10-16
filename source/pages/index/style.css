@@ -428,6 +428,8 @@ html[lang="ja"] .nav-link {
 }
 
 .btn-hero {
+  display: inline-block;
+  text-decoration: none; 
   padding: 1rem 3rem;
   font-size: 1.3rem;
   font-weight: 700;
@@ -446,6 +448,13 @@ html[lang="ja"] .nav-link {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
   background: var(--white);
   color: #ff6b9d;
+}
+
+.btn-hero:visited,
+.btn-hero:active,
+.btn-hero:focus {
+  color: #ff6b9d;
+  text-decoration: none;
 }
 
 @keyframes fadeInUp {
@@ -971,4 +980,38 @@ html[lang="ja"] .nav-link {
 /* 전역 숨김 유틸 */
 .hide {
   display: none !important;
+}
+
+/* 카드 이미지 컨테이너 */
+.card-media { position: relative; }
+
+/* 기본 배지 */
+.card-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3b82f6;
+}
+
+/* 이미지 위 오버레이용(왼쪽 상단 고정) */
+.card-badge--overlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* 카드 이미지(있을 때) */
+.card-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+  border-radius: 16px 16px 0 0;
 }

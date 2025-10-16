@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CodeTour</title>
+    <title>K-Spot - 한류 콘텐츠 여행 플랫폼</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="/source/pages/index/style.css" />
     <!-- <link rel="stylesheet" href="contents-style.css" /> -->
@@ -49,6 +49,19 @@
     <footer>
       <p>&copy; Kspot</p>
     </footer>
+
+    <script>
+      // auth.js에서 사용할 경로 설정
+      window.AUTH_PATHS = {
+        INDEX: "/source/pages/index/index.html",
+        SET_NICK: "/auth/set-nickname.html",
+      };
+    </script>
+    <script type="module" src="/auth/auth.js"></script>
+
+    <!-- 헤더 인라인 검색 스크립트 (index.html과 동일) -->
+    <script type="module" src="/source/pages/index/header-search.js"></script>
+
 
     <div id="modal" class="modal">
       <div class="modal-content">

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>서울 추천일정 — 장소 선택</title>
+
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+
+    <style>
+      :root {
+        --brand: #e91e8c;
+        --txt: #0f172a;
+        --muted: #64748b;
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --line: #e2e8f0;
+        --chip: #f1f5f9;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system,
+          "Apple SD Gothic Neo", "Malgun Gothic", "Nanum Gothic", sans-serif;
+        color: var(--txt);
+        background: var(--bg);
+      }
+      a { color: inherit; }
+
+      .wrap { width: min(1200px, 94vw); margin: 28px auto 80px; }
+
+      /* ── 헤더/스텝 ─────────────────────────────────────────── */
+      header {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 12px; margin-bottom: 14px;
+      }
+      header h1 { margin: 0; font-size: 24px; }
+      .steps { display: flex; gap: 18px; align-items: center; color: var(--muted); }
+      .step { display: grid; grid-template-columns: 28px auto; align-items: center; gap: 8px; }
+      .step .dot {
+        width: 28px; height: 28px; border-radius: 999px; display: grid; place-items: center;
+        border: 2px solid var(--line); color: #475569; background: #fff; font-weight: 700;
+      }
+      .step.active .dot { background: var(--brand); color: #fff; border-color: var(--brand); }
+      .step .label { font-weight: 600; font-size: 14px; }
+
+      /* ── 레이아웃 ─────────────────────────────────────────── */
+      .grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; align-items: start; }
+      @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+
+      /* ── 지도 패널 ───────────────────────────────────────── */
+      .map-panel {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px;
+        margin: 10px 0 16px;
+      }
+      .map-head {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 8px; margin-bottom: 10px;
+      }
+      .map-head h2 { margin: 0; font-size: 16px; }
+      #map { height: 320px; width: 100%; border-radius: 10px; }
+      @media (max-width: 980px) { #map { height: 260px; } }
+
+      /* ── 좌측: 검색/필터/목록 ─────────────────────────────── */
+      .searchbar {
+        display: flex; gap: 8px; align-items: center; background: var(--card);
+        border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px;
+      }
+      .searchbar input {
+        width: 100%; border: none; outline: none; font-size: 15px; background: transparent;
+      }
+      .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
+      .chip {
+        border: 1px solid var(--line); background: var(--chip);
+        padding: 7px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; cursor: pointer;
+      }
+      .chip.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+      .result-count { color: var(--muted); font-size: 13px; margin: 10px 0; }
+
+      .list { display: grid; gap: 10px; }
+      .card {
+        display: grid; grid-template-columns: 108px auto 88px; gap: 12px;
+        background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+      }
+      .card .thumb { height: 84px; width: 108px; background: #e2e8f0; object-fit: cover; }
+      .card .content { padding: 12px 0; display: grid; align-content: center; gap: 4px; }
+      .title { font-weight: 800; }
+      .meta { color: var(--muted); font-size: 12px; }
+      .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+      .tag {
+        font-size: 11px; padding: 3px 8px; border-radius: 999px; background: #f8fafc;
+        border: 1px solid var(--line); color: #334155;
+      }
+      .actions { display: grid; place-items: center; padding: 10px; }
+      .btn {
+        border: none; border-radius: 10px; padding: 10px 12px; font-weight: 800; cursor: pointer;
+        background: var(--brand); color: #fff; width: 100%;
+      }
+      .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+      .btn.secondary { background: #e2e8f0; color: #0f172a; font-weight: 700; }
+
+      /* ── 우측: 선택한 장소 ───────────────────────────────── */
+      aside {
+        position: sticky; top: 16px; background: var(--card); border: 1px solid var(--line);
+        border-radius: 14px; padding: 14px;
+      }
+      aside h3 { margin: 4px 0 10px; font-size: 16px; }
+      .count { color: var(--muted); font-size: 13px; }
+      .chosen { display: grid; gap: 10px; margin-top: 10px; }
+      .chosen-item {
+        display: grid; grid-template-columns: 64px auto 24px; gap: 10px; align-items: center;
+        border: 1px dashed var(--line); border-radius: 12px; padding: 8px;
+      }
+      .chosen-item img { width: 64px; height: 48px; object-fit: cover; border-radius: 8px; }
+      .chosen-item .nm { font-weight: 700; font-size: 14px; }
+      .x { cursor: pointer; font-weight: 900; color: #334155; text-align: center; }
+      .empty { text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 12px; padding: 18px 10px; }
+
+      /* ── CTA ─────────────────────────────────────────────── */
+      .cta { margin-top: 16px; display: flex; justify-content: flex-end; gap: 8px; }
+      .progress { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; }
+      .next {
+        background: var(--brand); color: white; border: none; border-radius: 999px;
+        padding: 12px 18px; font-weight: 800; cursor: pointer;
+      }
+      .next[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+      /* 모바일 하단 고정 CTA */
+      .mobile-cta {
+        position: fixed; left: 50%; transform: translateX(-50%); bottom: 16px; z-index: 20;
+        border: none; border-radius: 999px; padding: 14px 22px; font-weight: 800;
+        background: var(--brand); color: #fff; display: none; box-shadow: 0 12px 24px rgba(0,0,0,.12);
+      }
+      .mobile-cta.show { display: inline-block; }
+      @media (min-width: 981px) { .mobile-cta { display: none !important; } }
+
+      /* ── 접근성 유틸 ─────────────────────────────────────── */
+      .sr-only {
+        position: absolute; clip: rect(1px, 1px, 1px, 1px);
+        padding: 0; border: 0; height: 1px; width: 1px; overflow: hidden;
+      }
+      .chip:focus-visible,
+      .btn:focus-visible,
+      .next:focus-visible,
+      .x:focus-visible,
+      .searchbar input:focus-visible {
+        outline: 3px solid #94a3b8;
+        outline-offset: 2px;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>서울 추천일정</h1>
+        <nav class="steps" aria-label="단계">
+          <div class="step active"><div class="dot">1</div><div class="label">장소 선택</div></div>
+          <div class="step"><div class="dot">2</div><div class="label">기간 설정</div></div>
+          <div class="step"><div class="dot">3</div><div class="label">이동 수단</div></div>
+          <div class="step"><div class="dot">4</div><div class="label">예산 설정</div></div>
+          <div class="step"><div class="dot">5</div><div class="label">동행자 정보</div></div>
+        </nav>
+      </header>
+
+      <!-- === 지도 패널 (추가) ========================================== -->
+      <section class="map-panel" aria-label="지도">
+        <div class="map-head">
+          <h2>지도로 미리 보기</h2>
+          <small style="color:var(--muted)">목록/검색 결과와 동기화됩니다</small>
+        </div>
+        <div id="map" role="application" aria-label="서울 관광지 지도"></div>
+      </section>
+      <!-- =============================================================== -->
+
+      <div class="grid">
+        <!-- 좌측: 검색 + 결과목록 -->
+        <main>
+          <h2 class="sr-only" id="placeHeading">관심 장소 선택</h2>
+          <div class="searchbar" role="search" aria-labelledby="searchLabel">
+            <span id="searchLabel" class="sr-only">장소 검색</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21 21l-4.3-4.3" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+              <circle cx="11" cy="11" r="7" stroke="#64748b" stroke-width="2" />
+            </svg>
+            <input id="q" placeholder="장소 검색... (예: 남산, 시장, 치킨)" autocomplete="off" aria-describedby="resultCount" />
+          </div>
+          <div class="chips" id="chips" role="group" aria-label="분류 필터"></div>
+          <div class="result-count" id="resultCount" aria-live="polite"></div>
+          <section id="list" class="list" aria-labelledby="placeHeading" aria-live="polite"></section>
+        </main>
+
+        <!-- 우측: 선택된 장소 -->
+        <aside aria-label="선택한 장소">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+            <h3>선택한 장소</h3>
+            <span class="count" id="selCount">0개</span>
+          </div>
+          <div id="chosen" class="chosen">
+            <div class="empty" id="emptyMsg">아직 선택한 장소가 없습니다.</div>
+          </div>
+          <div class="cta">
+            <div class="progress">1/5 단계</div>
+            <button class="next" id="nextBtn" type="button" disabled>다음</button>
+          </div>
+        </aside>
+      </div>
+
+      <!-- 모바일 전용 하단 CTA -->
+      <button type="button" id="mobileNext" class="mobile-cta" aria-live="polite">다음</button>
+    </div>
+
+    <template id="cardTmpl">
+      <article class="card" data-id="">
+        <img class="thumb" alt="" loading="lazy" />
+        <div class="content">
+          <div class="title"></div>
+          <div class="meta"></div>
+          <div class="tags"></div>
+        </div>
+        <div class="actions">
+          <button class="btn add" type="button">담기</button>
+        </div>
+      </article>
+    </template>
+
+    <template id="chosenTmpl">
+      <div class="chosen-item">
+        <img alt="" loading="lazy" />
+        <div>
+          <div class="nm"></div>
+          <div class="meta"></div>
+        </div>
+        <button class="x" title="삭제" aria-label="삭제" type="button">×</button>
+      </div>
+    </template>
+
+    <!-- Leaflet JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+
+    <script>
+      // --- 데이터 샘플 (+ 지도 좌표 추가) -----------------------------------
+      const ALL = [
+        { id: "namsan",    name: "남산타워",       addr: "서울 중구",   type: "관광지", tags: ["전망","야경"],      img: "https://images.unsplash.com/photo-1557064383-7f1b4e3a5e4c?q=80&w=800&auto=format&fit=crop",  lat:37.5512, lng:126.9882 },
+        { id: "gwangjang", name: "광장시장",       addr: "서울 종로구", type: "시장",   tags: ["먹거리","전통"],      img: "https://images.unsplash.com/photo-1526481280698-8fcc12fdf7d5?q=80&w=800&auto=format&fit=crop",  lat:37.5704, lng:126.9997 },
+        { id: "myeongdong",name: "명동 거리",      addr: "서울 중구",   type: "쇼핑",   tags: ["쇼핑","스트리트"],    img: "https://images.unsplash.com/photo-1554784789-0df4b3f9b5ba?q=80&w=800&auto=format&fit=crop",  lat:37.5636, lng:126.9820 },
+        { id: "bukchon",   name: "북촌 한옥마을",   addr: "서울 종로구", type: "문화",   tags: ["한옥","산책"],        img: "https://images.unsplash.com/photo-1576468125261-8f6b5fead5dc?q=80&w=800&auto=format&fit=crop",  lat:37.5826, lng:126.9830 },
+        { id: "garosu",    name: "가로수길",       addr: "서울 강남구", type: "카페",   tags: ["감성","디저트"],      img: "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?q=80&w=800&auto=format&fit=crop",  lat:37.5219, lng:127.0225 },
+        { id: "hanriver",  name: "한강공원(여의도)", addr:"서울 영등포구", type:"자연", tags:["피크닉","자전거"],     img: "https://images.unsplash.com/photo-1581594697960-ccb4c4a9dc0b?q=80&w=800&auto=format&fit=crop",  lat:37.5271, lng:126.9326 },
+        { id: "hongdae",   name: "홍대 거리",       addr:"서울 마포구",  type:"쇼핑",   tags:["공연","스트리트"],     img: "https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?q=80&w=800&auto=format&fit=crop",  lat:37.5563, lng:126.9220 },
+        { id: "63bldg",    name: "63스퀘어",       addr:"서울 영등포구", type:"전망",   tags:["전망대","수족관"],     img: "https://images.unsplash.com/photo-1491553895911-0055eca6402d?q=80&w=800&auto=format&fit=crop",  lat:37.5194, lng:126.9407 },
+      ];
+      const TYPES = ["전체", ...Array.from(new Set(ALL.map((v) => v.type)))];
+
+      // --- 상태 --------------------------------------------------------------
+      const state = { q: "", type: "전체", chosen: loadChosen() };
+
+      // --- 엘리먼트 ---------------------------------------------------------
+      const $chips = document.getElementById("chips");
+      const $list = document.getElementById("list");
+      const $q = document.getElementById("q");
+      const $resultCount = document.getElementById("resultCount");
+      const $chosen = document.getElementById("chosen");
+      const $selCount = document.getElementById("selCount");
+      const $emptyMsg = document.getElementById("emptyMsg");
+      const $nextBtn = document.getElementById("nextBtn");
+      const $mobileNext = document.getElementById("mobileNext");
+
+      // --- 지도 초기화 -------------------------------------------------------
+      const map = L.map('map', { zoomControl: true }).setView([37.5665, 126.9780], 12); // 서울시청 근방
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution:'&copy; OpenStreetMap'
+      }).addTo(map);
+
+      // 마커 레이어 그룹(필터링/갱신 편의)
+      const markersLayer = L.layerGroup().addTo(map);
+      const markerIndex = new Map(); // id -> marker
+
+      // 선택/일반 스타일
+      const normalStyle = { radius: 8, weight: 2, color: '#2563eb', fillColor: '#3b82f6', fillOpacity: 0.85 };
+      const pickedStyle = { radius: 10, weight: 3, color: '#bf125d', fillColor: '#e91e8c', fillOpacity: 0.9 };
+
+      // --- 초기화 -----------------------------------------------------------
+      buildChips();
+      buildMarkers(ALL); // 최초 전체 마커 생성
+      render();
+
+      // --- 이벤트 -----------------------------------------------------------
+      $q.addEventListener("input", (e) => { state.q = e.target.value.trim(); render(); });
+      $q.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") { e.currentTarget.value = ""; state.q = ""; render(); }
+      });
+      $nextBtn.addEventListener("click", onNext);
+      $mobileNext.addEventListener("click", onNext);
+
+      // --- 지도: 마커 생성/갱신 ---------------------------------------------
+      function buildMarkers(data) {
+        markersLayer.clearLayers();
+        markerIndex.clear();
+        data.forEach(item => {
+          if (typeof item.lat !== 'number' || typeof item.lng !== 'number') return;
+          const isPicked = state.chosen.includes(item.id);
+          const m = L.circleMarker([item.lat, item.lng], isPicked ? pickedStyle : normalStyle)
+            .bindPopup(`<strong>${item.name}</strong><br/><small>${item.addr}</small>`);
+          m.on('click', () => {
+            // 해당 카드로 스크롤 & 버튼 포커스
+            const card = document.querySelector(\`.card[data-id="\${item.id}"] .add\`) || document.querySelector(\`.card[data-id="\${item.id}"]\`);
+            card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            card?.focus?.();
+          });
+          m.addTo(markersLayer);
+          markerIndex.set(item.id, m);
+        });
+        fitBoundsToVisible();
+      }
+
+      function updateMarkerStylesAndVisibility(visibleIds) {
+        markerIndex.forEach((m, id) => {
+          // 보이기/숨기기
+          if (visibleIds.has(id)) {
+            if (!markersLayer.hasLayer(m)) markersLayer.addLayer(m);
+          } else {
+            if (markersLayer.hasLayer(m)) markersLayer.removeLayer(m);
+          }
+          // 스타일 (선택 여부에 따른 하이라이트)
+          const isPicked = state.chosen.includes(id);
+          m.setStyle(isPicked ? pickedStyle : normalStyle);
+        });
+        fitBoundsToVisible();
+      }
+
+      function fitBoundsToVisible() {
+        const pts = [];
+        markerIndex.forEach((m) => { if (markersLayer.hasLayer(m)) pts.push(m.getLatLng()); });
+        if (pts.length >= 1) {
+          const bounds = L.latLngBounds(pts);
+          map.fitBounds(bounds, { padding: [20, 20] });
+        }
+      }
+
+      // --- 함수: 렌더 -------------------------------------------------------
+      function render() {
+        const results = ALL.filter(byQuery).filter(byType);
+        $resultCount.textContent = `${results.length}개 결과`;
+
+        // 목록
+        $list.innerHTML = "";
+        const frag = document.createDocumentFragment();
+        results.forEach((item) => frag.appendChild(makeCard(item)));
+        $list.appendChild(frag);
+
+        // 지도 마커 갱신(현재 결과만 보이도록)
+        const visibleIds = new Set(results.map(v => v.id));
+        updateMarkerStylesAndVisibility(visibleIds);
+
+        // 선택영역
+        $chosen.innerHTML = "";
+        if (state.chosen.length === 0) {
+          $chosen.appendChild($emptyMsg);
+        } else {
+          state.chosen.forEach((id) => {
+            const info = ALL.find((v) => v.id === id);
+            if (!info) return;
+            $chosen.appendChild(makeChosen(info));
+          });
+        }
+        $selCount.textContent = `${state.chosen.length}개`;
+        const hasSel = state.chosen.length > 0;
+        $nextBtn.disabled = !hasSel;
+        $mobileNext.classList.toggle("show", hasSel);
+
+        saveChosen();
+      }
+
+      function byQuery(v) {
+        if (!state.q) return true;
+        const s = state.q.toLowerCase();
+        return (
+          v.name.toLowerCase().includes(s) ||
+          v.addr.toLowerCase().includes(s) ||
+          v.type.toLowerCase().includes(s) ||
+          v.tags.join(" ").toLowerCase().includes(s)
+        );
+      }
+      function byType(v) {
+        return state.type === "전체" ? true : v.type === state.type;
+      }
+
+      // --- UI 빌더 ---------------------------------------------------------
+      function buildChips() {
+        $chips.innerHTML = "";
+        TYPES.forEach((t) => {
+          const b = document.createElement("button");
+          b.className = "chip";
+          b.type = "button";
+          b.textContent = t;
+          b.setAttribute("aria-pressed", t === state.type ? "true" : "false");
+          if (t === state.type) b.classList.add("active");
+          b.addEventListener("click", () => {
+            state.type = t;
+            document.querySelectorAll(".chip").forEach((c) => {
+              c.classList.remove("active");
+              c.setAttribute("aria-pressed", "false");
+            });
+            b.classList.add("active");
+            b.setAttribute("aria-pressed", "true");
+            render();
+          });
+          $chips.appendChild(b);
+        });
+      }
+
+      function makeCard(item) {
+        const tmpl = document.getElementById("cardTmpl").content.cloneNode(true);
+        const el = tmpl.querySelector(".card");
+        el.dataset.id = item.id;
+        const img = el.querySelector("img");
+        const title = el.querySelector(".title");
+        const meta = el.querySelector(".meta");
+        const tags = el.querySelector(".tags");
+        const addBtn = el.querySelector(".add");
+
+        img.src = item.img;
+        img.alt = item.name;
+        title.textContent = item.name;
+        meta.textContent = `${item.type} · ${item.addr}`;
+        tags.innerHTML = item.tags.map((t) => `<span class="tag">${t}</span>`).join("");
+
+        const isPicked = state.chosen.includes(item.id);
+        addBtn.textContent = isPicked ? "담김" : "담기";
+        addBtn.disabled = isPicked;
+        addBtn.addEventListener("click", () => {
+          if (!state.chosen.includes(item.id)) {
+            state.chosen.push(item.id);
+            // 마커 하이라이트 즉시 반영
+            const m = markerIndex.get(item.id);
+            m?.setStyle(pickedStyle);
+            render();
+          }
+        });
+
+        // 카드 클릭 시 해당 위치로 지도 이동
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.add')) return;
+          const m = markerIndex.get(item.id);
+          if (m) {
+            map.setView(m.getLatLng(), 14, { animate: true });
+            m.openPopup();
+          }
+        });
+
+        return el;
+      }
+
+      function makeChosen(item) {
+        const tmpl = document.getElementById("chosenTmpl").content.cloneNode(true);
+        const el = tmpl.querySelector(".chosen-item");
+        const img = el.querySelector("img");
+        const nameEl = el.querySelector(".nm");
+        const metaEl = el.querySelector(".meta");
+        const delBtn = el.querySelector(".x");
+
+        img.src = item.img;
+        img.alt = item.name;
+        nameEl.textContent = item.name;
+        metaEl.textContent = `${item.type} · ${item.addr}`;
+        delBtn.addEventListener("click", () => {
+          state.chosen = state.chosen.filter((id) => id !== item.id);
+          // 마커 스타일 원복
+          markerIndex.get(item.id)?.setStyle(normalStyle);
+          render();
+          // 삭제 후 포커스 이동
+          const nextFocusable = $chosen.querySelector(".x") || document.getElementById("q");
+          nextFocusable?.focus?.();
+        });
+        return el;
+      }
+
+      // --- 저장/불러오기 ----------------------------------------------------
+      function saveChosen() {
+        try { localStorage.setItem("chosenPlaces", JSON.stringify(state.chosen)); } catch (_) {}
+      }
+      function loadChosen() {
+        try { return JSON.parse(localStorage.getItem("chosenPlaces") || "[]"); } catch (_) { return []; }
+      }
+
+      // --- 다음 버튼 핸들러 -------------------------------------------------
+      function onNext() {
+        if (state.chosen.length === 0) return;
+        const names = state.chosen.map((id) => ALL.find((v) => v.id === id)?.name).filter(Boolean);
+        alert(`다음 단계로 이동합니다.\n선택한 장소: ${names.join(", ")}`);
+        console.log("[NEXT]", names);
+        window.location.hash = "#step2";
+      }
+    </script>
+  </body>
+</html>

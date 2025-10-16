@@ -518,6 +518,31 @@
         height: 40px !important;
         border: none !important;
         border-radius: 8px !important;
+        cursor: pointer !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        transition: all 0.3s ease !important;
+      }
+
+      .header #loginBtn:hover {
+        background: #d01a7a !important;
+        transform: translateY(-1px) !important;
+      }
+
+      .header .btn-search {
+        background: transparent !important;
+        border: 1px solid #e5e7eb !important;
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        font-size: 18px !important;
+        transition: all 0.3s ease !important;
+      }
+
+      .header .btn-search:hover {
+        background: #f9fafb !important;
+        border-color: #d1d5db !important;
       }
 
       .header .home-btn {
@@ -639,48 +664,74 @@
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
     <script type="module">
       // Supabase Auth 연동
-      import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+      import {
+        initAuthListener,
+        getIsLoggedIn,
+        getUserNickname,
+        getUserId,
+      } from "/libs/user-manager.js";
 
-      const supabase = createClient(
-        "https://fmcxkqfccuevcaqkzsex.supabase.co",
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtY3hrcWZjY3VldmNhcWt6c2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNzk3MzcsImV4cCI6MjA3NDk1NTczN30.IZ47Juv0ypiX4sWTb1vo54hcMI0yBQol1VhUm37vs7M"
-      );
-
-      window.supabase = supabase;
       window.currentUser = null;
 
       // 로그인 상태 확인
       async function checkAuth() {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        window.currentUser = user;
+        initAuthListener();
+        const isLoggedIn = getIsLoggedIn();
+        const userId = getUserId();
 
-        // 로그인 버튼 표시/숨김
-        const headerRight = document.querySelector(".header-right");
-        if (user) {
-          // 로그인된 상태 - 사용자 정보 표시
-          const userInfo = document.createElement("span");
-          userInfo.style.cssText =
-            "color: white; margin-right: 10px; font-weight: 600;";
-          userInfo.textContent = `${user.email}`;
-          headerRight.insertBefore(userInfo, headerRight.firstChild);
+        const loginBtn = document.getElementById("loginBtn");
+        const langSelect = document.querySelector(".lang-select");
+        const searchBtn = document.querySelector(".btn-search");
 
-          const logoutBtn = document.createElement("button");
-          logoutBtn.className = "home-btn";
-          logoutBtn.textContent = "로그아웃";
-          logoutBtn.onclick = async () => {
-            await supabase.auth.signOut();
-            window.location.reload();
-          };
-          headerRight.appendChild(logoutBtn);
+        if (isLoggedIn && userId) {
+          // 로그인된 상태
+          const nickname = getUserNickname();
+          window.currentUser = { id: userId, nickname };
+
+          // 로그인 버튼을 로그아웃 버튼으로 변경
+          if (loginBtn) {
+            loginBtn.textContent = "로그아웃";
+            loginBtn.onclick = async () => {
+              const { createClient } = await import(
+                "https://esm.sh/@supabase/supabase-js@2"
+              );
+              const supabase = createClient(
+                "https://fmcxkqfccuevcaqkzsex.supabase.co",
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtY3hrcWZjY3VldmNhcWt6c2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNzk3MzcsImV4cCI6MjA3NDk1NTczN30.IZ47Juv0ypiX4sWTb1vo54hcMI0yBQol1VhUm37vs7M"
+              );
+              await supabase.auth.signOut();
+              window.location.reload();
+            };
+          }
         } else {
-          // 로그인 안 된 상태 - 로그인 버튼 표시
-          const loginBtn = document.createElement("a");
-          loginBtn.href = "/auth";
-          loginBtn.className = "home-btn";
-          loginBtn.textContent = "로그인";
-          headerRight.insertBefore(loginBtn, headerRight.firstChild);
+          // 로그인 안 된 상태
+          if (loginBtn) {
+            loginBtn.onclick = () => {
+              window.location.href = "/auth";
+            };
+          }
+        }
+
+        // 언어 선택 기능
+        if (langSelect) {
+          const savedLang = localStorage.getItem("language") || "ko";
+          langSelect.value = savedLang;
+
+          langSelect.addEventListener("change", (e) => {
+            localStorage.setItem("language", e.target.value);
+            // 언어 변경 함수가 있다면 호출
+            if (typeof changeLanguage === "function") {
+              changeLanguage(e.target.value);
+            }
+          });
+        }
+
+        // 검색 버튼 기능 (필요시 구현)
+        if (searchBtn) {
+          searchBtn.addEventListener("click", () => {
+            // 검색 기능 구현
+            console.log("검색 버튼 클릭");
+          });
         }
       }
 
@@ -787,6 +838,55 @@
           "text.km": " km",
           "text.min": " min",
         },
+        ja: {
+          "header.title": "🇰🇷 Kコンテンツ旅行マップ",
+          "header.subtitle":
+            "韓流コンテンツと一緒に特別な旅行コースを作ってみましょう",
+          "btn.home": "ホーム",
+          "section.search": "🔍 検索",
+          "tab.place": "場所検索",
+          "tab.content": "コンテンツ検索",
+          "placeholder.placeSearch": "場所名、住所を検索...",
+          "btn.search": "検索",
+          "option.selectContent": "コンテンツ選択...",
+          "option.selectUser": "ユーザー選択...",
+          "section.myCourse": "📍 マイ旅行コース",
+          "hint.dragOrder": "ドラッグで順序を変更できます",
+          "btn.saveCourse": "💾 コース保存",
+          "btn.showRoute": "🚗 ルート確認",
+          "btn.aiRecommend": "🤖 AIおすすめ",
+          "section.savedCourses": "💎 保存されたコース",
+          "user.user1": "ユーザー1",
+          "user.user2": "ユーザー2",
+          "user.user3": "ユーザー3",
+          "btn.load": "読み込む",
+          "btn.delete": "削除",
+          "btn.addToCourse": "+ コース追加",
+          "alert.enterSearch": "検索語を入力してください 😊",
+          "alert.noResults": "検索結果がありません 😢",
+          "alert.selectContent": "コンテンツを選択してください 😊",
+          "alert.selectUser": "ユーザーを選択してください 😊",
+          "alert.noLocations": "このコンテンツの撮影地がありません 😢",
+          "alert.deleteCourse": "このコースを削除しますか？ 🗑️",
+          "alert.courseDeleted": "✅ コースが削除されました！",
+          "alert.addPlaces": "コースに場所を追加してください 📍",
+          "alert.courseNamePrompt": "コース名を入力してください ✨",
+          "alert.courseNameDefault": "マイK-旅行コース",
+          "alert.courseSaved": "🎉 保存完了！\nコースID: ",
+          "alert.saveFailed": "保存に失敗しました 😢",
+          "alert.noSavedCourses": "保存されたコースがありません 📭",
+          "alert.courseLoaded": '✨ "{name}" コースを読み込みました！',
+          "alert.minTwoPlaces":
+            "ルートを表示するには最低2つの場所が必要です 🗺️",
+          "alert.routeFailed": "ルート検索に失敗しました 😢",
+          "alert.added": "✨ {name}がコースに追加されました！",
+          "route.totalDistance": "📏 総距離: ",
+          "route.estimatedTime": "⏱️ 予想時間: ",
+          "route.info": "🚗 ルート情報",
+          "text.places": " 箇所",
+          "text.km": " km",
+          "text.min": " 分",
+        },
       };
 
       // 현재 언어 (기본값: 한국어)
@@ -891,11 +991,20 @@
         }
       }
 
-      kakao.maps.load(function () {
+      // Kakao Maps SDK 로드 대기 및 초기화
+      function initKakaoMap() {
+        if (typeof kakao === 'undefined' || !kakao.maps) {
+          console.log('Kakao Maps SDK 로드 대기 중...');
+          setTimeout(initKakaoMap, 100);
+          return;
+        }
+
+        kakao.maps.load(function () {
         var map = new kakao.maps.Map(document.getElementById("map"), {
           center: new kakao.maps.LatLng(37.5665, 126.978),
           level: 5,
         });
+        
 
         let markers = [];
         let myCourse = [];
@@ -1462,6 +1571,62 @@
           }
         };
       });
+      }
+
+      // 페이지 로드 완료 후 Kakao Maps 초기화
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initKakaoMap);
+      } else {
+        initKakaoMap();
+      }
     </script>
+
+    <script>
+  // --- 유틸: 쿼리 파라미터 가져오기
+  function getQS(name, dflt = null) {
+    const v = new URLSearchParams(location.search).get(name);
+    return v == null ? dflt : v;
+  }
+
+  const toNum = v => (v == null ? NaN : Number(v));
+
+  function performTextSearch(keyword) {
+    const input =
+      document.querySelector('#searchInput') ||             
+      document.querySelector('input[placeholder*="검색"]');   
+    const btn =
+      document.querySelector('#searchBtn') ||              
+      Array.from(document.querySelectorAll('button'))
+        .find(b => /검색/.test(b.textContent));
+
+    if (input) input.value = keyword || '';
+    if (btn) btn.click();
+  }
+
+  function addDirectMarker(lat, lng, title) {
+    if (isNaN(lat) || isNaN(lng) || !window.kakao || !window.map) return;
+    const pos = new kakao.maps.LatLng(lat, lng);
+    map.setCenter(pos);
+    const marker = new kakao.maps.Marker({ position: pos, title: title || '' });
+    marker.setMap(map);
+  }
+
+  function initFromQuery() {
+    const name = getQS('name', '').trim();
+    const lat = toNum(getQS('lat'));
+    const lng = toNum(getQS('lng'));
+
+    if (!name && isNaN(lat) && isNaN(lng)) return;
+
+    if (name) performTextSearch(name);
+
+    if (!isNaN(lat) && !isNaN(lng)) addDirectMarker(lat, lng, name);
+  }
+
+  document.addEventListener('DOMContentLoaded', initFromQuery);
+</script>
+
+
+
   </body>
 </html>
