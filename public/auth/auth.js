@@ -84,7 +84,7 @@ async function hardLocalClear() {
   }
 }
 
-async function signInWithGoogle() {
+export async function signInWithGoogle() {
   try {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -123,7 +123,8 @@ function dispatchAuthStateChangeEvent(loggedIn, user = null) {
 
 /** 로그아웃 **/
 let routing = false;
-async function signOut() {
+export async function signOut() {
+  console.log("logout click");
   if (routing) return;
   routing = true;
 
@@ -151,54 +152,44 @@ async function signOut() {
   }
 }
 
-/** 로그인 상태별 헤더 토글 & 닉네임 표시 (변경 없음) **/
+/** 로그인 상태별 이벤트 발생 -> nav-manager에서 헤더 토글 & 닉네임 표시 **/
 async function renderIndexUI() {
-  const $greet = document.getElementById("greeting");
-  const $nick = document.getElementById("nickname");
-  const $login = document.getElementById("loginBtn");
-  const $logout = document.getElementById("logoutBtn");
-  if (!$greet || !$nick || !$login || !$logout) return;
-
-  $greet.classList.add("hide");
-  $logout.classList.add("hide");
-  $login.classList.remove("hide");
-  $nick.textContent = "";
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    //로그아웃 상태 이벤트 발생
-    dispatchAuthStateChangeEvent(false);
-    return;
-  }
-
-  let display = user.email?.split("@")[0] ?? "사용자";
   try {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("display_name")
-      .eq("id", user.id)
-      .maybeSingle();
-    if (!error && data?.display_name) display = data.display_name;
-  } catch (e) {
-    console.warn("[renderIndexUI] profile fetch warn:", e?.message || e);
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) throw error;
+    if (!user) {
+      //로그아웃 상태 이벤트 발생
+      dispatchAuthStateChangeEvent(false);
+      return;
+    }
+
+    let display = user.email?.split("@")[0] ?? "사용자";
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!error && data?.display_name) display = data.display_name;
+    } catch (e) {
+      console.warn("[renderIndexUI] profile fetch warn:", e?.message || e);
+    }
+
+    //로그인 이벤트 발생
+    const userData = {
+      id: user.id,
+      email: user.email,
+      nickname: display,
+      profile_image_url: user.user_metadata?.avatar_url ?? "",
+    };
+    dispatchAuthStateChangeEvent(true, userData);
+    console.log("[auth.js] 'auth-state-changed' (login) 이벤트 발생 완료");
+  } catch (err) {
+    console.error("auth getUser 실패:", err.message);
   }
-
-  $nick.textContent = display;
-  $greet.classList.remove("hide");
-  $logout.classList.remove("hide");
-  $login.classList.add("hide");
-
-  //로그인 이벤트 발생
-  const userData = {
-    id: user.id,
-    email: user.email,
-    nickname: display,
-    profile_image_url: user.user_metadata?.avatar_url ?? "",
-  };
-  dispatchAuthStateChangeEvent(true, userData);
-  console.log("[auth.js] 'auth-state-changed' (login) 이벤트 발생 완료");
 }
 
 async function routeByProfile() {
@@ -244,45 +235,47 @@ async function routeByProfile() {
   routing = false;
 }
 
-window.addEventListener("DOMContentLoaded", async () => {
-  userManager.initAuthListener();
-  const page = currentPage();
+if (document.querySelector(".auth-page")) {
+  window.addEventListener("DOMContentLoaded", async () => {
+    userManager.initAuthListener();
+    const page = currentPage();
 
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const loginLarge = document.querySelector(".btn-login-large");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const loginLarge = document.querySelector(".btn-login-large");
 
-  if (loginBtn) loginBtn.onclick = signInWithGoogle;
-  if (loginLarge) loginLarge.onclick = signInWithGoogle;
-  if (logoutBtn) logoutBtn.onclick = signOut;
+    if (loginBtn) loginBtn.onclick = signInWithGoogle;
+    if (loginLarge) loginLarge.onclick = signInWithGoogle;
+    if (logoutBtn) logoutBtn.onclick = signOut;
 
-  await handleOAuthRedirectIfNeeded();
+    await handleOAuthRedirectIfNeeded();
 
-  if (page === PATHS.INDEX) {
-    await renderIndexUI();
-    await routeByProfile();
+    if (page === PATHS.INDEX) {
+      await renderIndexUI();
+      await routeByProfile();
 
-    supabase.auth.onAuthStateChange(async (event) => {
-      if (["SIGNED_IN", "TOKEN_REFRESHED", "SIGNED_OUT"].includes(event)) {
-        await renderIndexUI();
-        if (event !== "SIGNED_OUT") await ensureProfileRow();
-        if (event !== "SIGNED_OUT") await routeByProfile();
-      }
-    });
-  }
+      supabase.auth.onAuthStateChange(async (event) => {
+        if (["SIGNED_IN", "TOKEN_REFRESHED", "SIGNED_OUT"].includes(event)) {
+          await renderIndexUI();
+          if (event !== "SIGNED_OUT") await ensureProfileRow();
+          if (event !== "SIGNED_OUT") await routeByProfile();
+        }
+      });
+    }
 
-  if (page === PATHS.SET_NICK) {
-    const { data: session } = await supabase.auth.getSession();
-    if (session?.session) await routeByProfile();
+    if (page === PATHS.SET_NICK) {
+      const { data: session } = await supabase.auth.getSession();
+      if (session?.session) await routeByProfile();
 
-    supabase.auth.onAuthStateChange(async (event) => {
-      if (["SIGNED_IN", "TOKEN_REFRESHED"].includes(event)) {
-        await ensureProfileRow();
-        await routeByProfile();
-      }
-      if (event === "SIGNED_OUT") {
-        window.location.replace(urlTo(PATHS.INDEX));
-      }
-    });
-  }
-});
+      supabase.auth.onAuthStateChange(async (event) => {
+        if (["SIGNED_IN", "TOKEN_REFRESHED"].includes(event)) {
+          await ensureProfileRow();
+          await routeByProfile();
+        }
+        if (event === "SIGNED_OUT") {
+          window.location.replace(urlTo(PATHS.INDEX));
+        }
+      });
+    }
+  });
+}
