@@ -63,8 +63,8 @@ app.use((req, res, next) => {
       // 스타일/폰트 CDN
       "style-src 'self' 'unsafe-inline' https: https://fonts.googleapis.com https://unpkg.com",
       "font-src 'self' https: data: https://fonts.gstatic.com",
-      // API / Realtime / 개발 서버(로컬) + 구글 OAuth 허용
-      "connect-src 'self' http://localhost:3000 https: wss: https://accounts.google.com https://www.googleapis.com https://*.googleusercontent.com",
+      // API / Realtime / 개발 서버(로컬) + 구글 OAuth + Kakao API 허용
+      "connect-src 'self' http://localhost:3000 https: wss: http://dapi.kakao.com https://dapi.kakao.com https://accounts.google.com https://www.googleapis.com https://*.googleusercontent.com",
       // 이미지/동영상 등
       "img-src 'self' https: http: data: blob:",
       // OAuth 프레임 허용
