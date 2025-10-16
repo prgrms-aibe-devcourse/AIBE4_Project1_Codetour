@@ -12,6 +12,11 @@
     />
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <style>
+      .header .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
       .header-search-wrap {
         overflow: hidden;
         height: 0;
@@ -133,10 +138,17 @@
             </svg>
           </a>
 
+          
+
           <div
             class="header-right"
             style="display: flex; gap: 8px; align-items: center"
           >
+          <select class="lang-select" id="languageSelector">
+              <option value="ko">한국어</option>
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+            </select>
             <button class="btn-search" id="searchToggle">🔍</button>
 
             <span id="greeting" class="hide"

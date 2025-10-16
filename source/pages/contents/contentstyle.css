@@ -827,6 +827,19 @@ main {
   border-bottom-color: #e91e8c;
 }
 
+/* Language-specific nav sizing */
+html[lang="en"] .nav-link {
+  font-size: 1rem;
+}
+
+html[lang="ko"] .nav-link {
+  font-size: 1rem;
+}
+
+html[lang="ja"] .nav-link {
+  font-size: 1rem;
+}
+
 /* 로고 */
 .logo {
   display: flex;
