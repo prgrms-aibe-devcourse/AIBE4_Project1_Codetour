@@ -20,6 +20,10 @@
       href="https://unpkg.com/swiper/swiper-bundle.min.css"
     />
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"
+    ></script>
   </head>
   <body>
     <header class="header">
@@ -78,6 +82,11 @@
             class="header-right"
             style="display: flex; gap: 8px; align-items: center"
           >
+          <select class="lang-select" id="languageSelector">
+              <option value="ko">한국어</option>
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+            </select>
             <button class="btn-search" id="searchToggle">🔍</button>
 
             <span id="greeting" class="hide"
@@ -118,10 +127,118 @@
     <script type="module" src="/auth/auth.js"></script>
 
     <!-- 헤더 인라인 검색 스크립트 (index.html과 동일) -->
-    <script type="module" src="/source/pages/index/header-search.js"></script>
+    <script type="module">
+      const header = document.querySelector(".header");
+      const wrap = document.getElementById("headerSearchWrap");
+      const input = document.getElementById("searchInput");
+      const btnToggle = document.getElementById("searchToggle");
+      const btnClose = document.getElementById("searchClose");
+      const btnDo = document.getElementById("searchDo");
+      const results = document.getElementById("searchResults");
+
+      const suggestTitle = document.getElementById("contentSuggestTitle");
+      const suggestRail = document.getElementById("contentSuggestRail");
+
+      let allContents = null;
+
+      function setWrapHeight(open) {
+        if (open) {
+          wrap.style.height = wrap.scrollHeight + "px";
+          header.classList.add("header--search-open");
+        } else {
+          wrap.style.height = "0px";
+          header.classList.remove("header--search-open");
+        }
+      }
+      function openSearch() {
+        results.innerHTML = "";
+        clearRail();
+        input.value = "";
+        setWrapHeight(true);
+        setTimeout(() => input.focus(), 0);
+        ensureContentsLoaded();
+      }
+      function closeSearch() {
+        setWrapHeight(false);
+      }
+      function toggleSearch() {
+        const isOpen = wrap.style.height && wrap.style.height !== "0px";
+        isOpen ? closeSearch() : openSearch();
+      }
+      btnToggle?.addEventListener("click", toggleSearch);
+      btnClose?.addEventListener("click", closeSearch);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeSearch();
+      });
+      window.addEventListener("resize", () => {
+        if (wrap.style.height && wrap.style.height !== "0px") {
+          wrap.style.height = "auto";
+          const h = wrap.scrollHeight;
+          wrap.style.height = h + "px";
+        }
+      });
+
+      function tryTeamRenderer(items) {
+        if (window.ContentCards?.render) {
+          window.ContentCards.render(suggestRail, items);
+          return true;
+        }
+        if (typeof window.renderContentCards === "function") {
+          window.renderContentCards("contentSuggestRail", items);
+          return true;
+        }
+        if (window.CardFactory?.render) {
+          window.CardFactory.render(suggestRail, items);
+          return true;
+        }
+        if (typeof window.buildCards === "function") {
+          window.buildCards(suggestRail, items);
+          return true;
+        }
+        return false;
+      }
+      function fallbackRender(items) {
+        suggestRail.innerHTML = items
+          .map(
+            (it) => `
+          <div class="search-item" style="min-width:220px;">
+            <div style="font-weight:700;">${it.title}</div>
+            <div style="color:#666;font-size:13px;margin-top:2px;">${
+              it.subtitle ?? ""
+            }</div>
+          </div>
+        `
+          )
+          .join("");
+      }
+      function renderRail(items) {
+        suggestTitle.style.display = items?.length ? "" : "none";
+        suggestRail.innerHTML = "";
+        if (!items?.length) return;
+        const ok = tryTeamRenderer(items);
+        if (!ok) fallbackRender(items);
+        if (wrap.style.height && wrap.style.height !== "0px") {
+          wrap.style.height = "auto";
+          const h = wrap.scrollHeight;
+          wrap.style.height = h + "px";
+        }
+      }
+      function clearRail() {
+        suggestTitle.style.display = "none";
+        suggestRail.innerHTML = "";
+      }
+    </script>
 
     <script type="module">
       let supabase;
+
+      // auth.js가 로드된 후 user-manager.js의 함수를 사용할 수 있습니다.
+      let getIsLoggedIn;
+      let getUserId;
+      import("/libs/user-manager.js").then(module => {
+        getIsLoggedIn = module.getIsLoggedIn;
+        getUserId = module.getUserId;
+      });
 
       // Supabase 클라이언트 초기화
       async function initSupabase() {
@@ -141,6 +258,17 @@
         }
       }
 
+      // 좌표 문자열을 파싱하여 위도, 경도 객체를 반환하는 함수
+      function parseCoordinates(coordStr) {
+        if (!coordStr || typeof coordStr !== "string") return null;
+        const parts = coordStr.split(",").map((s) => s.trim());
+        if (parts.length !== 2) return null;
+
+        const lat = parseFloat(parts[0].replace(/[N]/gi, ""));
+        const lng = parseFloat(parts[1].replace(/[E]/gi, ""));
+        return { lat, lng };
+      }
+
       // URL에서 placeId를 가져와 상세 정보를 로드하는 함수
       async function loadPlaceDetails() {
         const detailContainer = document.getElementById("detail-container");
@@ -153,6 +281,24 @@
           detailContainer.innerHTML =
             "<p>장소 ID가 올바르지 않습니다. 이전 페이지로 돌아가 다시 시도해주세요.</p>";
           return;
+        }
+
+        // 현재 사용자의 이 장소에 대한 좋아요 상태를 확인합니다.
+        let isLiked = false;
+        const userId = getUserId ? getUserId() : null;
+        if (userId) {
+          const { data: favorite, error: favoriteError } = await supabase
+            .from("user_favorites")
+            .select("id")
+            .eq("user_id", userId)
+            .eq("target_id", placeId)
+            .eq("target_type", "location")
+            .maybeSingle(); // 한 개의 결과만 가져오거나 null을 반환
+
+          if (favoriteError) {
+            console.error("좋아요 상태 확인 실패:", favoriteError);
+          }
+          if (favorite) isLiked = true;
         }
 
         try {
@@ -169,6 +315,8 @@
           if (locationError) throw locationError;
           if (imageError) throw imageError;
           if (reviewError) throw reviewError;
+
+          console.log("locations:", locations);
 
           if (!locations || locations.length === 0) {
             detailContainer.innerHTML = "<p>장소 정보를 찾을 수 없습니다.</p>";
@@ -212,7 +360,7 @@
           let html = `
             <div class="detail-header">
               <h2>${mainLocation.placeName}</h2>
-              <button class="like-button" data-place-id="${mainLocation.placeId}">♡</button>
+              <button class="like-button ${isLiked ? 'liked' : ''}" data-place-id="${mainLocation.placeId}">${isLiked ? '♥' : '♡'}</button>
             </div>`;
 
           // 이미지 슬라이더 또는 단일 이미지 표시
@@ -238,26 +386,24 @@
           } else if (images && images.length === 1) {
             html += `<img src="${images[0].imageUrl}" alt="${mainLocation.name}" style="width: 100%; height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 20px;">`;
           } else {
-            html += `<img src="${mainLocation.imageUrl || ""}" alt="${
-              mainLocation.name
-            }" style="max-width: 100%; height: 200px;" onerror="this.outerHTML='<div class=\\'no-image\\'>이미지가 없습니다.</div>'">`;
+            html += `<div class='no-image' style='height: 400px;'>이미지가 없습니다.</div>`;
           }
 
           // 상세 정보 표시
           html += `<div class="detail-info-grid">`;
-          html += `<p><strong>주소:</strong> ${
+          html += `<p><strong>주소:</strong> ${ 
             mainLocation.address || "정보 없음"
           }</p>`;
-          html += `<p><strong>연락처:</strong> ${
+          html += `<p><strong>연락처:</strong> ${ 
             mainLocation.tel || "정보 없음"
           }</p>`;
-          html += `<p><strong>입장료:</strong> ${
+          html += `<p><strong>입장료:</strong> ${ 
             mainLocation.entranceFee || "정보 없음"
           }</p>`;
-          html += `<p><strong>운영 시간:</strong> ${
+          html += `<p><strong>운영 시간:</strong> ${ 
             mainLocation.subDescription || "정보 없음"
           }</p>`;
-          html += `<p class="full-width"><strong>설명:</strong> ${
+          html += `<p class="full-width"><strong>설명:</strong> ${ 
             mainLocation.description || "정보 없음"
           }</p>`;
           html += `</div>`;
@@ -306,7 +452,7 @@
                     <div class="stars-outer"><div class="stars-inner" style="width: ${reviewStarPercentage}%;"></div></div>
                   </div>
                   <p class="review-text">${review.text}</p>
-                  ${
+                  ${ 
                     review.imageUrl
                       ? `<img src="${review.imageUrl}" alt="리뷰 이미지" class="review-image" style="width:120px; height:120px; object-fit:cover; border-radius:8px; margin:8px 0;">`
                       : ""
@@ -337,17 +483,80 @@
             </div>
           `;
 
+          // 리뷰 폼 제출 이벤트 리스너 추가
+          const reviewForm = document.getElementById("review-form");
+          if (reviewForm) {
+            reviewForm.addEventListener("submit", async (e) => {
+              e.preventDefault();
+
+              // 로그인 상태 확인
+              if (!getIsLoggedIn || !getIsLoggedIn()) {
+                alert("리뷰를 등록하려면 로그인이 필요합니다.");
+                return;
+              }
+
+              const userId = getUserId();
+              if (!userId) {
+                alert("사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.");
+                return;
+              }
+
+              const reviewText = document.getElementById("review-text").value;
+              if (!reviewText.trim()) {
+                alert("리뷰 내용을 입력해주세요.");
+                return;
+              }
+            });
+          }
+
           detailContainer.innerHTML = html;
 
           // '좋아요' 버튼에 이벤트 리스너 추가
           const likeButton = detailContainer.querySelector(".like-button");
           if (likeButton) {
-            likeButton.addEventListener("click", (event) => {
+            likeButton.addEventListener("click", async (event) => {
+              // 로그인 상태 확인
+              if (!getIsLoggedIn || !getIsLoggedIn()) {
+                alert("로그인이 필요합니다.");
+                return;
+              }
+
+              const currentUserId = getUserId();
+              if (!currentUserId) {
+                alert("사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.");
+                return;
+              }
+
               event.stopPropagation();
               if (likeButton.textContent === "♡") {
-                likeButton.textContent = "♥";
+                // 좋아요 추가
+                const { error } = await supabase.from("user_favorites").insert({
+                  user_id: currentUserId,
+                  target_id: placeId,
+                  target_type: "location",
+                });
+                if (error) {
+                  console.error("좋아요 추가 실패:", error);
+                  alert("좋아요 처리에 실패했습니다.");
+                } else {
+                  likeButton.textContent = "♥";
+                  likeButton.classList.add("liked");
+                }
               } else {
-                likeButton.textContent = "♡";
+                // 좋아요 취소
+                const { error } = await supabase
+                  .from("user_favorites")
+                  .delete()
+                  .eq("user_id", currentUserId)
+                  .eq("target_id", placeId);
+                
+                if (error) {
+                  console.error("좋아요 취소 실패:", error);
+                  alert("좋아요 취소에 실패했습니다.");
+                } else {
+                  likeButton.textContent = "♡";
+                  likeButton.classList.remove("liked");
+                }
               }
             });
           }
@@ -366,6 +575,64 @@
               },
             });
           }
+
+          // 지도 초기화
+          kakao.maps.load(function () {
+            const mapContainer = document.getElementById("map");
+
+            // 장소 검색 객체를 생성합니다
+            const ps = new kakao.maps.services.Places();
+
+            // 키워드로 장소를 검색합니다
+            ps.keywordSearch(
+              mainLocation.placeName,
+              function (data, status, pagination) {
+                if (status === kakao.maps.services.Status.OK) {
+                  // 검색된 장소 위치를 기준으로 지도 중심을 설정합니다
+                  const coords = new kakao.maps.LatLng(data[0].y, data[0].x);
+
+                  const mapOption = {
+                    center: coords,
+                    level: 3,
+                  };
+                  const map = new kakao.maps.Map(mapContainer, mapOption);
+
+                  // 결과값으로 받은 위치를 마커로 표시합니다
+                  const marker = new kakao.maps.Marker({
+                    map: map,
+                    position: coords,
+                  });
+                } else {
+                  // 키워드 검색 실패 시, DB의 좌표 정보로 다시 시도합니다.
+                  console.warn(
+                    `'${mainLocation.placeName}'에 대한 키워드 검색 실패. 좌표로 재시도합니다.`
+                  );
+                  const coordsFromDB = parseCoordinates(
+                    mainLocation.coordinates
+                  );
+
+                  if (coordsFromDB && coordsFromDB.lat && coordsFromDB.lng) {
+                    const mapOption = {
+                      center: new kakao.maps.LatLng(
+                        coordsFromDB.lat,
+                        coordsFromDB.lng
+                      ),
+                      level: 3,
+                    };
+                    const map = new kakao.maps.Map(mapContainer, mapOption);
+                    const marker = new kakao.maps.Marker({
+                      map: map,
+                      position: mapOption.center,
+                    });
+                  } else {
+                    // 키워드와 좌표 모두 실패한 경우
+                    mapContainer.innerHTML =
+                      '<p style="text-align:center; padding-top: 20px;">지도에 표시할 위치를 찾을 수 없습니다.</p>';
+                  }
+                }
+              }
+            );
+          });
         } catch (error) {
           console.error("Error fetching location details:", error);
           detailContainer.innerHTML = `<p>장소 정보를 불러오는 데 실패했습니다: ${error.message}</p>`;

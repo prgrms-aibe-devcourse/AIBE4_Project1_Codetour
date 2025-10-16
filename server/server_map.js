@@ -81,6 +81,10 @@ app.use(
   express.static(path.join(__dirname, "../source/pages/index"))
 );
 app.use(
+  "/source/pages/contents",
+  express.static(path.join(__dirname, "../source/pages/contents"))
+);
+app.use(
   "/source/pages/map",
   express.static(path.join(__dirname, "../source/pages/map"))
 );
@@ -117,6 +121,14 @@ app.get("/map", (_req, res) => {
   if (!fs.existsSync(mapPath))
     return res.status(404).send("map_page.html을 찾을 수 없습니다");
   res.sendFile(mapPath);
+});
+
+// ---------- API: Supabase 설정 정보 ----------
+app.get("/api/config", (req, res) => {
+  res.json({
+    supabaseUrl: process.env.SUPABASE_URL,
+    supabaseKey: process.env.SUPABASE_KEY,
+  });
 });
 
 // ---------- 유틸 ----------

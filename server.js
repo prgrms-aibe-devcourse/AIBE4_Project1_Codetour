@@ -155,6 +155,12 @@ app.get("/api/config", (req, res) => {
   });
 });
 
+app.get("/api/config", (req, res) => {
+  res.json({
+    supabaseUrl: process.env.SUPABASE_URL,
+    supabaseKey: process.env.SUPABASE_KEY,
+  });
+});
 app.listen(port, () => {
   console.log(`서버가 ${port}번 포트로 실행 중입니다.`);
 });
