@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KSpot-리뷰 관리</title>
     <link rel="stylesheet" href="my-page.css" />
-    <script src="/libs/user-manager.js"></script>
+    <script src="/libs/config.js"></script>
     <script src="/libs/include.js" defer></script>
     <style>
       .image-upload-container {
@@ -154,15 +154,23 @@
       </div>
     </div>
 
-    <script>
-      const apiURL = "http://localhost:3000";
+    <script type="module">
+      //const apiURL = "http://localhost:3000";
+      import {
+        initAuthListener,
+        getIsLoggedIn,
+        getUserId,
+      } from "/libs/user-manager.js";
+
       let userReviews = []; // 페이지의 모든 리뷰를 저장하는 변수
 
       document.addEventListener("DOMContentLoaded", () => {
-        const userManager = UserManager.getInstance();
-        if (!userManager.getIsLoggedIn()) {
-          alert("로그인 정보가 없습니다. 마이페이지로 돌아갑니다.");
-          window.location.href = "my-page.html";
+        initAuthListener();
+        const userId = getUserId();
+
+        if (!userId) {
+          alert("로그인이 필요합니다.");
+          window.location.href = "/auth";
           return;
         }
         fetchReviews();
@@ -197,7 +205,8 @@
 
         // 1. Filter by search term
         let processedReviews = userReviews.filter((review) => {
-          const placeName = (review.location && review.location.placeName) || "";
+          const placeName =
+            (review.location && review.location.placeName) || "";
           return placeName.toLowerCase().includes(searchTerm);
         });
 
@@ -228,11 +237,10 @@
       }
 
       async function fetchReviews() {
-        const userManager = UserManager.getInstance();
-        const userId = userManager.getUserId();
+        const userId = getUserId();
 
         try {
-          const response = await fetch(`${apiURL}/api/reviews/${userId}`);
+          const response = await fetch(`${API_BASE_URL}/api/reviews/${userId}`);
           if (!response.ok) {
             throw new Error("Failed to fetch reviews");
           }
@@ -378,7 +386,7 @@
       async function deleteReview(id) {
         if (confirm("정말로 이 리뷰를 삭제하시겠습니까?")) {
           try {
-            const response = await fetch(`${apiURL}/api/reviews/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/api/reviews/${id}`, {
               method: "DELETE",
             });
 
@@ -446,13 +454,16 @@
           };
 
           try {
-            const response = await fetch(`${apiURL}/api/reviews/${reviewId}`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(updatedReview),
-            });
+            const response = await fetch(
+              `${API_BASE_URL}/api/reviews/${reviewId}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(updatedReview),
+              }
+            );
 
             if (!response.ok) {
               const errorData = await response.json();

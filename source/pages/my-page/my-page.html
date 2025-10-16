@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kspot-mypage</title>
     <link rel="stylesheet" href="my-page.css" />
-    <script src="/libs/include.js" defer></script>
+    <link rel="stylesheet" href="/source/pages/index/style.css" />
+    <script src="/libs/include.js"></script>
     <style>
+      /* 마이 페이지 스타일 */
       h1 {
         font-size: 32px;
         margin-bottom: 8px;
@@ -88,14 +90,7 @@
     </style>
   </head>
   <body>
-    <header>
-      <!-- Header content will be loaded by include.js -->
-    </header>
-
-    <nav>
-      <!-- Navigation content will be loaded by include.js -->
-    </nav>
-
+    <header></header>
     <main>
       <div id="mypage-home">
         <h1>마이페이지</h1>
@@ -136,22 +131,31 @@
         </div>
       </div>
     </main>
-    <script src="/libs/user-manager.js"></script>
-    <script>
-      function updateUserGreeting() {
-        console.log("Update user greeting");
-        const userManager = UserManager.getInstance();
-        const isLoggedIn = userManager.getIsLoggedIn();
+    <script type="module">
+      import {
+        initAuthListener,
+        getIsLoggedIn,
+        getUserNickname,
+        getUserId,
+      } from "/libs/user-manager.js";
 
-        if (isLoggedIn) {
-          const nickname = userManager.getUserNickname();
+      function updateUserGreeting() {
+        initAuthListener();
+        console.log(
+          `Update user greeting : ${getIsLoggedIn()},${getUserNickname()}`
+        );
+        const userId = getUserId();
+
+        if (!userId) {
+          alert("로그인이 필요합니다.");
+          window.location.href = "/auth";
+          return;
+        } else {
+          const nickname = getUserNickname();
           const welcomeElement = document.querySelector(".subtitle .highlight");
           if (welcomeElement) {
             welcomeElement.textContent = nickname;
           }
-        } else {
-          console.log("로그 아웃 상태");
-          // 여기서 로그인 페이지로 넘어가야 함
         }
       }
 

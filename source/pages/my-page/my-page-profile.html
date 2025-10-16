@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kspot-개인 정보 관리</title>
     <link rel="stylesheet" href="my-page.css" />
-    <script src="/libs/user-manager.js"></script>
+    <script src="/libs/config.js"></script>
     <script src="/libs/include.js" defer></script>
     <style>
       .page-header {
@@ -221,7 +221,7 @@
               <div class="profile-image">
                 <img
                   id="preview-image"
-                  src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNzUiIGN5PSI3NSIgcj0iNzUiIGZpbGw9IiNmMGYwZjAiLz48cGF0aCBkPSJNNzUsNjcuNWMxMS4wNSwwLDIwLTguOTUsMjAtMjBzLTguOTUtMjAtMjAtMjBzLTIwLDguOTUtMjAsMjBTNjMuOTUsNjcuNSw3NSw2Ny41eiBNNzUsNzIuNSBjLTEzLjM1LDAtNDAsNi43LTQwLDIwdjEwaDgwdi0xMEMxMTUsNzkuMiw4OC4zNSw3Mi41LDc1LDcyLjV6IiBmaWxsPSIjYTBhMGEwIi8+PC9zdmc+"
+                  src="/images/profile-alter.png"
                   alt="프로필"
                 />
               </div>
@@ -281,11 +281,27 @@
         </div>
       </div>
     </main>
-    <script>
-      const apiURL = "http://localhost:3000";
-      const defaultAvatar = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNzUiIGN5PSI3NSIgcj0iNzUiIGZpbGw9IiNmMGYwZjAiLz48cGF0aCBkPSJNNzUsNjcuNWMxMS4wNSwwLDIwLTguOTUsMjAtMjBzLTguOTUtMjAtMjAtMjBzLTIwLDguOTUtMjAsMjBTNjMuOTUsNjcuNSw3NSw2Ny41eiBNNzUsNzIuNSBjLTEzLjM1LDAtNDAsNi43LTQwLDIwdjEwaDgwdi0xMEMxMTUsNzkuMiw4OC4zNSw3Mi41LDc1LDcyLjV6IiBmaWxsPSIjYTBhMGEwIi8+PC9zdmc+";
+    <script type="module">
+      import {
+        initAuthListener,
+        getIsLoggedIn,
+        getUserId,
+        getUserEmail,
+        getUserInfo,
+        updateUserInfo,
+      } from "/libs/user-manager.js";
+      //const apiURL = "http://localhost:3000";
+      const defaultAvatar = "/images/profile-alter.png";
 
       document.addEventListener("DOMContentLoaded", () => {
+        initAuthListener();
+        const userId = getUserId();
+
+        if (!userId) {
+          alert("로그인이 필요합니다.");
+          window.location.href = "/auth";
+          return;
+        }
         // DOM Elements
         const previewImage = document.getElementById("preview-image");
         const nicknameInput = document.getElementById("nickname");
@@ -298,14 +314,8 @@
 
         // Load user profile data on page load
         async function loadUserProfile() {
-          if (!userManager.getIsLoggedIn()) {
-            alert("로그인 정보가 없습니다. 마이페이지로 돌아갑니다.");
-            window.location.href = "my-page.html";
-            return;
-          }
-
-          currentUserId = userManager.getUserId();
-          emailLabel.textContent = userManager.getUserEmail() || "-";
+          currentUserId = getUserId();
+          emailLabel.textContent = getUserEmail() || "-";
 
           if (!currentUserId) {
             alert("사용자 ID를 찾을 수 없습니다.");
@@ -314,16 +324,15 @@
 
           try {
             const response = await fetch(
-              `${apiURL}/api/profiles/${currentUserId}`
+              `${API_BASE_URL}/api/profiles/${currentUserId}`
             );
             if (!response.ok) {
               if (response.status === 404) {
                 // If profile doesn't exist, use local user manager data
-                const userInfo = userManager.getUserInfo();
+                const userInfo = getUserInfo();
                 nicknameInput.value = userInfo.nickname || "";
                 bioTextarea.value = userInfo.bio || "";
-                previewImage.src =
-                  userInfo.profile_image_url || defaultAvatar;
+                previewImage.src = userInfo.profile_image_url || defaultAvatar;
                 console.log("No profile found on server, using local data.");
                 return;
               }
@@ -335,8 +344,7 @@
             // Populate form with data from the server
             nicknameInput.value = profile.display_name || "";
             bioTextarea.value = profile.bio || "";
-            previewImage.src =
-              profile.avatar_url || defaultAvatar;
+            previewImage.src = profile.avatar_url || defaultAvatar;
           } catch (error) {
             console.error("Error fetching profile:", error);
             alert("프로필 정보를 불러오는 데 실패했습니다.");
@@ -369,39 +377,47 @@
             return;
           }
 
-          const updatedProfile = {
-            display_name: nicknameInput.value,
-            bio: bioTextarea.value,
-            avatar_url: previewImage.src,
-          };
+          const formData = new FormData();
+          formData.append("display_name", nicknameInput.value);
+          formData.append("bio", bioTextarea.value);
+
+          const avatarFile = profileUpload.files[0];
+          if (avatarFile) {
+            formData.append("avatar", avatarFile);
+          }
 
           try {
             const response = await fetch(
-              `${apiURL}/api/profiles/${currentUserId}`,
+              `${API_BASE_URL}/api/profiles/${currentUserId}`,
               {
                 method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(updatedProfile),
+                body: formData,
               }
             );
 
             if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(errorData.error || "Unknown server error");
+              // Try to parse as JSON, but fall back to text if it fails
+              let errorMessage = "An unknown error occurred.";
+              try {
+                const errorData = await response.json();
+                errorMessage = errorData.error || JSON.stringify(errorData);
+              } catch (e) {
+                errorMessage = await response.text(); // The response is not JSON (e.g., HTML error page)
+              }
+              throw new Error(errorMessage);
             }
 
             const result = await response.json();
 
             // Update local userManager on success
-            userManager.updateUserInfo({
+            updateUserInfo({
               nickname: result.data.display_name,
               bio: result.data.bio,
               profile_image_url: result.data.avatar_url,
             });
 
             alert("프로필 변경 완료");
+            window.location.href = "my-page.html"; // Redirect to my-page
           } catch (error) {
             console.error("Error updating profile:", error);
             alert(`프로필 업데이트에 실패했습니다: ${error.message}`);
