@@ -115,6 +115,14 @@ app.get("/map", (_req, res) => {
   res.sendFile(mapPath);
 });
 
+// ---------- API: Supabase 설정 정보 ----------
+app.get("/api/config", (req, res) => {
+  res.json({
+    supabaseUrl: process.env.SUPABASE_URL,
+    supabaseKey: process.env.SUPABASE_KEY,
+  });
+});
+
 // ---------- 유틸 ----------
 function parseCoordinates(coordStr) {
   if (!coordStr) return null;

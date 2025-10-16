@@ -6,7 +6,6 @@
     <title>K-Spot - 한류 콘텐츠 여행 플랫폼</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="contentstyle.css" />
-    <link rel="stylesheet" href="/source/pages/index/style.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/swiper/swiper-bundle.min.css"
@@ -150,7 +149,7 @@
 
         <nav class="nav">
           <a href="/source/pages/index/index.html" class="nav-link">홈</a>
-          <a href="#content" class="nav-link active">콘텐츠별 여행지</a>
+          <a href="/source/pages/contents/contents.html" class="nav-link active">콘텐츠별 여행지</a>
           <a href="/source/pages/aiCourse/aiSchedule.html" class="nav-link">AI 코스 추천</a>
           <a href="/source/pages/map/map_page.html" class="nav-link">K-콘텐츠 여행 지도</a>
           <a href="/source/pages/index/index.html#routes" class="nav-link">인기 여행 루트</a>
@@ -198,11 +197,146 @@
         SET_NICK: "/auth/set-nickname.html",
       };
     </script>
-    <script type="module" src="/auth/auth.js"></script>
+    <script type="module" src="/public/auth/auth.js"></script>
 
     <!-- 헤더 인라인 검색 스크립트 (index.html과 동일) -->
-    <script type="module" src="/source/pages/index/header-search.js"></script>
+    <script type="module">
+      const header = document.querySelector(".header");
+      const wrap = document.getElementById("headerSearchWrap");
+      const input = document.getElementById("searchInput");
+      const btnToggle = document.getElementById("searchToggle");
+      const btnClose = document.getElementById("searchClose");
+      const btnDo = document.getElementById("searchDo");
+      const results = document.getElementById("searchResults");
 
+      const suggestTitle = document.getElementById("contentSuggestTitle");
+      const suggestRail = document.getElementById("contentSuggestRail");
+
+      function setWrapHeight(open) {
+        if (open) {
+          wrap.style.height = wrap.scrollHeight + "px";
+          header.classList.add("header--search-open");
+        } else {
+          wrap.style.height = "0px";
+          header.classList.remove("header--search-open");
+        }
+      }
+      function openSearch() {
+        results.innerHTML = "";
+        clearRail();
+        input.value = "";
+        setWrapHeight(true);
+        setTimeout(() => input.focus(), 0);
+        ensureContentsLoaded();
+      }
+      function closeSearch() {
+        setWrapHeight(false);
+      }
+      function toggleSearch() {
+        const isOpen = wrap.style.height && wrap.style.height !== "0px";
+        isOpen ? closeSearch() : openSearch();
+      }
+      btnToggle?.addEventListener("click", toggleSearch);
+      btnClose?.addEventListener("click", closeSearch);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeSearch();
+      });
+      window.addEventListener("resize", () => {
+        if (wrap.style.height && wrap.style.height !== "0px") {
+          wrap.style.height = "auto";
+          const h = wrap.scrollHeight;
+          wrap.style.height = h + "px";
+        }
+      });
+
+      function tryTeamRenderer(items) {
+        if (window.ContentCards?.render) {
+          window.ContentCards.render(suggestRail, items);
+          return true;
+        }
+        if (typeof window.renderContentCards === "function") {
+          window.renderContentCards("contentSuggestRail", items);
+          return true;
+        }
+        if (window.CardFactory?.render) {
+          window.CardFactory.render(suggestRail, items);
+          return true;
+        }
+        if (typeof window.buildCards === "function") {
+          window.buildCards(suggestRail, items);
+          return true;
+        }
+        return false;
+      }
+      function fallbackRender(items) {
+        suggestRail.innerHTML = items
+          .map(
+            (it) => `
+          <div class="search-item" style="min-width:220px;">
+            <div style="font-weight:700;">${it.title}</div>
+            <div style="color:#666;font-size:13px;margin-top:2px;">${
+              it.subtitle ?? ""
+            }</div>
+          </div>
+        `
+          )
+          .join("");
+      }
+      function renderRail(items) {
+        suggestTitle.style.display = items?.length ? "" : "none";
+        suggestRail.innerHTML = "";
+        if (!items?.length) return;
+        const ok = tryTeamRenderer(items);
+        if (!ok) fallbackRender(items);
+        if (wrap.style.height && wrap.style.height !== "0px") {
+          wrap.style.height = "auto";
+          const h = wrap.scrollHeight;
+          wrap.style.height = h + "px";
+        }
+      }
+      function clearRail() {
+        suggestTitle.style.display = "none";
+        suggestRail.innerHTML = "";
+      }
+
+      async function ensureContentsLoaded() {
+        if (allContents) return;
+        try {
+          const res = await fetch("/api/contents");
+          if (!res.ok) throw new Error("contents load failed");
+          const data = await res.json(); // [{ contents, name, ... }]
+          const unique = [
+            ...new Set(
+              (data || []).map((d) => (d.contents || "").trim()).filter(Boolean)
+            ),
+          ];
+          const countByContent = unique.map((c) => ({
+            content: c,
+            count: (data || []).filter((d) => (d.contents || "").trim() === c)
+              .length,
+          }));
+          allContents = countByContent;
+        } catch (e) {
+          console.error("Failed to load contents:", e);
+          allContents = [];
+        }
+      }
+      function rankScore(q, name) {
+        const a = (q || "").toLowerCase();
+        const b = (name || "").toLowerCase();
+        if (!a || !b) return 0;
+        if (b === a) return 100;
+        if (b.startsWith(a)) return 80;
+        if (b.includes(a)) return 60;
+        let lcs = 0;
+        for (let i = 0; i < a.length; i++) {
+          for (let j = i + 1; j <= a.length; j++) {
+            if (b.includes(a.slice(i, j))) lcs = Math.max(lcs, j - i);
+          }
+        }
+        return lcs;
+      }
+    </script>
 
     <div id="modal" class="modal">
       <div class="modal-content">
@@ -284,6 +418,8 @@
           }
 
           filterByCategory("k-pop"); // 처음에는 'K-Pop' 카테고리를 표시
+
+
         } catch (error) {
           console.error("Error initializing Supabase:", error);
           const cardContainer = document.getElementById("card-container");
@@ -371,18 +507,14 @@
                 </div>
               `;
 
-          cardContainer.appendChild(card);
-        }
+          card
+            .querySelector(".details-button")
+            .addEventListener("click", (event) => {
+              const contentId = event.target.dataset.contentId;
+              openModal(contentId);
+            });
 
-        document.querySelectorAll(".details-button").forEach((button) => {
-          button.addEventListener("click", (event) => {
-            const contentId = event.target.dataset.contentId;
-            openModal(contentId);
-          });
-        });
-
-        document.querySelectorAll(".like-button").forEach((button) => {
-          button.addEventListener("click", (event) => {
+          card.querySelector(".like-button").addEventListener("click", (event) => {
             event.stopPropagation(); // 이벤트 버블링 방지
             const likeButton = event.currentTarget;
             if (likeButton.textContent === "♡") {
@@ -393,7 +525,9 @@
               likeButton.classList.remove("liked");
             }
           });
-        });
+
+          cardContainer.appendChild(card);
+        }
       }
 
       // --- 모달을 열고 상세 정보를 표시하는 함수 ---
