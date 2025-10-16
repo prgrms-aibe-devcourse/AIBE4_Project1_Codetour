@@ -37,14 +37,18 @@
         color: var(--muted);
       }
       .mapbox {
-        height: 300px;
+        height: 500px;
         background: #eef2ff;
         border: 1px solid var(--line);
         border-radius: 16px;
-        display: grid;
-        place-items: center;
         color: #334155;
         margin: 8px 0 18px;
+        overflow: hidden;
+      }
+
+      #map {
+        width: 100%;
+        height: 100%;
       }
       .tabs {
         display: flex;
@@ -143,7 +147,9 @@
         </h1>
         <p>단계별로 여행 계획을 세워보세요.</p>
       </header>
-      <div class="mapbox">(지도 연동 영역)</div>
+      <div class="mapbox">
+        <div id="map"></div>
+      </div>
       <div class="tabs">
         <button class="tab active" data-day="1">Day 1</button
         ><button class="tab" data-day="2">Day 2</button
@@ -659,19 +665,199 @@
 
       <div class="cta"><button>내 일정으로 담기</button></div>
     </div>
+
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
     <script>
       const tabs = document.querySelectorAll(".tab");
       const panes = document.querySelectorAll(".pane");
+
+      // 각 DAY별 장소 데이터 추출
+      const dayData = {};
+      panes.forEach((pane) => {
+        const day = pane.dataset.day;
+        const items = pane.querySelectorAll(".item");
+        dayData[day] = Array.from(items).map((item) => ({
+          title: item.querySelector(".title").textContent,
+          address: item.querySelector(".addr").textContent.trim(),
+        }));
+      });
+
+      let map = null;
+      let markers = [];
+      let polyline = null;
+      let geocoder = null;
+      let currentDay = "1";
+
+      // Kakao Maps SDK 로드 대기 및 초기화
+      function initKakaoMap() {
+        if (typeof kakao === 'undefined' || !kakao.maps) {
+          setTimeout(initKakaoMap, 100);
+          return;
+        }
+
+        kakao.maps.load(function () {
+          const mapContainer = document.getElementById("map");
+          const mapOption = {
+            center: new kakao.maps.LatLng(37.5665, 126.978),
+            level: 6,
+          };
+
+          map = new kakao.maps.Map(mapContainer, mapOption);
+          geocoder = new kakao.maps.services.Geocoder();
+
+          // 첫 번째 DAY 표시
+          updateMap("1");
+        });
+      }
+
+      // 주소로 좌표 검색하여 마커 표시 및 경로 그리기
+      async function updateMap(day) {
+        currentDay = day;
+
+        // 기존 마커 및 경로 제거
+        markers.forEach((marker) => marker.setMap(null));
+        markers = [];
+        if (polyline) {
+          polyline.setMap(null);
+          polyline = null;
+        }
+
+        const places = dayData[day];
+        if (!places || places.length === 0) return;
+
+        const positions = [];
+
+        // 각 장소의 좌표 가져오기
+        for (let i = 0; i < places.length; i++) {
+          const place = places[i];
+
+          try {
+            const position = await new Promise((resolve, reject) => {
+              geocoder.addressSearch(place.address, function (result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                  resolve({
+                    lat: parseFloat(result[0].y),
+                    lng: parseFloat(result[0].x),
+                    title: place.title,
+                  });
+                } else {
+                  resolve(null);
+                }
+              });
+            });
+
+            if (position) {
+              positions.push(position);
+
+              // 마커 색상 결정
+              const isStart = i === 0;
+              const isEnd = i === places.length - 1;
+              const markerPosition = new kakao.maps.LatLng(position.lat, position.lng);
+
+              // 커스텀 마커 생성
+              const customMarker = createCustomMarker(
+                markerPosition,
+                i + 1,
+                isStart,
+                isEnd,
+                place.title
+              );
+              customMarker.setMap(map);
+              markers.push(customMarker);
+            }
+          } catch (error) {
+            console.error("주소 검색 오류:", place.address, error);
+          }
+        }
+
+        // 경로 그리기
+        if (positions.length >= 2) {
+          const path = positions.map(
+            (pos) => new kakao.maps.LatLng(pos.lat, pos.lng)
+          );
+          polyline = new kakao.maps.Polyline({
+            path: path,
+            strokeWeight: 5,
+            strokeColor: "#e91e8c",
+            strokeOpacity: 0.7,
+            strokeStyle: "solid",
+          });
+          polyline.setMap(map);
+        }
+
+        // 지도 중심 이동
+        if (positions.length > 0) {
+          const bounds = new kakao.maps.LatLngBounds();
+          positions.forEach((pos) => {
+            bounds.extend(new kakao.maps.LatLng(pos.lat, pos.lng));
+          });
+          map.setBounds(bounds);
+        }
+      }
+
+      // 커스텀 마커 생성
+      function createCustomMarker(position, label, isStart, isEnd, title) {
+        let bgColor = "#4f46e5"; // 기본 파란색
+        if (isStart) bgColor = "#10b981"; // 출발: 초록색
+        if (isEnd) bgColor = "#e91e8c"; // 도착: 분홍색
+
+        const content = document.createElement("div");
+        content.style.cssText = `
+          position: relative;
+          width: 36px;
+          height: 36px;
+          background: ${bgColor};
+          border: 3px solid white;
+          border-radius: 50%;
+          box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          color: white;
+          font-size: 14px;
+          cursor: pointer;
+          transition: transform 0.2s ease;
+        `;
+
+        content.innerHTML = label;
+        content.onmouseover = () => (content.style.transform = "scale(1.2)");
+        content.onmouseout = () => (content.style.transform = "scale(1)");
+        content.title = title;
+
+        const customOverlay = new kakao.maps.CustomOverlay({
+          position: position,
+          content: content,
+          yAnchor: 0.5,
+        });
+
+        return customOverlay;
+      }
+
+      // 탭 클릭 이벤트
       tabs.forEach((t) =>
         t.addEventListener("click", () => {
           tabs.forEach((b) => b.classList.remove("active"));
           panes.forEach((p) => p.classList.remove("active"));
           t.classList.add("active");
+          const day = t.dataset.day;
           document
-            .querySelector(`.pane[data-day="${t.dataset.day}"]`)
+            .querySelector(`.pane[data-day="${day}"]`)
             .classList.add("active");
+
+          // 지도 업데이트
+          if (map) {
+            updateMap(day);
+          }
         })
       );
+
+      // 페이지 로드 시 지도 초기화
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initKakaoMap);
+      } else {
+        initKakaoMap();
+      }
     </script>
   </body>
 </html>

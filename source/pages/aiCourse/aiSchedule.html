@@ -520,22 +520,62 @@
 
     <!-- Scripts -->
     <!-- Bootstrap 핵심 JavaScript -->
-    <script src="/jquery.min.js"></script>
-    <script src="/bootstrap/js/bootstrap.min.js"></script>
-    <script src="/isotope.min.js"></script>
-    <script src="/owl-carousel.js"></script>
-    <script src="/counter.js"></script>
-    <script src="/custom.js"></script>
+    <script src="jquery.min.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="isotope.min.js"></script>
+    <script src="owl-carousel.js"></script>
+    <script src="counter.js"></script>
+    <script src="custom.js"></script>
 
     <!-- 로그인 기능 스크립트 -->
-    <script src="/libs/userManager.js"></script>
-    <script>
-      // auth.js가 라우팅에 사용할 경로 정의
-      window.AUTH_PATHS = {
-        INDEX: "/",
-        SET_NICK: "/auth/set-nickname.html",
-      };
+    <script type="module">
+      import {
+        initAuthListener,
+        getIsLoggedIn,
+        getUserNickname,
+        getUserId,
+      } from "/libs/user-manager.js";
+
+      // 로그인 상태 확인
+      async function checkAuth() {
+        initAuthListener();
+        const isLoggedIn = getIsLoggedIn();
+        const userId = getUserId();
+
+        const loginBtn = document.getElementById("loginBtn");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const greeting = document.getElementById("greeting");
+        const nickname = document.getElementById("nickname");
+
+        if (isLoggedIn && userId) {
+          // 로그인된 상태
+          const userNickname = getUserNickname();
+
+          loginBtn.style.display = "none";
+          logoutBtn.style.display = "block";
+          greeting.style.display = "block";
+          nickname.textContent = userNickname;
+
+          logoutBtn.onclick = async () => {
+            const { createClient } = await import(
+              "https://esm.sh/@supabase/supabase-js@2"
+            );
+            const supabase = createClient(
+              "https://fmcxkqfccuevcaqkzsex.supabase.co",
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtY3hrcWZjY3VldmNhcWt6c2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNzk3MzcsImV4cCI6MjA3NDk1NTczN30.IZ47Juv0ypiX4sWTb1vo54hcMI0yBQol1VhUm37vs7M"
+            );
+            await supabase.auth.signOut();
+            window.location.reload();
+          };
+        } else {
+          // 로그인 안 된 상태
+          loginBtn.onclick = () => {
+            window.location.href = "/auth";
+          };
+        }
+      }
+
+      checkAuth();
     </script>
-    <script type="module" src="/auth/auth.js"></script>
   </body>
 </html>
