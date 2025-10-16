@@ -428,6 +428,8 @@ html[lang="ja"] .nav-link {
 }
 
 .btn-hero {
+  display: inline-block;
+  text-decoration: none; 
   padding: 1rem 3rem;
   font-size: 1.3rem;
   font-weight: 700;
@@ -446,6 +448,13 @@ html[lang="ja"] .nav-link {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
   background: var(--white);
   color: #ff6b9d;
+}
+
+.btn-hero:visited,
+.btn-hero:active,
+.btn-hero:focus {
+  color: #ff6b9d;
+  text-decoration: none;
 }
 
 @keyframes fadeInUp {
