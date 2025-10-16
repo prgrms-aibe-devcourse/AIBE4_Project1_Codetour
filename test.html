@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>KSPOT</title>
+
+    <!-- 부트스트랩 CSS  -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- CSS 추가 연결 -->
+    <link rel="stylesheet" href="source/pages/index/css/fontawesome.css" />
+    <link
+      rel="stylesheet"
+      href="source/pages/index/css/templatemo-villa-agency.css"
+    />
+    <link rel="stylesheet" href="source/pages/index/css/owl.css" />
+    <link rel="stylesheet" href="source/pages/index/css/animate.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swiper@7/swiper-bundle.min.css"
+    />
+    <link rel="stylesheet" href="/source/pages/index/style.css" />
+    <style>
+      .header {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1000 !important;
+        padding: 0 !important;
+      }
+
+      .header .container {
+        max-width: 1280px !important;
+        margin: 0 auto !important;
+        padding: 0 2rem !important;
+        display: block !important;
+      }
+
+      .header-top {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 12px 0 !important;
+        border-bottom: 1px solid #eee !important;
+      }
+
+      .header .nav {
+        display: flex !important;
+        justify-content: space-evenly !important;
+        align-items: center !important;
+        padding: 12px 0 !important;
+      }
+
+      .header .nav-link {
+        text-decoration: none !important;
+        color: #2d3748 !important;
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        padding: 8px 0 !important;
+        border-bottom: 3px solid transparent !important;
+      }
+
+      .header .nav-link:hover,
+      .header .nav-link.active {
+        color: #e91e8c !important;
+        border-bottom-color: #e91e8c !important;
+      }
+
+      .header-right {
+        display: flex !important;
+        gap: 12px !important;
+        align-items: center !important;
+      }
+
+      .lang-select,
+      .btn-search,
+      #loginBtn,
+      #logoutBtn {
+        height: 40px !important;
+        border-radius: 8px !important;
+      }
+
+      #loginBtn {
+        background: #e91e8c !important;
+        color: white !important;
+        padding: 0 16px !important;
+        border: none !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="js-preloader" class="js-preloader">
+      <div class="preloader-inner">
+        <span class="dot"></span>
+        <div class="dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 헤더 -->
+    <header class="header">
+      <div class="container">
+        <div class="header-top">
+          <a href="/source/pages/index/index.html" class="logo">
+            <svg
+              width="200"
+              height="50"
+              viewBox="0 0 200 50"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient
+                  id="logoGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
+                  <stop
+                    offset="0%"
+                    style="stop-color: #e91e8c; stop-opacity: 1"
+                  />
+                  <stop
+                    offset="100%"
+                    style="stop-color: #ff6b9d; stop-opacity: 1"
+                  />
+                </linearGradient>
+                <style>
+                  .logo-text {
+                    font-family: "Pretendard", sans-serif;
+                    font-weight: 800;
+                    font-size: 40px;
+                    fill: url(#logoGradient);
+                    letter-spacing: -1px;
+                  }
+                </style>
+              </defs>
+              <text x="0" y="37" class="logo-text">K</text>
+              <text x="30" y="37" class="logo-text">-</text>
+              <text x="44" y="37" class="logo-text">S</text>
+              <text x="70" y="37" class="logo-text">P</text>
+              <g class="logo-pin" transform="translate(95.5, 4) scale(0.93)">
+                <path
+                  d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z"
+                  fill="url(#logoGradient)"
+                />
+                <circle cx="18" cy="13" r="8" fill="white" />
+              </g>
+              <text x="128" y="37" class="logo-text">T</text>
+            </svg>
+          </a>
+
+          <div
+            class="header-right"
+            style="display: flex; gap: 8px; align-items: center"
+          >
+            <select class="lang-select" id="languageSelector">
+              <option value="ko">한국어</option>
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+            </select>
+
+            <button class="btn-search" id="searchToggle">🔍</button>
+
+            <span id="greeting" class="hide"
+              >안녕하세요, <span id="nickname"></span>님</span
+            >
+            <button id="loginBtn">로그인</button>
+            <button id="logoutBtn" class="hide">로그아웃</button>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <a
+            href="/source/pages/index/index.html"
+            class="nav-link"
+            data-i18n="nav.home"
+            >홈</a
+          >
+          <a href="#content" class="nav-link" data-i18n="nav.content"
+            >콘텐츠별 여행지</a
+          >
+
+          <a
+            href="/source/pages/aiCourse/aiSchedule.html"
+            class="nav-link active"
+            data-i18n="nav.ai"
+            >AI 코스 추천</a
+          >
+
+          <a
+            href="/source/pages/map/map_page.html"
+            class="nav-link"
+            data-i18n="nav.region"
+            >K-콘텐츠 여행 지도</a
+          >
+          <a href="#routes" class="nav-link" data-i18n="nav.routes"
+            >인기 여행 루트</a
+          >
+
+          <a
+            href="/source/pages/my-page/my-page.html"
+            class="nav-link"
+            data-i18n="nav.mypage"
+            >마이페이지</a
+          >
+        </nav>
+      </div>
+
+      <div class="header-search-wrap" id="headerSearchWrap">
+        <div class="header-search-inner">
+          <input
+            type="text"
+            class="header-search-input"
+            id="searchInput"
+            placeholder="드라마, 영화, 장소를 검색하세요..."
+            autocomplete="off"
+          />
+          <button class="header-search-btn" id="searchDo">검색</button>
+          <button class="header-search-close" id="searchClose">닫기</button>
+        </div>
+
+        <div class="header-content-suggest">
+          <div
+            id="contentSuggestTitle"
+            class="content-suggest-title"
+            style="display: none"
+          >
+            추천 콘텐츠
+          </div>
+          <div id="contentSuggestRail" class="card-carousel"></div>
+        </div>
+
+        <div class="header-search-results" id="searchResults"></div>
+      </div>
+    </header>
+
+    <div class="page-heading header-text">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <span class="breadcrumb"
+              ><a href="#">Course</a> / AI Recommend</span
+            >
+            <h3>AI일정추천</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section properties">
+      <div class="container">
+        <ul class="properties-filter">
+          <li>
+            <a class="is_active" href="#!" data-filter="*">모두</a>
+          </li>
+          <li>
+            <a href="#!" data-filter=".adv">드라마</a>
+          </li>
+          <li>
+            <a href="#!" data-filter=".str">영화</a>
+          </li>
+          <li>
+            <a href="#!" data-filter=".rac">K-POP</a>
+          </li>
+        </ul>
+        <div class="row properties-box">
+          <div
+            class="col-lg-4 col-md-6 align-self-center mb-30 properties-items col-md-6 adv"
+          >
+            <div class="item">
+              <a href="aiEndpointSeoul.html"
+                ><img src="assets/images/property-01.jpg" alt=""
+              /></a>
+              <span class="category">드라마</span>
+              <h6>₩250,000</h6>
+              <h4>
+                <a href="aiEndpointSeoul.html">Seoul</a>
+              </h4>
+              <ul>
+                <li>예상경비: <span>₩250,000</span></li>
+                <li>추천일정: <span>2박 3일</span></li>
+                <li>이동거리: <span>약 15km</span></li>
+                <li>추천 이동수단: <span>지하철,버스</span></li>
+              </ul>
+              <div class="main-button">
+                <a href="aiEndpointSeoul.html">AI일정 추천받기</a>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-lg-4 col-md-6 align-self-center mb-30 properties-items col-md-6 str"
+          >
+            <div class="item">
+              <a href="aiEndpointBusan.html"
+                ><img src="assets/images/property-02.jpg" alt=""
+              /></a>
+
+              <span class="category">영화</span>
+              <h6>₩280,000</h6>
+              <h4>
+                <a href="aiEndpointBusan.html">Busan</a>
+              </h4>
+              <ul>
+                <li>예상경비: <span>₩280,000</span></li>
+                <li>추천일정: <span>2박 3일</span></li>
+                <li>이동거리: <span>약 25km</span></li>
+                <li>추천 이동수단: <span>버스,도보</span></li>
+              </ul>
+              <div class="main-button">
+                <a href="aiEndpointBusan.html">AI일정 추천받기</a>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-lg-4 col-md-6 align-self-center mb-30 properties-items col-md-6 adv rac"
+          >
+            <div class="item">
+              <a href="aiEndpointGyeongju.html"
+                ><img src="assets/images/property-03.jpg" alt=""
+              /></a>
+              <span class="category">드라마</span>
+              <span class="category">K-POP</span>
+              <h6>₩220,000</h6>
+              <h4>
+                <a href="aiEndpointGyeongju.html">Gyeongju</a>
+              </h4>
+              <ul>
+                <li>예상경비: <span>₩220,000</span></li>
+                <li>추천일정: <span>2박 3일</span></li>
+                <li>이동거리: <span>약 18km</span></li>
+                <li>추천 이동수단: <span>자전거,전동킥보드,관광버스</span></li>
+              </ul>
+              <div class="main-button">
+                <a href="aiEndpointGyeongju.html">AI일정 추천받기</a>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-lg-4 col-md-6 align-self-center mb-30 properties-items col-md-6 str"
+          >
+            <div class="item">
+              <a href="aiEndpointJejuisland.html"
+                ><img src="assets/images/property-04.jpg" alt=""
+              /></a>
+              <span class="category">영화</span>
+              <h6>₩450,000</h6>
+              <h4>
+                <a href="aiEndpointJejuisland.html">Jeju Island</a>
+              </h4>
+              <ul>
+                <li>예상경비: <span>₩450,000</span></li>
+                <li>추천일정: <span>3박 4일</span></li>
+                <li>이동거리: <span>약 120km</span></li>
+                <li>추천 이동수단: <span>렌터카</span></li>
+              </ul>
+              <div class="main-button">
+                <a href="aiEndpointJejuisland.html">AI일정 추천받기</a>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-lg-4 col-md-6 align-self-center mb-30 properties-items col-md-6 rac str"
+          >
+            <div class="item">
+              <a href="aiEndpointGangneung.html"
+                ><img src="assets/images/property-05.jpg" alt=""
+              /></a>
+              <span class="category">영화</span>
+              <span class="category">K-POP</span>
+              <h6>₩230,000</h6>
+              <h4>
+                <a href="aiEndpointGangneung.html">Gangneung</a>
+              </h4>
+              <ul>
+                <li>예상경비: <span>약₩230,000</span></li>
+                <li>추천일정: <span>2박 3일</span></li>
+                <li>이동거리: <span>약 20km</span></li>
+                <li>추천 이동수단: <span>자가용,도보</span></li>
+              </ul>
+              <div class="main-button">
+                <a href="aiEndpointGangneung.html">AI일정 추천받기</a>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-lg-4 col-md-6 align-self-center mb-30 properties-items col-md-6 rac adv"
+          >
+            <div class="item">
+              <a href="aiEndpointJeonju.html"
+                ><img src="assets/images/property-06.jpg" alt=""
+              /></a>
+              <span class="category">드라마</span>
+              <span class="category">K-POP</span>
+              <h6>₩210,000</h6>
+              <h4>
+                <a href="aiEndpointJeonju.html">Jeonju</a>
+              </h4>
+              <ul>
+                <li>예상경비: <span>₩210,000</span></li>
+                <li>추천일정: <span>2박 3일</span></li>
+                <li>이동거리: <span>약 10km</span></li>
+                <li>추천 이동수단: <span>도보,택시</span></li>
+              </ul>
+              <div class="main-button">
+                <a href="aiEndpointJeonju.html">AI일정 추천받기</a>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-lg-4 col-md-6 align-self-center mb-30 properties-items col-md-6 rac str"
+          >
+            <div class="item">
+              <a href="aiEndpointYeosu.html"
+                ><img src="assets/images/property-07.jpg" alt=""
+              /></a>
+              <span class="category">영화</span>
+              <span class="category">K-POP</span>
+              <h6>₩270,000</h6>
+              <h4>
+                <a href="aiEndpointYeosu.html">Yeosu</a>
+              </h4>
+              <ul>
+                <li>예상경비: <span>₩270,000</span></li>
+                <li>추천일정: <span>2박 3일</span></li>
+                <li>이동거리: <span>약 22km</span></li>
+                <li>추천 이동수단: <span>자가용,케이블카</span></li>
+              </ul>
+              <div class="main-button">
+                <a href="aiEndpointYeosu.html">AI일정 추천받기</a>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-lg-4 col-md-6 align-self-center mb-30 properties-items col-md-6 rac adv"
+          >
+            <div class="item">
+              <a href="aiEndpointSokcho.html"
+                ><img src="assets/images/property-08.jpg" alt=""
+              /></a>
+              <span class="category">드라마</span>
+              <span class="category">K-POP</span>
+              <h6>₩240,000</h6>
+              <h4>
+                <a href="aiEndpointSokcho.html">Sokcho</a>
+              </h4>
+              <ul>
+                <li>예상경비: <span>₩240,000</span></li>
+                <li>추천일정: <span>2박 3일</span></li>
+                <li>이동거리: <span>약 18km</span></li>
+                <li>추천 이동수단: <span>도보, 자가용</span></li>
+              </ul>
+              <div class="main-button">
+                <a href="aiEndpointSokcho.html">AI일정 추천받기</a>
+              </div>
+            </div>
+          </div>
+          <div
+            class="col-lg-4 col-md-6 align-self-center mb-30 properties-items col-md-6 rac adv"
+          >
+            <div class="item">
+              <a href="aiEndpointTongyeong.html"
+                ><img src="assets/images/property-09.jpg" alt=""
+              /></a>
+              <span class="category">드라마</span>
+              <span class="category">K-POP</span>
+              <h6>₩230,000</h6>
+              <h4>
+                <a href="aiEndpointTongyeong.html">Tongyeong</a>
+              </h4>
+              <ul>
+                <li>예상경비: <span>₩230,000</span></li>
+                <li>추천일정: <span>2박 3일</span></li>
+                <li>이동거리: <span>약 17km</span></li>
+                <li>추천 이동수단: <span>자가용,케이블카</span></li>
+              </ul>
+              <div class="main-button">
+                <a href="aiEndpointTongyeong.html">AI일정 추천받기</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <ul class="pagination">
+              <li><a class="is_active" href="#">Top</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="container">
+        <div class="col-lg-8">
+          <p>
+            Copyright © 2025 Codetour, Ltd. All rights reserved.
+            <a rel="nofollow" href="https://templatemo.com" target="_blank"
+              >Codetour</a
+            >
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <!-- Bootstrap 핵심 JavaScript -->
+    <script src="/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/isotope.min.js"></script>
+    <script src="/owl-carousel.js"></script>
+    <script src="/counter.js"></script>
+    <script src="/custom.js"></script>
+
+    <!-- 로그인 기능 스크립트 -->
+    <script src="/libs/userManager.js"></script>
+    <script>
+      // auth.js가 라우팅에 사용할 경로 정의
+      window.AUTH_PATHS = {
+        INDEX: "/",
+        SET_NICK: "/auth/set-nickname.html",
+      };
+    </script>
+    <script type="module" src="/auth/auth.js"></script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
+<script type="module">
+  // Supabase Auth 연동
+  import {
+    initAuthListener,
+    getIsLoggedIn,
+    getUserNickname,
+    getUserId,
+  } from "/libs/user-manager.js";
+
+  window.currentUser = null;
+
+  // 로그인 상태 확인
+  async function checkAuth() {
+    initAuthListener();
+    const isLoggedIn = getIsLoggedIn();
+    const userId = getUserId();
+
+    const loginBtn = document.getElementById("loginBtn");
+    const langSelect = document.querySelector(".lang-select");
+    const searchBtn = document.querySelector(".btn-search");
+
+    if (isLoggedIn && userId) {
+      // 로그인된 상태
+      const nickname = getUserNickname();
+      window.currentUser = { id: userId, nickname };
+
+      // 로그인 버튼을 로그아웃 버튼으로 변경
+      if (loginBtn) {
+        loginBtn.textContent = "로그아웃";
+        loginBtn.onclick = async () => {
+          const { createClient } = await import(
+            "https://esm.sh/@supabase/supabase-js@2"
+          );
+          const supabase = createClient(
+            "https://fmcxkqfccuevcaqkzsex.supabase.co",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtY3hrcWZjY3VldmNhcWt6c2V4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzNzk3MzcsImV4cCI6MjA3NDk1NTczN30.IZ47Juv0ypiX4sWTb1vo54hcMI0yBQol1VhUm37vs7M"
+          );
+          await supabase.auth.signOut();
+          window.location.reload();
+        };
+      }
+    } else {
+      // 로그인 안 된 상태
+      if (loginBtn) {
+        loginBtn.onclick = () => {
+          window.location.href = "/auth";
+        };
+      }
+    }
+
+    // 언어 선택 기능
+    if (langSelect) {
+      const savedLang = localStorage.getItem("language") || "ko";
+      langSelect.value = savedLang;
+
+      langSelect.addEventListener("change", (e) => {
+        localStorage.setItem("language", e.target.value);
+        // 언어 변경 함수가 있다면 호출
+        if (typeof changeLanguage === "function") {
+          changeLanguage(e.target.value);
+        }
+      });
+    }
+
+    // 검색 버튼 기능 (필요시 구현)
+    if (searchBtn) {
+      searchBtn.addEventListener("click", () => {
+        // 검색 기능 구현
+        console.log("검색 버튼 클릭");
+      });
+    }
+  }
+
+  checkAuth();
+</script>
