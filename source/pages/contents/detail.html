@@ -377,24 +377,59 @@
           // 지도 초기화
           kakao.maps.load(function () {
             const mapContainer = document.getElementById("map");
-            const coords = parseCoordinates(mainLocation.coordinates);
 
-            if (coords && coords.lat && coords.lng) {
-              const mapOption = {
-                center: new kakao.maps.LatLng(coords.lat, coords.lng),
-                level: 3,
-              };
-              const map = new kakao.maps.Map(mapContainer, mapOption);
+            // 장소 검색 객체를 생성합니다
+            const ps = new kakao.maps.services.Places();
 
-              const markerPosition = new kakao.maps.LatLng(coords.lat, coords.lng);
-              const marker = new kakao.maps.Marker({
-                position: markerPosition,
-              });
-              marker.setMap(map);
-            } else {
-              mapContainer.innerHTML =
-                '<p style="text-align:center; padding-top: 20px;">지도를 표시할 위치 정보가 없습니다.</p>';
-            }
+            // 키워드로 장소를 검색합니다
+            ps.keywordSearch(
+              mainLocation.placeName,
+              function (data, status, pagination) {
+                if (status === kakao.maps.services.Status.OK) {
+                  // 검색된 장소 위치를 기준으로 지도 중심을 설정합니다
+                  const coords = new kakao.maps.LatLng(data[0].y, data[0].x);
+
+                  const mapOption = {
+                    center: coords,
+                    level: 3,
+                  };
+                  const map = new kakao.maps.Map(mapContainer, mapOption);
+
+                  // 결과값으로 받은 위치를 마커로 표시합니다
+                  const marker = new kakao.maps.Marker({
+                    map: map,
+                    position: coords,
+                  });
+                } else {
+                  // 키워드 검색 실패 시, DB의 좌표 정보로 다시 시도합니다.
+                  console.warn(
+                    `'${mainLocation.placeName}'에 대한 키워드 검색 실패. 좌표로 재시도합니다.`
+                  );
+                  const coordsFromDB = parseCoordinates(
+                    mainLocation.coordinates
+                  );
+
+                  if (coordsFromDB && coordsFromDB.lat && coordsFromDB.lng) {
+                    const mapOption = {
+                      center: new kakao.maps.LatLng(
+                        coordsFromDB.lat,
+                        coordsFromDB.lng
+                      ),
+                      level: 3,
+                    };
+                    const map = new kakao.maps.Map(mapContainer, mapOption);
+                    const marker = new kakao.maps.Marker({
+                      map: map,
+                      position: mapOption.center,
+                    });
+                  } else {
+                    // 키워드와 좌표 모두 실패한 경우
+                    mapContainer.innerHTML =
+                      '<p style="text-align:center; padding-top: 20px;">지도에 표시할 위치를 찾을 수 없습니다.</p>';
+                  }
+                }
+              }
+            );
           });
         } catch (error) {
           console.error("Error fetching location details:", error);
