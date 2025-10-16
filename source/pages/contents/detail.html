@@ -14,7 +14,7 @@
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script
       type="text/javascript"
-      src="//dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"
+      src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"
     ></script>
   </head>
   <body>
@@ -119,7 +119,107 @@
     <script type="module" src="/auth/auth.js"></script>
 
     <!-- 헤더 인라인 검색 스크립트 (index.html과 동일) -->
-    <script type="module" src="/source/pages/index/header-search.js"></script>
+    <script type="module">
+      const header = document.querySelector(".header");
+      const wrap = document.getElementById("headerSearchWrap");
+      const input = document.getElementById("searchInput");
+      const btnToggle = document.getElementById("searchToggle");
+      const btnClose = document.getElementById("searchClose");
+      const btnDo = document.getElementById("searchDo");
+      const results = document.getElementById("searchResults");
+
+      const suggestTitle = document.getElementById("contentSuggestTitle");
+      const suggestRail = document.getElementById("contentSuggestRail");
+
+      let allContents = null;
+
+      function setWrapHeight(open) {
+        if (open) {
+          wrap.style.height = wrap.scrollHeight + "px";
+          header.classList.add("header--search-open");
+        } else {
+          wrap.style.height = "0px";
+          header.classList.remove("header--search-open");
+        }
+      }
+      function openSearch() {
+        results.innerHTML = "";
+        clearRail();
+        input.value = "";
+        setWrapHeight(true);
+        setTimeout(() => input.focus(), 0);
+        ensureContentsLoaded();
+      }
+      function closeSearch() {
+        setWrapHeight(false);
+      }
+      function toggleSearch() {
+        const isOpen = wrap.style.height && wrap.style.height !== "0px";
+        isOpen ? closeSearch() : openSearch();
+      }
+      btnToggle?.addEventListener("click", toggleSearch);
+      btnClose?.addEventListener("click", closeSearch);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeSearch();
+      });
+      window.addEventListener("resize", () => {
+        if (wrap.style.height && wrap.style.height !== "0px") {
+          wrap.style.height = "auto";
+          const h = wrap.scrollHeight;
+          wrap.style.height = h + "px";
+        }
+      });
+
+      function tryTeamRenderer(items) {
+        if (window.ContentCards?.render) {
+          window.ContentCards.render(suggestRail, items);
+          return true;
+        }
+        if (typeof window.renderContentCards === "function") {
+          window.renderContentCards("contentSuggestRail", items);
+          return true;
+        }
+        if (window.CardFactory?.render) {
+          window.CardFactory.render(suggestRail, items);
+          return true;
+        }
+        if (typeof window.buildCards === "function") {
+          window.buildCards(suggestRail, items);
+          return true;
+        }
+        return false;
+      }
+      function fallbackRender(items) {
+        suggestRail.innerHTML = items
+          .map(
+            (it) => `
+          <div class="search-item" style="min-width:220px;">
+            <div style="font-weight:700;">${it.title}</div>
+            <div style="color:#666;font-size:13px;margin-top:2px;">${
+              it.subtitle ?? ""
+            }</div>
+          </div>
+        `
+          )
+          .join("");
+      }
+      function renderRail(items) {
+        suggestTitle.style.display = items?.length ? "" : "none";
+        suggestRail.innerHTML = "";
+        if (!items?.length) return;
+        const ok = tryTeamRenderer(items);
+        if (!ok) fallbackRender(items);
+        if (wrap.style.height && wrap.style.height !== "0px") {
+          wrap.style.height = "auto";
+          const h = wrap.scrollHeight;
+          wrap.style.height = h + "px";
+        }
+      }
+      function clearRail() {
+        suggestTitle.style.display = "none";
+        suggestRail.innerHTML = "";
+      }
+    </script>
 
     <script type="module">
       let supabase;
@@ -181,6 +281,8 @@
           if (locationError) throw locationError;
           if (imageError) throw imageError;
           if (reviewError) throw reviewError;
+
+          console.log("locations:", locations);
 
           if (!locations || locations.length === 0) {
             detailContainer.innerHTML = "<p>장소 정보를 찾을 수 없습니다.</p>";

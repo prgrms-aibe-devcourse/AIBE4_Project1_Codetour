@@ -81,6 +81,10 @@ app.use(
   express.static(path.join(__dirname, "../source/pages/index"))
 );
 app.use(
+  "/source/pages/contents",
+  express.static(path.join(__dirname, "../source/pages/contents"))
+);
+app.use(
   "/source/pages/map",
   express.static(path.join(__dirname, "../source/pages/map"))
 );
