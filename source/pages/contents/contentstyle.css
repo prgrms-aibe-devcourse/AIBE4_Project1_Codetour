@@ -25,7 +25,7 @@ main {
 }
 
 /* Card Styles */
-.card {
+.content-item-card {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -43,7 +43,7 @@ main {
   flex-basis: calc(33.333% - 13.333px);
   max-width: calc(33.333% - 13.333px);
 }
-.card {
+.content-item-card {
   position: relative; /* 좋아요 버튼의 위치 기준점 */
 }
 
@@ -67,7 +67,7 @@ main {
   color: #f5faf8;
 }
 
-.card .content-container {
+.content-item-card .content-container {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -78,7 +78,7 @@ main {
   box-sizing: border-box; /* 패딩이 너비에 포함되도록 함 */
 }
 
-.card .content-container h3 {
+.content-item-card .content-container h3 {
   height: 28px;
   font-family: "Noto Sans KR";
   font-style: normal;
@@ -91,7 +91,7 @@ main {
   margin: 0;
 }
 
-.card .content-container .description {
+.content-item-card .content-container .description {
   height: 100px; /* 설명 텍스트 영역의 높이를 100px로 고정합니다. */
   font-family: "Noto Sans KR";
   font-style: normal;
@@ -103,7 +103,7 @@ main {
   overflow: auto; /* 내용이 영역을 벗어날 경우 스크롤바를 표시합니다. */
 }
 
-.card .content-container .details {
+.content-item-card .content-container .details {
   display: flex;
   flex-direction: row;
   justify-content: space-between;

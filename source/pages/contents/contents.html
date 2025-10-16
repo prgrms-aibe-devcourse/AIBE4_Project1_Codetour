@@ -6,17 +6,13 @@
     <title>K-Spot - 한류 콘텐츠 여행 플랫폼</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="contentstyle.css" />
+    <link rel="stylesheet" href="/source/pages/index/style.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/swiper/swiper-bundle.min.css"
     />
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <style>
-      .header .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 2rem;
-    }
       .header-search-wrap {
         overflow: hidden;
         height: 0;
@@ -550,7 +546,7 @@
           const locationCount = content.locationCount || 0;
 
           const card = document.createElement("div");
-          card.classList.add("card");
+          card.classList.add("content-item-card");
 
           card.innerHTML = `
                 <div class="image-container">

@@ -475,6 +475,32 @@
             </div>
           `;
 
+          // 리뷰 폼 제출 이벤트 리스너 추가
+          const reviewForm = document.getElementById("review-form");
+          if (reviewForm) {
+            reviewForm.addEventListener("submit", async (e) => {
+              e.preventDefault();
+
+              // 로그인 상태 확인
+              if (!getIsLoggedIn || !getIsLoggedIn()) {
+                alert("리뷰를 등록하려면 로그인이 필요합니다.");
+                return;
+              }
+
+              const userId = getUserId();
+              if (!userId) {
+                alert("사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.");
+                return;
+              }
+
+              const reviewText = document.getElementById("review-text").value;
+              if (!reviewText.trim()) {
+                alert("리뷰 내용을 입력해주세요.");
+                return;
+              }
+            });
+          }
+
           detailContainer.innerHTML = html;
 
           // '좋아요' 버튼에 이벤트 리스너 추가
