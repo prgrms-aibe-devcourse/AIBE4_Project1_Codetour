@@ -114,6 +114,7 @@ main {
 }
 
 .details-button,
+.location-details-button,
 .like-button {
   padding: 8px 16px;
   border-radius: 8px;
@@ -125,11 +126,11 @@ main {
   transition: background-color 0.2s;
 }
 
-.details-button {
+.location-details-button {
   color: #00473c;
 }
 
-.details-button:hover {
+.location-details-button:hover {
   background-color: #f0f5f4;
 }
 
