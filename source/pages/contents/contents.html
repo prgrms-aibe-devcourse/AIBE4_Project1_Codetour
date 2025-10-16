@@ -351,6 +351,36 @@
           );
           // console.log("relatedLocations:", relatedLocations);
 
+          // --- 리뷰 데이터 가져오기 ---
+          const relatedPlaceIds = relatedLocations
+            .map((loc) => loc.placeId)
+            .filter(Boolean);
+          let reviews = [];
+          if (relatedPlaceIds.length > 0) {
+            const { data: reviewData, error: reviewError } = await supabase
+              .from("reviews")
+              .select("*")
+              .in("location_id", relatedPlaceIds)
+              .order("created_at", { ascending: false })
+              .limit(10);
+
+            if (reviewError) {
+              console.error("리뷰를 불러오는 중 오류 발생:", reviewError);
+            } else {
+              reviews = reviewData;
+            }
+          }
+
+          // --- 리뷰 HTML 생성 ---
+          let reviewsHtml =
+            '<p class="no-reviews">아직 작성된 리뷰가 없습니다.</p>';
+          if (reviews && reviews.length > 0) {
+            reviewsHtml = reviews
+              .map((review) => createReviewItemHTML(review, relatedLocations))
+              .join("");
+          }
+          // --- 리뷰 로직 끝 ---
+
           let html = `<img src="${contentInfo.imageUrl}" alt="${contentInfo.name}">`;
           html += `<h2>${contentInfo.name}</h2>`;
           html += "<hr><h3>관련 촬영지 정보</h3>";
@@ -408,9 +438,7 @@
             <div class="reviews-section">
               <hr>
               <h3>리뷰</h3>
-              <div class="reviews-container">
-                <p>아직 작성된 리뷰가 없습니다.</p>
-              </div>
+              <div class="reviews-container">${reviewsHtml}</div>
             </div>
           `;
           modalBody.innerHTML = html;
@@ -440,6 +468,35 @@
         } catch (error) {
           modalBody.innerHTML = `<p>상세 정보를 불러오는 데 실패했습니다: ${error.message}</p>`;
         }
+      }
+
+      // 리뷰 아이템 HTML을 생성하는 헬퍼 함수
+      function createReviewItemHTML(review, locations) {
+        const reviewStarPercentage = (review.rating / 5) * 100;
+        const reviewDate = new Date(review.created_at).toLocaleDateString();
+        const reviewLocation = locations.find(
+          (loc) => loc.placeId === review.location_id
+        );
+        const reviewLocationName = reviewLocation
+          ? reviewLocation.name
+          : "관련 장소";
+
+        return `
+          <div class="review-item">
+            <div class="review-item-header">
+              <span class="review-author">${review.display_name}</span>
+              <div class="stars-outer"><div class="stars-inner" style="width: ${reviewStarPercentage}%;"></div></div>
+              <span class="review-item-location-tag">${reviewLocationName}</span>
+            </div>
+            <p class="review-text">${review.comment}</p>
+            ${
+              review.review_image
+                ? `<img src="${review.review_image}" alt="리뷰 이미지" class="review-image">`
+                : ""
+            }
+            <span class="review-date">${reviewDate}</span>
+          </div>
+        `;
       }
 
       // --- 모달을 닫는 함수 ---

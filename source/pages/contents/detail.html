@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>상세 정보 - CodeTour</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <meta property="og:image" content="/og-image.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="K-Spot">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="K-Spot" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="contentstyle.css" />
     <link rel="stylesheet" href="/source/pages/index/style.css" />
@@ -53,9 +53,11 @@
       // auth.js가 로드된 후 user-manager.js의 함수를 사용할 수 있습니다.
       let getIsLoggedIn;
       let getUserId;
-      import("/libs/user-manager.js").then(module => {
+      let getUserNickname;
+      import("/libs/user-manager.js").then((module) => {
         getIsLoggedIn = module.getIsLoggedIn;
         getUserId = module.getUserId;
+        getUserNickname = module.getUserNickname;
       });
 
       // Supabase 클라이언트 초기화
@@ -178,7 +180,11 @@
           let html = `
             <div class="detail-header">
               <h2>${mainLocation.placeName}</h2>
-              <button class="like-button ${isLiked ? 'liked' : ''}" data-place-id="${mainLocation.placeId}">${isLiked ? '♥' : '♡'}</button>
+              <button class="like-button ${
+                isLiked ? "liked" : ""
+              }" data-place-id="${mainLocation.placeId}">${
+            isLiked ? "♥" : "♡"
+          }</button>
             </div>`;
 
           // 이미지 슬라이더 또는 단일 이미지 표시
@@ -209,19 +215,19 @@
 
           // 상세 정보 표시
           html += `<div class="detail-info-grid">`;
-          html += `<p><strong>주소:</strong> ${ 
+          html += `<p><strong>주소:</strong> ${
             mainLocation.address || "정보 없음"
           }</p>`;
-          html += `<p><strong>연락처:</strong> ${ 
+          html += `<p><strong>연락처:</strong> ${
             mainLocation.tel || "정보 없음"
           }</p>`;
-          html += `<p><strong>입장료:</strong> ${ 
+          html += `<p><strong>입장료:</strong> ${
             mainLocation.entranceFee || "정보 없음"
           }</p>`;
-          html += `<p><strong>운영 시간:</strong> ${ 
+          html += `<p><strong>운영 시간:</strong> ${
             mainLocation.subDescription || "정보 없음"
           }</p>`;
-          html += `<p class="full-width"><strong>설명:</strong> ${ 
+          html += `<p class="full-width"><strong>설명:</strong> ${
             mainLocation.description || "정보 없음"
           }</p>`;
           html += `</div>`;
@@ -266,13 +272,13 @@
               reviewListHtml += `
                 <div class="review-item">
                   <div class="review-item-header">
-                    <span class="review-author">${review.author}</span>
+                    <span class="review-author">${review.display_name}</span>
                     <div class="stars-outer"><div class="stars-inner" style="width: ${reviewStarPercentage}%;"></div></div>
                   </div>
-                  <p class="review-text">${review.text}</p>
-                  ${ 
-                    review.imageUrl
-                      ? `<img src="${review.imageUrl}" alt="리뷰 이미지" class="review-image" style="width:120px; height:120px; object-fit:cover; border-radius:8px; margin:8px 0;">`
+                  <p class="review-text">${review.comment}</p>
+                  ${
+                    review.review_image
+                      ? `<img src="${review.review_image}" alt="리뷰 이미지" class="review-image" style="width:120px; height:120px; object-fit:cover; border-radius:8px; margin:8px 0;">`
                       : ""
                   }
                   <span class="review-date">${reviewDate}</span>
@@ -294,12 +300,72 @@
               <div class="review-form-container">
                 <h4>리뷰 작성하기</h4>
                 <form id="review-form">
+                  <div class="rating-stars">
+                    <input type="radio" name="rating" id="rating-5" value="5"><label for="rating-5">★</label>
+                    <input type="radio" name="rating" id="rating-4" value="4"><label for="rating-4">★</label>
+                    <input type="radio" name="rating" id="rating-3" value="3"><label for="rating-3">★</label>
+                    <input type="radio" name="rating" id="rating-2" value="2"><label for="rating-2">★</label>
+                    <input type="radio" name="rating" id="rating-1" value="1"><label for="rating-1">★</label>
+                  </div>
                   <textarea id="review-text" placeholder="이 장소에 대한 경험을 공유해주세요." required></textarea>
+                  <!-- 이미지 업로드 UI 추가 -->
+                  <div class="image-upload-container" id="review-image-upload-container">
+                    <img id="review-image-preview" src="#" alt="이미지 미리보기" style="display:none;"/>
+                    <button type="button" id="remove-image-btn" style="display:none;">&times;</button>
+                    <label for="review-image-upload" class="upload-label">
+                      <span>📷 이미지 추가</span>
+                    </label>
+                  </div>
+                  <input type="file" id="review-image-upload" accept="image/*" style="display:none;">
                   <button type="submit" class="details-button">리뷰 등록</button>
                 </form>
               </div>
             </div>
           `;
+
+          detailContainer.innerHTML = html;
+
+          // 이미지 업로드 미리보기 이벤트 리스너 추가
+          const imageUploadInput = document.getElementById(
+            "review-image-upload"
+          );
+          const imagePreview = document.getElementById("review-image-preview");
+          const removeImageBtn = document.getElementById("remove-image-btn");
+          const uploadLabel = document.querySelector(".upload-label");
+
+          if (imageUploadInput && imagePreview) {
+            // 이미지 선택 시 미리보기 표시
+            imageUploadInput.addEventListener("change", (event) => {
+              const file = event.target.files[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  imagePreview.src = e.target.result;
+                  imagePreview.style.display = "block";
+                  removeImageBtn.style.display = "flex";
+                  uploadLabel.style.display = "none";
+                };
+                reader.readAsDataURL(file);
+              }
+            });
+
+            // 이미지 제거 버튼 클릭 시
+            removeImageBtn.addEventListener("click", () => {
+              // 1. 파일 입력 값 초기화
+              // 같은 파일을 다시 선택할 수 있도록 value를 비워줍니다.
+              imageUploadInput.value = "";
+
+              // 2. 미리보기 이미지 숨기기
+              imagePreview.src = "#";
+              imagePreview.style.display = "none";
+
+              // 3. 제거 버튼 숨기기
+              removeImageBtn.style.display = "none";
+
+              // 4. '이미지 추가' 라벨 다시 보이기
+              uploadLabel.style.display = "flex";
+            });
+          }
 
           // 리뷰 폼 제출 이벤트 리스너 추가
           const reviewForm = document.getElementById("review-form");
@@ -314,20 +380,81 @@
               }
 
               const userId = getUserId();
-              if (!userId) {
+              const userNickname = getUserNickname();
+              if (!userId || !userNickname) {
                 alert("사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.");
                 return;
               }
 
               const reviewText = document.getElementById("review-text").value;
+              const rating = reviewForm.querySelector(
+                'input[name="rating"]:checked'
+              );
+
+              if (!rating) {
+                alert("평점을 선택해주세요.");
+                return;
+              }
+
               if (!reviewText.trim()) {
                 alert("리뷰 내용을 입력해주세요.");
                 return;
               }
+
+              try {
+                let reviewImageUrl = null;
+                const imageFile = document.getElementById("review-image-upload")
+                  .files[0];
+
+                // 이미지가 선택된 경우 Supabase Storage에 업로드
+                if (imageFile) {
+                  const bucketName = "review-images"; // Supabase에 생성된 버킷 이름
+                  const fileName = `${userId}/${Date.now()}-${imageFile.name}`;
+
+                  const { error: uploadError } = await supabase.storage
+                    .from(bucketName)
+                    .upload(fileName, imageFile);
+
+                  if (uploadError) {
+                    throw new Error(
+                      `이미지 업로드 실패: ${uploadError.message}`
+                    );
+                  }
+
+                  // 업로드된 이미지의 공개 URL 가져오기
+                  const { data: publicUrlData } = supabase.storage
+                    .from(bucketName)
+                    .getPublicUrl(fileName);
+
+                  if (!publicUrlData || !publicUrlData.publicUrl) {
+                    throw new Error("이미지 URL을 가져오지 못했습니다.");
+                  }
+                  reviewImageUrl = publicUrlData.publicUrl;
+                }
+
+                const { data, error } = await supabase.from("reviews").insert([
+                  {
+                    user_id: userId,
+                    location_id: placeId,
+                    comment: reviewText,
+                    display_name: userNickname,
+                    rating: parseInt(rating.value, 10),
+                    review_image: reviewImageUrl, // 이미지 URL 추가
+                  },
+                ]);
+
+                if (error) {
+                  throw error;
+                }
+
+                alert("리뷰가 성공적으로 등록되었습니다.");
+                location.reload(); // 페이지를 새로고침하여 새 리뷰를 확인
+              } catch (error) {
+                console.error("리뷰 등록 실패:", error);
+                alert(`리뷰 등록에 실패했습니다: ${error.message}`);
+              }
             });
           }
-
-          detailContainer.innerHTML = html;
 
           // '좋아요' 버튼에 이벤트 리스너 추가
           const likeButton = detailContainer.querySelector(".like-button");
@@ -367,7 +494,7 @@
                   .delete()
                   .eq("user_id", currentUserId)
                   .eq("target_id", placeId);
-                
+
                 if (error) {
                   console.error("좋아요 취소 실패:", error);
                   alert("좋아요 취소에 실패했습니다.");
