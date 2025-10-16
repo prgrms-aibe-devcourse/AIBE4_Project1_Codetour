@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <title>K-콘텐츠 지도</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <meta property="og:image" content="/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="K-Spot">
+    <script src="/libs/nav-manager.js" type="module"></script>
     <link rel="stylesheet" href="../index/style.css" />
     <style>
       * {
@@ -550,87 +559,7 @@
     </style>
   </head>
   <body>
-    <header class="header">
-      <div class="container">
-        <div class="header-top">
-          <a href="/source/pages/index/index.html" class="logo">
-            <svg
-              width="200"
-              height="50"
-              viewBox="0 0 200 50"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <defs>
-                <linearGradient
-                  id="logoGradient"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="0%"
-                >
-                  <stop
-                    offset="0%"
-                    style="stop-color: #e91e8c; stop-opacity: 1"
-                  />
-                  <stop
-                    offset="100%"
-                    style="stop-color: #ff6b9d; stop-opacity: 1"
-                  />
-                </linearGradient>
-                <style>
-                  .logo-text {
-                    font-family: "Pretendard", sans-serif;
-                    font-weight: 800;
-                    font-size: 40px;
-                    fill: url(#logoGradient);
-                    letter-spacing: -1px;
-                  }
-                </style>
-              </defs>
-              <text x="0" y="37" class="logo-text">K</text>
-              <text x="30" y="37" class="logo-text">-</text>
-              <text x="44" y="37" class="logo-text">S</text>
-              <text x="70" y="37" class="logo-text">P</text>
-              <g transform="translate(95.5, 4) scale(0.93)">
-                <path
-                  d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z"
-                  fill="url(#logoGradient)"
-                />
-                <circle cx="18" cy="13" r="8" fill="white" />
-              </g>
-              <text x="128" y="37" class="logo-text">T</text>
-            </svg>
-          </a>
-          <div
-            class="header-right"
-            style="display: flex; gap: 8px; align-items: center"
-          >
-            <select class="lang-select" id="languageSelector">
-              <option value="ko">한국어</option>
-              <option value="en">English</option>
-              <option value="ja">日本語</option>
-            </select>
-            <button class="btn-search" id="searchToggle">🔍</button>
-            <button id="loginBtn">로그인</button>
-          </div>
-        </div>
-
-        <nav class="nav">
-          <a href="/source/pages/index/index.html" class="nav-link">홈</a>
-          <a href="/source/pages/index/index.html#content" class="nav-link"
-            >콘텐츠별 여행지</a
-          >
-          <a href="/aiCourse" class="nav-link">AI 코스 추천</a>
-          <a href="/source/pages/map/map_page.html" class="nav-link active"
-            >K-콘텐츠 여행 지도</a
-          >
-          <a href="/source/pages/index/index.html#routes" class="nav-link"
-            >인기 여행 루트</a
-          >
-          <a href="/my-page" class="nav-link">마이페이지</a>
-        </nav>
-      </div>
-    </header>
+    <div id="headerPlaceholder"></div>
     <div class="container">
       <div class="left-panel">
         <!-- 장소 검색 -->
@@ -1007,12 +936,13 @@
       // 페이지 로드 시 저장된 언어로 설정
       document.addEventListener("DOMContentLoaded", () => {
         const langSelector = document.getElementById("languageSelector");
-        langSelector.value = currentLang;
+        if (langSelector) {
+          langSelector.value = currentLang;
+          langSelector.addEventListener("change", (e) => {
+            changeLanguage(e.target.value);
+          });
+        }
         changeLanguage(currentLang);
-
-        langSelector.addEventListener("change", (e) => {
-          changeLanguage(e.target.value);
-        });
       });
 
       let currentSearchMode = "place";
@@ -1072,88 +1002,89 @@
 
       // Kakao Maps SDK 로드 대기 및 초기화
       function initKakaoMap() {
-        if (typeof kakao === 'undefined' || !kakao.maps) {
-          console.log('Kakao Maps SDK 로드 대기 중...');
+        if (typeof kakao === "undefined" || !kakao.maps) {
+          console.log("Kakao Maps SDK 로드 대기 중...");
           setTimeout(initKakaoMap, 100);
           return;
         }
 
         kakao.maps.load(function () {
+
         var map = new kakao.maps.Map(document.getElementById("map"), {
           center: new kakao.maps.LatLng(37.5665, 126.978),
           level: 5,
         });
 
-        let markers = [];
-        let myCourse = [];
-        let routePolyline = null;
-        let currentInfoWindow = null;
+          let markers = [];
+          let myCourse = [];
+          let routePolyline = null;
+          let currentInfoWindow = null;
 
-        // 드래그 앤 드롭 기능
-        const courseList = document.getElementById("courseList");
-        let draggedElement = null;
+          // 드래그 앤 드롭 기능
+          const courseList = document.getElementById("courseList");
+          let draggedElement = null;
 
-        courseList.addEventListener("dragstart", (e) => {
-          draggedElement = e.target.closest("li");
-          draggedElement?.classList.add("dragging");
-        });
-
-        courseList.addEventListener("dragend", (e) => {
-          e.target.closest("li")?.classList.remove("dragging");
-        });
-
-        courseList.addEventListener("dragover", (e) => {
-          e.preventDefault();
-          const afterElement = getDragAfterElement(courseList, e.clientY);
-          const dragging = document.querySelector(".dragging");
-          if (afterElement == null) {
-            courseList.appendChild(dragging);
-          } else {
-            courseList.insertBefore(dragging, afterElement);
-          }
-        });
-
-        courseList.addEventListener("drop", (e) => {
-          e.preventDefault();
-          updateCourseOrder();
-        });
-
-        function getDragAfterElement(container, y) {
-          const draggableElements = [
-            ...container.querySelectorAll("li:not(.dragging)"),
-          ];
-          return draggableElements.reduce(
-            (closest, child) => {
-              const box = child.getBoundingClientRect();
-              const offset = y - box.top - box.height / 2;
-              if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child };
-              } else {
-                return closest;
-              }
-            },
-            { offset: Number.NEGATIVE_INFINITY }
-          ).element;
-        }
-
-        function updateCourseOrder() {
-          const listItems = courseList.querySelectorAll("li");
-          const newOrder = [];
-          listItems.forEach((item) => {
-            const courseIndex = parseInt(item.dataset.index);
-            newOrder.push(myCourse[courseIndex]);
+          courseList.addEventListener("dragstart", (e) => {
+            draggedElement = e.target.closest("li");
+            draggedElement?.classList.add("dragging");
           });
-          myCourse = newOrder;
-          renderCourseList();
-        }
 
-        function renderCourseList() {
-          courseList.innerHTML = "";
-          myCourse.forEach((place, index) => {
-            const li = document.createElement("li");
-            li.draggable = true;
-            li.dataset.index = index;
-            li.innerHTML = `
+          courseList.addEventListener("dragend", (e) => {
+            e.target.closest("li")?.classList.remove("dragging");
+          });
+
+          courseList.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(courseList, e.clientY);
+            const dragging = document.querySelector(".dragging");
+            if (afterElement == null) {
+              courseList.appendChild(dragging);
+            } else {
+              courseList.insertBefore(dragging, afterElement);
+            }
+          });
+
+          courseList.addEventListener("drop", (e) => {
+            e.preventDefault();
+            updateCourseOrder();
+          });
+
+          function getDragAfterElement(container, y) {
+            const draggableElements = [
+              ...container.querySelectorAll("li:not(.dragging)"),
+            ];
+            return draggableElements.reduce(
+              (closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                  return { offset: offset, element: child };
+                } else {
+                  return closest;
+                }
+              },
+              { offset: Number.NEGATIVE_INFINITY }
+            ).element;
+          }
+
+          function updateCourseOrder() {
+            const listItems = courseList.querySelectorAll("li");
+            const newOrder = [];
+            listItems.forEach((item) => {
+              const courseIndex = parseInt(item.dataset.index);
+              newOrder.push(myCourse[courseIndex]);
+            });
+            myCourse = newOrder;
+            renderCourseList();
+          }
+
+          function renderCourseList() {
+            courseList.innerHTML = "";
+            myCourse.forEach((place, index) => {
+              const li = document.createElement("li");
+              li.draggable = true;
+              li.dataset.index = index;
+              li.innerHTML = `
               <div class="course-item-info">
                 <strong>${index + 1}. ${place.name}</strong>
                 <small>${
@@ -1162,134 +1093,64 @@
               </div>
               <button class="remove-btn" data-i18n="btn.delete" onclick="removeCourse(${index})">삭제</button>
             `;
-            courseList.appendChild(li);
-          });
-        }
-
-        window.removeCourse = function (index) {
-          myCourse.splice(index, 1);
-          renderCourseList();
-        };
-
-        window.addToCourse = function (name, lat, lng, mediaTitle, placeId) {
-          myCourse.push({ name, lat, lng, mediaTitle, placeId });
-          renderCourseList();
-
-          if (currentInfoWindow) {
-            currentInfoWindow.close();
-            currentInfoWindow = null;
-          }
-
-          alert(t("alert.added", { name }));
-        };
-
-        window.closeInfoWindow = function () {
-          if (currentInfoWindow) {
-            currentInfoWindow.close();
-            currentInfoWindow = null;
-          }
-        };
-
-        window.deleteCourse = async function (courseId) {
-          if (!confirm(t("alert.deleteCourse"))) return;
-
-          try {
-            const res = await fetch(`/api/course/${courseId}`, {
-              method: "DELETE",
+              courseList.appendChild(li);
             });
-            const data = await res.json();
-
-            if (data.success) {
-              alert(t("alert.courseDeleted"));
-              // 코스 목록 새로고침
-              document.getElementById("loadCoursesBtn").click();
-            } else {
-              alert("Delete failed: " + data.error);
-            }
-          } catch (err) {
-            console.error(err);
-            alert(t("alert.saveFailed"));
           }
-        };
 
-        // 장소 검색 기능
-        document.getElementById("searchBtn").onclick = async function () {
-          const query = document.getElementById("searchInput").value;
-          if (!query) return alert(t("alert.enterSearch"));
+          window.removeCourse = function (index) {
+            myCourse.splice(index, 1);
+            renderCourseList();
+          };
 
-          try {
-            const res = await fetch(
-              `/api/search?q=${encodeURIComponent(query)}`
-            );
-            const data = await res.json();
+          window.addToCourse = function (name, lat, lng, mediaTitle, placeId) {
+            myCourse.push({ name, lat, lng, mediaTitle, placeId });
+            renderCourseList();
 
-            markers.forEach((m) => m.setMap(null));
-            markers = [];
-
-            if (data.documents.length === 0) {
-              alert(t("alert.noResults"));
-              return;
+            if (currentInfoWindow) {
+              currentInfoWindow.close();
+              currentInfoWindow = null;
             }
 
-            data.documents.forEach((place) => {
-              const marker = new kakao.maps.Marker({
-                map,
-                position: new kakao.maps.LatLng(place.y, place.x),
+            alert(t("alert.added", { name }));
+          };
+
+          window.closeInfoWindow = function () {
+            if (currentInfoWindow) {
+              currentInfoWindow.close();
+              currentInfoWindow = null;
+            }
+          };
+
+          window.deleteCourse = async function (courseId) {
+            if (!confirm(t("alert.deleteCourse"))) return;
+
+            try {
+              const res = await fetch(`/api/course/${courseId}`, {
+                method: "DELETE",
               });
+              const data = await res.json();
 
-              const info = new kakao.maps.InfoWindow({
-                content: `<div class="custom-info">
-                          <div class="info-header">
-                            <div class="info-title">
-                              <strong>${place.place_name}</strong>
-                              <small>${
-                                place.media_title ? place.media_title : ""
-                              }</small>
-                            </div>
-                            <button onclick="closeInfoWindow()" class="info-close">✕</button>
-                          </div>
-                          <button onclick='addToCourse("${place.place_name}", ${
-                  place.y
-                }, ${place.x}, "${place.media_title || ""}", ${
-                  place.place_id || "null"
-                })' class="info-add-btn" data-i18n="btn.addToCourse">+ 코스 추가</button>
-                        </div>`,
-              });
+              if (data.success) {
+                alert(t("alert.courseDeleted"));
+                // 코스 목록 새로고침
+                document.getElementById("loadCoursesBtn").click();
+              } else {
+                alert("Delete failed: " + data.error);
+              }
+            } catch (err) {
+              console.error(err);
+              alert(t("alert.saveFailed"));
+            }
+          };
 
-              kakao.maps.event.addListener(marker, "click", () => {
-                if (currentInfoWindow) {
-                  currentInfoWindow.close();
-                }
-
-                if (currentInfoWindow === info) {
-                  currentInfoWindow = null;
-                } else {
-                  info.open(map, marker);
-                  currentInfoWindow = info;
-                }
-              });
-
-              markers.push(marker);
-            });
-
-            map.setCenter(
-              new kakao.maps.LatLng(data.documents[0].y, data.documents[0].x)
-            );
-          } catch (err) {
-            console.error(err);
-            alert(t("alert.routeFailed"));
-          }
-        };
-
-        // 콘텐츠 검색 기능
-        document.getElementById("searchContentBtn").onclick =
-          async function () {
-            const contentName = document.getElementById("contentSelect").value;
-            if (!contentName) return alert(t("alert.selectContent"));
+          // 장소 검색 기능
+          document.getElementById("searchBtn").onclick = async function () {
+            const query = document.getElementById("searchInput").value;
+            if (!query) return alert(t("alert.enterSearch"));
 
             try {
               const res = await fetch(
-                `/api/search-by-content?name=${encodeURIComponent(contentName)}`
+                `/api/search?q=${encodeURIComponent(query)}`
               );
               const data = await res.json();
 
@@ -1297,7 +1158,7 @@
               markers = [];
 
               if (data.documents.length === 0) {
-                alert(t("alert.noLocations"));
+                alert(t("alert.noResults"));
                 return;
               }
 
@@ -1312,11 +1173,17 @@
                           <div class="info-header">
                             <div class="info-title">
                               <strong>${place.place_name}</strong>
-                              <small>${place.media_title}</small>
+                              <small>${
+                                place.media_title ? place.media_title : ""
+                              }</small>
                             </div>
                             <button onclick="closeInfoWindow()" class="info-close">✕</button>
                           </div>
-                          <button onclick='addToCourse("${place.place_name}", ${place.y}, ${place.x}, "${place.media_title}", ${place.place_id})' class="info-add-btn">+ 코스 추가</button>
+                          <button onclick='addToCourse("${place.place_name}", ${
+                    place.y
+                  }, ${place.x}, "${place.media_title || ""}", ${
+                    place.place_id || "null"
+                  })' class="info-add-btn" data-i18n="btn.addToCourse">+ 코스 추가</button>
                         </div>`,
                 });
 
@@ -1336,102 +1203,174 @@
                 markers.push(marker);
               });
 
-              if (data.documents.length > 0) {
-                map.setCenter(
-                  new kakao.maps.LatLng(
-                    data.documents[0].y,
-                    data.documents[0].x
-                  )
-                );
-              }
+              map.setCenter(
+                new kakao.maps.LatLng(data.documents[0].y, data.documents[0].x)
+              );
             } catch (err) {
               console.error(err);
               alert(t("alert.routeFailed"));
             }
           };
 
-        // 엔터키로 검색
-        document
-          .getElementById("searchInput")
-          .addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-              document.getElementById("searchBtn").click();
-            }
-          });
+          // 콘텐츠 검색 기능
+          document.getElementById("searchContentBtn").onclick =
+            async function () {
+              const contentName =
+                document.getElementById("contentSelect").value;
+              if (!contentName) return alert(t("alert.selectContent"));
 
-        // 코스 저장
-        document.getElementById("saveBtn").onclick = async function () {
-          // 로그인 체크
-          if (!window.currentUser) {
-            if (
-              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
-            ) {
-              window.location.href = "/auth";
-            }
-            return;
-          }
+              try {
+                const res = await fetch(
+                  `/api/search-by-content?name=${encodeURIComponent(
+                    contentName
+                  )}`
+                );
+                const data = await res.json();
 
-          if (myCourse.length === 0) return alert(t("alert.addPlaces"));
+                markers.forEach((m) => m.setMap(null));
+                markers = [];
 
-          const userId = window.currentUser.id; // 로그인한 사용자 ID 사용
-          const name = prompt(
-            t("alert.courseNamePrompt"),
-            t("alert.courseNameDefault")
-          );
-          if (!name) return;
+                if (data.documents.length === 0) {
+                  alert(t("alert.noLocations"));
+                  return;
+                }
 
-          try {
-            const res = await fetch("/api/course", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ userId, name, places: myCourse }),
+                data.documents.forEach((place) => {
+                  const marker = new kakao.maps.Marker({
+                    map,
+                    position: new kakao.maps.LatLng(place.y, place.x),
+                  });
+
+                  const info = new kakao.maps.InfoWindow({
+                    content: `<div class="custom-info">
+                          <div class="info-header">
+                            <div class="info-title">
+                              <strong>${place.place_name}</strong>
+                              <small>${place.media_title}</small>
+                            </div>
+                            <button onclick="closeInfoWindow()" class="info-close">✕</button>
+                          </div>
+                          <button onclick='addToCourse("${place.place_name}", ${place.y}, ${place.x}, "${place.media_title}", ${place.place_id})' class="info-add-btn">+ 코스 추가</button>
+                        </div>`,
+                  });
+
+                  kakao.maps.event.addListener(marker, "click", () => {
+                    if (currentInfoWindow) {
+                      currentInfoWindow.close();
+                    }
+
+                    if (currentInfoWindow === info) {
+                      currentInfoWindow = null;
+                    } else {
+                      info.open(map, marker);
+                      currentInfoWindow = info;
+                    }
+                  });
+
+                  markers.push(marker);
+                });
+
+                if (data.documents.length > 0) {
+                  map.setCenter(
+                    new kakao.maps.LatLng(
+                      data.documents[0].y,
+                      data.documents[0].x
+                    )
+                  );
+                }
+              } catch (err) {
+                console.error(err);
+                alert(t("alert.routeFailed"));
+              }
+            };
+
+          // 엔터키로 검색
+          document
+            .getElementById("searchInput")
+            .addEventListener("keypress", (e) => {
+              if (e.key === "Enter") {
+                document.getElementById("searchBtn").click();
+              }
             });
-            const data = await res.json();
-            if (data.success) {
-              alert(t("alert.courseSaved") + data.courseId);
-              myCourse = [];
-              renderCourseList();
-            } else {
-              alert(t("alert.saveFailed"));
-            }
-          } catch (err) {
-            console.error(err);
-            alert(t("alert.saveFailed"));
-          }
-        };
 
-        // 저장된 코스 불러오기
-        document.getElementById("loadCoursesBtn").onclick = async function () {
-          // 로그인 체크
-          if (!window.currentUser) {
-            if (
-              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
-            ) {
-              window.location.href = "/auth";
-            }
-            return;
-          }
-
-          const userId = window.currentUser.id; // 로그인한 사용자 ID 사용
-
-          try {
-            const res = await fetch(`/api/course/${userId}`);
-            const courses = await res.json();
-
-            const container = document.getElementById("savedCourses");
-            container.innerHTML = "";
-
-            if (courses.length === 0) {
-              container.innerHTML = `<p style='text-align:center; color:#999; padding:20px;'>${t(
-                "alert.noSavedCourses"
-              )}</p>`;
+          // 코스 저장
+          document.getElementById("saveBtn").onclick = async function () {
+            // 로그인 체크
+            if (!window.currentUser) {
+              if (
+                confirm(
+                  "로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?"
+                )
+              ) {
+                window.location.href = "/auth";
+              }
               return;
             }
 
-            courses.forEach((course) => {
-              const div = document.createElement("div");
-              div.className = "saved-course";
-              div.innerHTML = `
+            if (myCourse.length === 0) return alert(t("alert.addPlaces"));
+
+            const userId = window.currentUser.id; // 로그인한 사용자 ID 사용
+            const name = prompt(
+              t("alert.courseNamePrompt"),
+              t("alert.courseNameDefault")
+            );
+            if (!name) return;
+
+            try {
+              const res = await fetch("/api/course", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, name, places: myCourse }),
+              });
+              const data = await res.json();
+              if (data.success) {
+                alert(t("alert.courseSaved") + data.courseId);
+                myCourse = [];
+                renderCourseList();
+              } else {
+                alert(t("alert.saveFailed"));
+              }
+            } catch (err) {
+              console.error(err);
+              alert(t("alert.saveFailed"));
+            }
+          };
+
+          // 저장된 코스 불러오기
+          document.getElementById("loadCoursesBtn").onclick =
+            async function () {
+              // 로그인 체크
+              if (!window.currentUser) {
+                if (
+                  confirm(
+                    "로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?"
+                  )
+                ) {
+                  window.location.href = "/auth";
+                }
+                return;
+              }
+
+              const userId = window.currentUser.id; // 로그인한 사용자 ID 사용
+
+              try {
+                const res = await fetch(`/api/course/${userId}`);
+                const courses = await res.json();
+
+                const container = document.getElementById("savedCourses");
+                container.innerHTML = "";
+
+                if (courses.length === 0) {
+                  container.innerHTML = `<p style='text-align:center; color:#999; padding:20px;'>${t(
+                    "alert.noSavedCourses"
+                  )}</p>`;
+                  return;
+                }
+
+                courses.forEach((course) => {
+                  const div = document.createElement("div");
+                  div.className = "saved-course";
+                  div.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: start;">
                   <div style="flex: 1;">
                     <strong>🎯 ${course.name}</strong><br>
@@ -1440,26 +1379,26 @@
                   <button onclick="deleteCourse(${course.id})" data-i18n="btn.delete" style="background: #FF4D8D; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; margin-left: 8px;">삭제</button>
                 </div>
               `;
-              div.onclick = (e) => {
-                if (e.target.closest("button")) return; // 삭제 버튼 클릭 시 제외
-                loadCourse(course);
-              };
-              container.appendChild(div);
-            });
-          } catch (err) {
-            console.error(err);
-            alert(t("alert.saveFailed"));
-          }
-        };
+                  div.onclick = (e) => {
+                    if (e.target.closest("button")) return; // 삭제 버튼 클릭 시 제외
+                    loadCourse(course);
+                  };
+                  container.appendChild(div);
+                });
+              } catch (err) {
+                console.error(err);
+                alert(t("alert.saveFailed"));
+              }
+            };
 
-        // 커스텀 마커 생성 함수
-        function createCustomMarker(position, label, isStart, isEnd) {
-          let bgColor = "#3A8DFF"; // 기본 파란색
-          if (isStart) bgColor = "#4CAF50"; // 출발: 초록색
-          if (isEnd) bgColor = "#FF4D8D"; // 도착: 분홍색
+          // 커스텀 마커 생성 함수
+          function createCustomMarker(position, label, isStart, isEnd) {
+            let bgColor = "#3A8DFF"; // 기본 파란색
+            if (isStart) bgColor = "#4CAF50"; // 출발: 초록색
+            if (isEnd) bgColor = "#FF4D8D"; // 도착: 분홍색
 
-          const content = document.createElement("div");
-          content.style.cssText = `
+            const content = document.createElement("div");
+            content.style.cssText = `
             position: relative;
             width: 36px;
             height: 36px;
@@ -1477,133 +1416,41 @@
             transition: transform 0.2s ease;
           `;
 
-          content.innerHTML = label;
-          content.onmouseover = () => (content.style.transform = "scale(1.2)");
-          content.onmouseout = () => (content.style.transform = "scale(1)");
+            content.innerHTML = label;
+            content.onmouseover = () =>
+              (content.style.transform = "scale(1.2)");
+            content.onmouseout = () => (content.style.transform = "scale(1)");
 
-          const customOverlay = new kakao.maps.CustomOverlay({
-            position: position,
-            content: content,
-            yAnchor: 0.5,
-          });
+            const customOverlay = new kakao.maps.CustomOverlay({
+              position: position,
+              content: content,
+              yAnchor: 0.5,
+            });
 
-          return customOverlay;
-        }
-
-        function loadCourse(course) {
-          markers.forEach((m) => m.setMap(null));
-          markers = [];
-
-          if (routePolyline) {
-            routePolyline.setMap(null);
-            routePolyline = null;
+            return customOverlay;
           }
 
-          myCourse = course.course_places
-            .sort((a, b) => a.order_index - b.order_index)
-            .map((p) => ({
-              name: p.place_name,
-              lat: p.lat,
-              lng: p.lng,
-              mediaTitle: p.media_title,
-              placeId: p.place_id,
-            }));
+          function loadCourse(course) {
+            markers.forEach((m) => m.setMap(null));
+            markers = [];
 
-          renderCourseList();
-
-          myCourse.forEach((place, index) => {
-            const isStart = index === 0;
-            const isEnd = index === myCourse.length - 1;
-            const position = new kakao.maps.LatLng(place.lat, place.lng);
-
-            const customMarker = createCustomMarker(
-              position,
-              index + 1,
-              isStart,
-              isEnd
-            );
-            customMarker.setMap(map);
-            markers.push(customMarker);
-          });
-
-          if (myCourse.length > 0) {
-            map.setCenter(
-              new kakao.maps.LatLng(myCourse[0].lat, myCourse[0].lng)
-            );
-          }
-
-          alert(t("alert.courseLoaded", { name: course.name }));
-        }
-
-        // AI 추천받기
-        document.getElementById("aiRecommendBtn").onclick = function () {
-          window.location.href = "/aiCourse";
-        };
-
-        // 경로 보기
-        document.getElementById("showRouteBtn").onclick = async function () {
-          if (myCourse.length < 2) {
-            return alert(t("alert.minTwoPlaces"));
-          }
-
-          // 기존 마커 제거 후 커스텀 마커로 재생성
-          markers.forEach((m) => m.setMap(null));
-          markers = [];
-
-          if (routePolyline) {
-            routePolyline.setMap(null);
-          }
-
-          try {
-            let totalDistance = 0;
-            let totalDuration = 0;
-            const pathCoords = [];
-
-            for (let i = 0; i < myCourse.length - 1; i++) {
-              const start = myCourse[i];
-              const end = myCourse[i + 1];
-
-              const res = await fetch(
-                `/api/route?startLng=${start.lng}&startLat=${start.lat}&endLng=${end.lng}&endLat=${end.lat}`
-              );
-              const data = await res.json();
-
-              console.log("경로 API 응답:", data);
-
-              if (data.routes && data.routes.length > 0) {
-                const route = data.routes[0];
-
-                // 응답 구조 확인
-                if (route.summary) {
-                  totalDistance += route.summary.distance || 0;
-                  totalDuration += route.summary.duration || 0;
-                }
-
-                // 경로 좌표 추출
-                if (route.sections) {
-                  route.sections.forEach((section) => {
-                    if (section.roads) {
-                      section.roads.forEach((road) => {
-                        if (road.vertexes) {
-                          road.vertexes.forEach((vertex, idx) => {
-                            if (idx % 2 === 0) {
-                              pathCoords.push(
-                                new kakao.maps.LatLng(
-                                  road.vertexes[idx + 1],
-                                  road.vertexes[idx]
-                                )
-                              );
-                            }
-                          });
-                        }
-                      });
-                    }
-                  });
-                }
-              }
+            if (routePolyline) {
+              routePolyline.setMap(null);
+              routePolyline = null;
             }
 
-            // 커스텀 마커 생성 (경로 표시 후)
+            myCourse = course.course_places
+              .sort((a, b) => a.order_index - b.order_index)
+              .map((p) => ({
+                name: p.place_name,
+                lat: p.lat,
+                lng: p.lng,
+                mediaTitle: p.media_title,
+                placeId: p.place_id,
+              }));
+
+            renderCourseList();
+
             myCourse.forEach((place, index) => {
               const isStart = index === 0;
               const isEnd = index === myCourse.length - 1;
@@ -1619,18 +1466,111 @@
               markers.push(customMarker);
             });
 
-            if (pathCoords.length > 0) {
-              routePolyline = new kakao.maps.Polyline({
-                path: pathCoords,
-                strokeWeight: 5,
-                strokeColor: "#FF4D8D",
-                strokeOpacity: 0.7,
-                strokeStyle: "solid",
-              });
-              routePolyline.setMap(map);
+            if (myCourse.length > 0) {
+              map.setCenter(
+                new kakao.maps.LatLng(myCourse[0].lat, myCourse[0].lng)
+              );
             }
 
-            document.getElementById("routeInfo").innerHTML = `
+            alert(t("alert.courseLoaded", { name: course.name }));
+          }
+
+          // AI 추천받기
+          document.getElementById("aiRecommendBtn").onclick = function () {
+            window.location.href = "/aiCourse";
+          };
+
+          // 경로 보기
+          document.getElementById("showRouteBtn").onclick = async function () {
+            if (myCourse.length < 2) {
+              return alert(t("alert.minTwoPlaces"));
+            }
+
+            // 기존 마커 제거 후 커스텀 마커로 재생성
+            markers.forEach((m) => m.setMap(null));
+            markers = [];
+
+            if (routePolyline) {
+              routePolyline.setMap(null);
+            }
+
+            try {
+              let totalDistance = 0;
+              let totalDuration = 0;
+              const pathCoords = [];
+
+              for (let i = 0; i < myCourse.length - 1; i++) {
+                const start = myCourse[i];
+                const end = myCourse[i + 1];
+
+                const res = await fetch(
+                  `/api/route?startLng=${start.lng}&startLat=${start.lat}&endLng=${end.lng}&endLat=${end.lat}`
+                );
+                const data = await res.json();
+
+                console.log("경로 API 응답:", data);
+
+                if (data.routes && data.routes.length > 0) {
+                  const route = data.routes[0];
+
+                  // 응답 구조 확인
+                  if (route.summary) {
+                    totalDistance += route.summary.distance || 0;
+                    totalDuration += route.summary.duration || 0;
+                  }
+
+                  // 경로 좌표 추출
+                  if (route.sections) {
+                    route.sections.forEach((section) => {
+                      if (section.roads) {
+                        section.roads.forEach((road) => {
+                          if (road.vertexes) {
+                            road.vertexes.forEach((vertex, idx) => {
+                              if (idx % 2 === 0) {
+                                pathCoords.push(
+                                  new kakao.maps.LatLng(
+                                    road.vertexes[idx + 1],
+                                    road.vertexes[idx]
+                                  )
+                                );
+                              }
+                            });
+                          }
+                        });
+                      }
+                    });
+                  }
+                }
+              }
+
+              // 커스텀 마커 생성 (경로 표시 후)
+              myCourse.forEach((place, index) => {
+                const isStart = index === 0;
+                const isEnd = index === myCourse.length - 1;
+                const position = new kakao.maps.LatLng(place.lat, place.lng);
+
+                const customMarker = createCustomMarker(
+                  position,
+                  index + 1,
+                  isStart,
+                  isEnd
+                );
+                customMarker.setMap(map);
+                markers.push(customMarker);
+              });
+
+              if (pathCoords.length > 0) {
+                routePolyline = new kakao.maps.Polyline({
+                  path: pathCoords,
+                  strokeWeight: 5,
+                  strokeColor: "#FF4D8D",
+                  strokeOpacity: 0.7,
+                  strokeStyle: "solid",
+                });
+                routePolyline.setMap(map);
+              }
+
+              document.getElementById("routeInfo").innerHTML = `
               <div class="route-info">
                 <strong>🚗 경로 정보</strong><br>
                 <div style="margin-top: 8px; font-size: 14px;">
@@ -1643,20 +1583,68 @@
                 </div>
               </div>
             `;
-          } catch (err) {
-            console.error("경로 검색 에러:", err);
-            alert(t("alert.routeFailed"));
-          }
-        };
-      });
+            } catch (err) {
+              console.error("경로 검색 에러:", err);
+              alert(t("alert.routeFailed"));
+            }
+          };
+        });
       }
 
       // 페이지 로드 완료 후 Kakao Maps 초기화
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initKakaoMap);
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initKakaoMap);
       } else {
         initKakaoMap();
       }
     </script>
+
+    <script>
+  // --- 유틸: 쿼리 파라미터 가져오기
+  function getQS(name, dflt = null) {
+    const v = new URLSearchParams(location.search).get(name);
+    return v == null ? dflt : v;
+  }
+
+  const toNum = v => (v == null ? NaN : Number(v));
+
+  function performTextSearch(keyword) {
+    const input =
+      document.querySelector('#searchInput') ||             
+      document.querySelector('input[placeholder*="검색"]');   
+    const btn =
+      document.querySelector('#searchBtn') ||              
+      Array.from(document.querySelectorAll('button'))
+        .find(b => /검색/.test(b.textContent));
+
+    if (input) input.value = keyword || '';
+    if (btn) btn.click();
+  }
+
+  function addDirectMarker(lat, lng, title) {
+    if (isNaN(lat) || isNaN(lng) || !window.kakao || !window.map) return;
+    const pos = new kakao.maps.LatLng(lat, lng);
+    map.setCenter(pos);
+    const marker = new kakao.maps.Marker({ position: pos, title: title || '' });
+    marker.setMap(map);
+  }
+
+  function initFromQuery() {
+    const name = getQS('name', '').trim();
+    const lat = toNum(getQS('lat'));
+    const lng = toNum(getQS('lng'));
+
+    if (!name && isNaN(lat) && isNaN(lng)) return;
+
+    if (name) performTextSearch(name);
+
+    if (!isNaN(lat) && !isNaN(lng)) addDirectMarker(lat, lng, name);
+  }
+
+  document.addEventListener('DOMContentLoaded', initFromQuery);
+</script>
+
+
+
   </body>
 </html>

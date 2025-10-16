@@ -4,159 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>K-Spot - 한류 콘텐츠 여행 플랫폼</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <meta property="og:image" content="/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="K-Spot">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="contentstyle.css" />
     <link rel="stylesheet" href="/source/pages/index/style.css" />
+    <!-- <link rel="stylesheet" href="contents-style.css" /> -->
     <link
       rel="stylesheet"
       href="https://unpkg.com/swiper/swiper-bundle.min.css"
     />
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-    <style>
-      .header-search-wrap {
-        overflow: hidden;
-        height: 0;
-        transition: height 220ms ease;
-        background: #fff;
-        border-bottom: 1px solid #eee;
-      }
-      .header-search-inner {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 12px 16px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .header-search-input {
-        flex: 1;
-        height: 44px;
-        padding: 0 12px;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        font-size: 15px;
-      }
-      .header-search-btn,
-      .header-search-close {
-        height: 44px;
-        padding: 0 14px;
-        border-radius: 10px;
-        border: 1px solid #bcd0c7;
-        background: #0f5132;
-        color: #fff;
-        font-weight: 700;
-        cursor: pointer;
-      }
-      .header-search-close {
-        background: #fff;
-        color: #0f5132;
-      }
-
-      .header-search-results,
-      .header-content-suggest {
-        max-width: 1200px;
-        margin: 6px auto 12px;
-        padding: 0 16px;
-      }
-      .search-empty {
-        color: #6b7280;
-        font-size: 14px;
-        padding: 6px 2px;
-      }
-      .search-item {
-        padding: 10px 12px;
-        border: 1px solid #eee;
-        border-radius: 10px;
-        margin-bottom: 8px;
-        cursor: pointer;
-        background: #fff;
-      }
-      .search-item:hover {
-        background: #f9fbfa;
-      }
-
-      .content-suggest-title {
-        margin: 10px 2px 8px;
-        font-weight: 800;
-      }
-    </style>
+    <script src="/libs/nav-manager.js" type="module"></script>
   </head>
   <body>
-    <header class="header">
-      <div class="container">
-        <div class="header-top">
-          <a href="/source/pages/index/index.html" class="logo">
-            <svg
-              width="200"
-              height="50"
-              viewBox="0 0 200 50"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <defs>
-                <linearGradient
-                  id="logoGradient"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="0%"
-                >
-                  <stop
-                    offset="0%"
-                    style="stop-color: #e91e8c; stop-opacity: 1"
-                  />
-                  <stop
-                    offset="100%"
-                    style="stop-color: #ff6b9d; stop-opacity: 1"
-                  />
-                </linearGradient>
-                <style>
-                  .logo-text {
-                    font-family: "Pretendard", sans-serif;
-                    font-weight: 800;
-                    font-size: 40px;
-                    fill: url(#logoGradient);
-                    letter-spacing: -1px;
-                  }
-                </style>
-              </defs>
-              <text x="0" y="37" class="logo-text">K</text>
-              <text x="30" y="37" class="logo-text">-</text>
-              <text x="44" y="37" class="logo-text">S</text>
-              <text x="70" y="37" class="logo-text">P</text>
-              <g class="logo-pin" transform="translate(95.5, 4) scale(0.93)">
-                <path
-                  d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z"
-                  fill="url(#logoGradient)"
-                />
-                <circle cx="18" cy="13" r="8" fill="white" />
-              </g>
-              <text x="128" y="37" class="logo-text">T</text>
-            </svg>
-          </a>
-
-          <div
-            class="header-right"
-            style="display: flex; gap: 8px; align-items: center"
-          >
-            <button class="btn-search" id="searchToggle">🔍</button>
-
-            <span id="greeting" class="hide"
-              >안녕하세요, <span id="nickname"></span>님</span
-            >
-            <button id="loginBtn">로그인</button>
-            <button id="logoutBtn" class="hide">로그아웃</button>
-          </div>
-        </div>
-
-        <nav class="nav">
-          <a href="/source/pages/index/index.html" class="nav-link">홈</a>
-          <a href="#content" class="nav-link active">콘텐츠별 여행지</a>
-          <a href="/source/pages/aiCourse/aiSchedule.html" class="nav-link">AI 코스 추천</a>
-          <a href="/source/pages/map/map_page.html" class="nav-link">K-콘텐츠 여행 지도</a>
-          <a href="/source/pages/index/index.html#routes" class="nav-link">인기 여행 루트</a>
-          <a href="/my-page" class="nav-link">마이페이지</a>
-        </nav>
-    </header>
+    <div id="headerPlaceholder"></div>
 
     <main>
       <section class="recently-visited-section">
@@ -198,11 +65,6 @@
         SET_NICK: "/auth/set-nickname.html",
       };
     </script>
-    <script type="module" src="/auth/auth.js"></script>
-
-    <!-- 헤더 인라인 검색 스크립트 (index.html과 동일) -->
-    <script type="module" src="/source/pages/index/header-search.js"></script>
-
 
     <div id="modal" class="modal">
       <div class="modal-content">
@@ -215,6 +77,7 @@
       let supabase;
       let allContents = []; // 모든 콘텐츠를 저장할 배열
       let allLocations = []; // 모든 장소 정보를 저장할 배열
+      let userFavorites = new Set(); // 사용자의 좋아요 목록을 저장할 Set
 
       // --- 모달 관련 DOM 요소 가져오기 ---
       const modal = document.getElementById("modal");
@@ -222,6 +85,14 @@
       const closeModalBtn = document.querySelector(".modal-close");
 
       // Supabase 클라이언트 초기화
+      // auth.js가 로드된 후 user-manager.js의 함수를 사용할 수 있습니다.
+      let getIsLoggedIn;
+      let getUserId;
+      import("/libs/user-manager.js").then(module => {
+        getIsLoggedIn = module.getIsLoggedIn;
+        getUserId = module.getUserId;
+      });
+
       async function initSupabase() {
         try {
           const response = await fetch("http://localhost:3000/api/config");
@@ -231,6 +102,23 @@
             config.supabaseUrl,
             config.supabaseKey
           );
+
+          // 로그인 상태라면 사용자의 좋아요 목록을 가져옵니다.
+          const userId = getUserId ? getUserId() : null;
+          if (userId) {
+            const { data: favoritesData, error: favoritesError } = await supabase
+              .from("user_favorites")
+              .select("target_id")
+              .eq("user_id", userId)
+              .eq("target_type", "contents");
+
+            if (favoritesError) {
+              console.error("사용자 좋아요 목록 조회 실패:", favoritesError);
+            } else {
+              userFavorites = new Set(favoritesData.map(fav => fav.target_id.toString()));
+            }
+          }
+
           await loadAllContents(); // 모든 콘텐츠 로드
           setupTabListeners(); // 탭 이벤트 리스너 설정
 
@@ -274,7 +162,7 @@
           }
 
           allContents = contentsWithCount;
-          allLocations = contentsData; // 가져온 장소 정보를 전역 변수에 저장
+          allLocations = contentsData;
 
           // 페이지 로드 시 sessionStorage에 저장된 모달이 있는지 확인하고 다시 엽니다.
           // 이 위치에서 호출해야 allContents와 allLocations 데이터가 보장됩니다.
@@ -284,6 +172,8 @@
           }
 
           filterByCategory("k-pop"); // 처음에는 'K-Pop' 카테고리를 표시
+
+
         } catch (error) {
           console.error("Error initializing Supabase:", error);
           const cardContainer = document.getElementById("card-container");
@@ -343,10 +233,13 @@
         }
 
         for (const content of contents) {
+          // 현재 콘텐츠가 사용자가 좋아요 누른 목록에 있는지 확인
+          const isLiked = userFavorites.has(content.id.toString());
+
           const locationCount = content.locationCount || 0;
 
           const card = document.createElement("div");
-          card.classList.add("card");
+          card.classList.add("content-item-card");
 
           card.innerHTML = `
                 <div class="image-container">
@@ -365,35 +258,71 @@
                       content.id
                     }">자세히 보기</button>
                   </div>
-                  <button class="like-button" data-content-id="${
+                  <button class="like-button ${isLiked ? 'liked' : ''}" data-content-id="${
                     content.id
-                  }">♡</button>
+                  }">${isLiked ? '♥' : '♡'}</button>
                 </div>
               `;
 
-          cardContainer.appendChild(card);
-        }
+          card
+            .querySelector(".details-button")
+            .addEventListener("click", (event) => {
+              const contentId = event.target.dataset.contentId;
+              openModal(contentId);
+            });
 
-        document.querySelectorAll(".details-button").forEach((button) => {
-          button.addEventListener("click", (event) => {
-            const contentId = event.target.dataset.contentId;
-            openModal(contentId);
-          });
-        });
-
-        document.querySelectorAll(".like-button").forEach((button) => {
-          button.addEventListener("click", (event) => {
+          card.querySelector(".like-button").addEventListener("click", async (event) => {
             event.stopPropagation(); // 이벤트 버블링 방지
+
+            if (!getIsLoggedIn || !getIsLoggedIn()) {
+              alert("로그인이 필요합니다.");
+              return;
+            }
+
             const likeButton = event.currentTarget;
+            const contentId = likeButton.dataset.contentId; // contentGroup 테이블의 id
+            const userId = getUserId();
+
+            if (!userId) {
+              alert("사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.");
+              return;
+            }
+
             if (likeButton.textContent === "♡") {
-              likeButton.textContent = "♥";
-              likeButton.classList.add("liked");
+              // 좋아요 추가
+              const { error } = await supabase.from("user_favorites").insert({
+                user_id: userId,
+                target_id: contentId,
+                target_type: "contents",
+              });
+
+              if (error) {
+                console.error("좋아요 추가 실패:", error);
+                alert("좋아요 처리에 실패했습니다.");
+              } else {
+                likeButton.textContent = "♥";
+                likeButton.classList.add("liked");
+              }
             } else {
-              likeButton.textContent = "♡";
-              likeButton.classList.remove("liked");
+              // 좋아요 취소
+              const { error } = await supabase
+                .from("user_favorites")
+                .delete()
+                .eq("user_id", userId)
+                .eq("target_id", contentId);
+
+              if (error) {
+                console.error("좋아요 취소 실패:", error);
+                alert("좋아요 취소에 실패했습니다.");
+              } else {
+                likeButton.textContent = "♡";
+                likeButton.classList.remove("liked");
+              }
             }
           });
-        });
+
+          cardContainer.appendChild(card);
+        }
       }
 
       // --- 모달을 열고 상세 정보를 표시하는 함수 ---
@@ -416,7 +345,7 @@
             (loc) => loc.contentGroup === contentInfo.name
           );
           // console.log("relatedLocations:", relatedLocations);
-
+          
           let html = `<img src="${contentInfo.imageUrl}" alt="${contentInfo.name}">`;
           html += `<h2>${contentInfo.name}</h2>`;
           html += "<hr><h3>관련 촬영지 정보</h3>";
@@ -483,6 +412,7 @@
 
           new Swiper(".location-slider", {
             loop: false,
+            spaceBetween: 20, // 슬라이드 사이의 간격을 20px로 설정합니다.
             pagination: {
               el: ".swiper-pagination",
               clickable: true,

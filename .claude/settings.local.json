@@ -8,7 +8,11 @@
       "Bash(findstr \"node\")",
       "Bash(node:*)",
       "Bash(cat:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(curl:*)",
+      "Bash(for file in \"source/pages/aiCourse/aiSchedule.html\" \"source/pages/contents/contents.html\" \"source/pages/contents/detail.html\" \"source/pages/index/index.html\" \"source/pages/map/map_page.html\" \"source/pages/my-page/my-page.html\")",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
