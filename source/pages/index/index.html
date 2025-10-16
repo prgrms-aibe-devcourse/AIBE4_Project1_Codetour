@@ -4,9 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>K-Spot - 한류 콘텐츠 여행 플랫폼</title>
-
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="stylesheet" href="/source/pages/index/style.css" />
-
+    <meta property="og:title" content="K-SPOT - K-콘텐츠 여행 가이드" />
+    <meta property="og:description" content="한류 콘텐츠와 함께하는 특별한 여행 코스를 만들어보세요" />
+    <meta property="og:image" content="https://your-domain.com/og-image.jpg" />
+    <meta property="og:url" content="https://your-domain.com" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="K-SPOT" />
     <style>
       .header-search-wrap {
         overflow: hidden;
@@ -205,7 +212,7 @@
           <p class="hero-subtitle" data-i18n="hero.subtitle">
             좋아하는 드라마, K-pop, 영화의 촬영지를 직접 방문해보세요!
           </p>
-          <button class="btn-hero" data-i18n="hero.cta">시작하기</button>
+          <a href="/source/pages/map/map_page.html" class="btn-hero" data-i18n="hero.cta">시작하기</a>
         </div>
       </div>
     </section>
@@ -275,6 +282,7 @@
         <div class="carousel-dots" id="recommendedCoursesDots"></div>
       </div>
     </section>
+
 
     <!-- 사용자 맞춤 추천 섹션 -->
     <section class="section" id="personalized">
