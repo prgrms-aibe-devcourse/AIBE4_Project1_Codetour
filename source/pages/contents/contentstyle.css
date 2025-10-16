@@ -92,15 +92,15 @@ main {
 }
 
 .card .content-container .description {
-  height: 23px;
+  height: 100px; /* 설명 텍스트 영역의 높이를 100px로 고정합니다. */
   font-family: "Noto Sans KR";
   font-style: normal;
-  font-weight: 350;
-  font-size: 14px;
-  line-height: 23px;
-  display: flex;
-  align-items: center;
-  color: #576764;
+  font-weight: 350; /* 폰트 두께를 350으로 설정합니다. */
+  font-size: 14px; /* 폰트 크기를 14px로 설정합니다. */
+  line-height: 23px; /* 줄 간격을 23px로 설정합니다. */
+  display: flex; /* Flexbox 레이아웃을 사용합니다. */
+  color: #576764; /* 텍스트 색상을 설정합니다. */
+  overflow: auto; /* 내용이 영역을 벗어날 경우 스크롤바를 표시합니다. */
 }
 
 .card .content-container .details {
