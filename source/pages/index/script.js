@@ -421,6 +421,7 @@ const recommendedCourses = [
 let currentLang = "ko";
 
 document.addEventListener("DOMContentLoaded", function () {
+  console.log("script.js 구동");
   updateLanguage(currentLang);
   renderPopularContent();
   renderRecommendedCourses();
