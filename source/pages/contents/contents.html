@@ -4,17 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>K-Spot - 한류 콘텐츠 여행 플랫폼</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <meta property="og:image" content="/og-image.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="K-Spot">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="K-Spot" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="/source/pages/index/style.css" />
-    <!-- <link rel="stylesheet" href="contents-style.css" /> -->
+    <link rel="stylesheet" href="contentstyle.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/swiper/swiper-bundle.min.css"
@@ -88,7 +88,7 @@
       // auth.js가 로드된 후 user-manager.js의 함수를 사용할 수 있습니다.
       let getIsLoggedIn;
       let getUserId;
-      import("/libs/user-manager.js").then(module => {
+      import("/libs/user-manager.js").then((module) => {
         getIsLoggedIn = module.getIsLoggedIn;
         getUserId = module.getUserId;
       });
@@ -106,16 +106,19 @@
           // 로그인 상태라면 사용자의 좋아요 목록을 가져옵니다.
           const userId = getUserId ? getUserId() : null;
           if (userId) {
-            const { data: favoritesData, error: favoritesError } = await supabase
-              .from("user_favorites")
-              .select("target_id")
-              .eq("user_id", userId)
-              .eq("target_type", "contents");
+            const { data: favoritesData, error: favoritesError } =
+              await supabase
+                .from("user_favorites")
+                .select("target_id")
+                .eq("user_id", userId)
+                .eq("target_type", "contents");
 
             if (favoritesError) {
               console.error("사용자 좋아요 목록 조회 실패:", favoritesError);
             } else {
-              userFavorites = new Set(favoritesData.map(fav => fav.target_id.toString()));
+              userFavorites = new Set(
+                favoritesData.map((fav) => fav.target_id.toString())
+              );
             }
           }
 
@@ -172,8 +175,6 @@
           }
 
           filterByCategory("k-pop"); // 처음에는 'K-Pop' 카테고리를 표시
-
-
         } catch (error) {
           console.error("Error initializing Supabase:", error);
           const cardContainer = document.getElementById("card-container");
@@ -258,9 +259,11 @@
                       content.id
                     }">자세히 보기</button>
                   </div>
-                  <button class="like-button ${isLiked ? 'liked' : ''}" data-content-id="${
-                    content.id
-                  }">${isLiked ? '♥' : '♡'}</button>
+                  <button class="like-button ${
+                    isLiked ? "liked" : ""
+                  }" data-content-id="${content.id}">${
+            isLiked ? "♥" : "♡"
+          }</button>
                 </div>
               `;
 
@@ -271,55 +274,57 @@
               openModal(contentId);
             });
 
-          card.querySelector(".like-button").addEventListener("click", async (event) => {
-            event.stopPropagation(); // 이벤트 버블링 방지
+          card
+            .querySelector(".like-button")
+            .addEventListener("click", async (event) => {
+              event.stopPropagation(); // 이벤트 버블링 방지
 
-            if (!getIsLoggedIn || !getIsLoggedIn()) {
-              alert("로그인이 필요합니다.");
-              return;
-            }
-
-            const likeButton = event.currentTarget;
-            const contentId = likeButton.dataset.contentId; // contentGroup 테이블의 id
-            const userId = getUserId();
-
-            if (!userId) {
-              alert("사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.");
-              return;
-            }
-
-            if (likeButton.textContent === "♡") {
-              // 좋아요 추가
-              const { error } = await supabase.from("user_favorites").insert({
-                user_id: userId,
-                target_id: contentId,
-                target_type: "contents",
-              });
-
-              if (error) {
-                console.error("좋아요 추가 실패:", error);
-                alert("좋아요 처리에 실패했습니다.");
-              } else {
-                likeButton.textContent = "♥";
-                likeButton.classList.add("liked");
+              if (!getIsLoggedIn || !getIsLoggedIn()) {
+                alert("로그인이 필요합니다.");
+                return;
               }
-            } else {
-              // 좋아요 취소
-              const { error } = await supabase
-                .from("user_favorites")
-                .delete()
-                .eq("user_id", userId)
-                .eq("target_id", contentId);
 
-              if (error) {
-                console.error("좋아요 취소 실패:", error);
-                alert("좋아요 취소에 실패했습니다.");
-              } else {
-                likeButton.textContent = "♡";
-                likeButton.classList.remove("liked");
+              const likeButton = event.currentTarget;
+              const contentId = likeButton.dataset.contentId; // contentGroup 테이블의 id
+              const userId = getUserId();
+
+              if (!userId) {
+                alert("사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.");
+                return;
               }
-            }
-          });
+
+              if (likeButton.textContent === "♡") {
+                // 좋아요 추가
+                const { error } = await supabase.from("user_favorites").insert({
+                  user_id: userId,
+                  target_id: contentId,
+                  target_type: "contents",
+                });
+
+                if (error) {
+                  console.error("좋아요 추가 실패:", error);
+                  alert("좋아요 처리에 실패했습니다.");
+                } else {
+                  likeButton.textContent = "♥";
+                  likeButton.classList.add("liked");
+                }
+              } else {
+                // 좋아요 취소
+                const { error } = await supabase
+                  .from("user_favorites")
+                  .delete()
+                  .eq("user_id", userId)
+                  .eq("target_id", contentId);
+
+                if (error) {
+                  console.error("좋아요 취소 실패:", error);
+                  alert("좋아요 취소에 실패했습니다.");
+                } else {
+                  likeButton.textContent = "♡";
+                  likeButton.classList.remove("liked");
+                }
+              }
+            });
 
           cardContainer.appendChild(card);
         }
@@ -345,7 +350,7 @@
             (loc) => loc.contentGroup === contentInfo.name
           );
           // console.log("relatedLocations:", relatedLocations);
-          
+
           let html = `<img src="${contentInfo.imageUrl}" alt="${contentInfo.name}">`;
           html += `<h2>${contentInfo.name}</h2>`;
           html += "<hr><h3>관련 촬영지 정보</h3>";
