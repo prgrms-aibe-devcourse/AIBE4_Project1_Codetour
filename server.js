@@ -8,8 +8,11 @@ const multer = require("multer");
 
 dotenv.config();
 const { SUPABASE_KEY: supabaseKey, SUPABASE_URL: supabaseUrl } = process.env;
+const { KAKAOMAP_KEY: kakaoMapKey } = process.env;
+
 console.log("supabaseKey", supabaseKey);
 console.log("supabaseUrl", supabaseUrl);
+console.log("kakaoMapKey", kakaoMapKey);
 const supabase = createClient(supabaseUrl, supabaseKey);
 // 파일 처리
 const storage = multer.memoryStorage(); // 메모리 -> 실행할 때 임시로 파일 관리
@@ -152,6 +155,7 @@ app.get("/api/config", (req, res) => {
   res.json({
     supabaseUrl: process.env.SUPABASE_URL,
     supabaseKey: process.env.SUPABASE_KEY,
+    kakaoMapKey: process.env.KAKAOMAP_KEY,
   });
 });
 

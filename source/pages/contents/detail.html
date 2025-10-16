@@ -24,12 +24,12 @@
         </div>
       </div>
       <nav>
-        <a href="index.html">홈</a>
-        <a href="contents.html">콘텐츠별 여행지</a>
+        <a href="/source/pages/index/index.html">홈</a>
+        <a href="/source/pages/contents/contents.html">콘텐츠별 여행지</a>
         <a href="#">지역별 탐색</a>
-        <a href="#">여행 코스</a>
+        <a href="/source/pages/map/map_page.html">K-콘텐츠 여행 지도</a>
         <a href="#">인기 여행 루트</a>
-        <a href="#">마이페이지</a>
+        <a href="/source/pages/my-page/my-page.html">마이페이지</a>
       </nav>
     </header>
 
@@ -45,20 +45,78 @@
 
     <script type="module">
       let supabase;
+      let kakaoMapKey;
 
-      // Supabase 클라이언트 초기화
-      async function initSupabase() {
+      // Kakao 지도 스크립트를 동적으로 로드하는 함수
+      function loadMapScript(onLoad) {
+        const script = document.createElement("script");
+        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoMapKey}&libraries=services&autoload=false`;
+        script.onload = () => {
+          kakao.maps.load(onLoad);
+        };
+        document.head.appendChild(script);
+      }
+
+      // 주소를 좌표로 변환하고 지도를 표시하는 함수
+      function displayMap(address) {
+        const mapContainer = document.getElementById("map");
+        if (!mapContainer) {
+          console.error("Map container not found.");
+          return;
+        }
+
+        const mapOption = {
+          center: new kakao.maps.LatLng(33.450701, 126.570667), // 기본 중심 좌표
+          level: 3,
+        };
+
+        const map = new kakao.maps.Map(mapContainer, mapOption);
+        const geocoder = new kakao.maps.services.Geocoder();
+
+        geocoder.addressSearch(address, function (result, status) {
+          if (status === kakao.maps.services.Status.OK) {
+            const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+            const marker = new kakao.maps.Marker({
+              map: map,
+              position: coords,
+            });
+
+            // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
+            map.setCenter(coords);
+          } else {
+            console.warn(`'${address}'에 대한 지오코딩 실패: ${status}`);
+            mapContainer.innerHTML =
+              "<p>위치 정보를 지도에 표시할 수 없습니다.</p>";
+          }
+        });
+      }
+
+      // Supabase 클라이언트 및 지도 초기화
+      async function initialize() {
         try {
           const response = await fetch("http://localhost:3000/api/config");
-          if (!response.ok) throw new Error("Failed to fetch Supabase config");
+          if (!response.ok) throw new Error("Failed to fetch API config");
           const config = await response.json();
+
+          // Supabase 클라이언트 설정
           supabase = window.supabase.createClient(
             config.supabaseUrl,
             config.supabaseKey
           );
-          await loadPlaceDetails(); // 장소 상세 정보 로드
+
+          // KakaoMap 키 설정 및 스크립트 로드
+          kakaoMapKey = config.kakaoMapKey;
+          if (!kakaoMapKey) {
+            throw new Error("Kakao Map API key is missing.");
+          }
+          
+          // 스크립트 로드가 완료된 후 장소 상세 정보 로드
+          loadMapScript(async () => {
+            await loadPlaceDetails();
+          });
+
         } catch (error) {
-          console.error("Error initializing Supabase:", error);
+          console.error("Error during initialization:", error);
           const detailContainer = document.getElementById("detail-container");
           detailContainer.innerHTML = `<p>초기화 중 오류가 발생했습니다: ${error.message}</p>`;
         }
@@ -79,7 +137,6 @@
         }
 
         try {
-          // Promise.all을 사용하여 location 정보와 images 정보를 동시에 가져옵니다.
           const [locationRes, imagesRes, reviewsRes] = await Promise.all([
             supabase.from("location").select("*").eq("placeId", placeId),
             supabase.from("images").select("imageUrl").eq("placeId", placeId),
@@ -103,30 +160,20 @@
           // --- 최근 방문 목록 저장 로직 ---
           const RECENTLY_VISITED_KEY = "recentlyVisited";
           const MAX_ITEMS = 5;
-
-          // 1. 기존 목록 불러오기
           let recentlyVisited =
             JSON.parse(localStorage.getItem(RECENTLY_VISITED_KEY)) || [];
-
-          // 2. 현재 항목이 목록에 있는지 확인하고, 있다면 제거
           recentlyVisited = recentlyVisited.filter(
             (item) => item.placeId !== mainLocation.placeId
           );
-
-          // 3. 새 항목을 맨 앞에 추가
           recentlyVisited.unshift({
             placeId: mainLocation.placeId,
             placeName: mainLocation.placeName,
             imageUrl:
               mainLocation.imageUrl || (images[0] ? images[0].imageUrl : ""),
           });
-
-          // 4. 목록 길이를 5개로 제한
           if (recentlyVisited.length > MAX_ITEMS) {
             recentlyVisited.pop();
           }
-
-          // 5. 최종 목록을 localStorage에 저장
           localStorage.setItem(
             RECENTLY_VISITED_KEY,
             JSON.stringify(recentlyVisited)
@@ -138,118 +185,100 @@
               <button class="like-button" data-place-id="${mainLocation.placeId}">♡</button>
             </div>`;
 
-          // 이미지 슬라이더 또는 단일 이미지 표시
           if (images && images.length > 1) {
             html += `
               <div class="swiper-container detail-image-slider">
                 <div class="swiper-wrapper">
-            `;
-            images.forEach((img) => {
-              html += `
-                <div class="swiper-slide">
-                  <img src="${img.imageUrl}" alt="${mainLocation.name} 이미지">
-                </div>
-              `;
-            });
-            html += `
+                  ${images
+                    .map(
+                      (img) => `
+                    <div class="swiper-slide">
+                      <img src="${img.imageUrl}" alt="${mainLocation.name} 이미지">
+                    </div>`
+                    )
+                    .join("")}
                 </div>
                 <div class="swiper-pagination"></div>
                 <div class="swiper-button-prev"></div>
                 <div class="swiper-button-next"></div>
-              </div>
-            `;
+              </div>`;
           } else if (images && images.length === 1) {
             html += `<img src="${images[0].imageUrl}" alt="${mainLocation.name}" style="width: 100%; height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 20px;">`;
           } else {
             html += `<img src="${mainLocation.imageUrl || ""}" alt="${
               mainLocation.name
-            }" style="max-width: 100%; height: 200px;" onerror="this.outerHTML='<div class=\\'no-image\\'>이미지가 없습니다.</div>'">`;
+            }" style="max-width: 100%; height: 200px;" onerror="this.outerHTML='<div class=\'no-image\'>이미지가 없습니다.</div>'">`;
           }
 
-          // 상세 정보 표시
-          html += `<div class="detail-info-grid">`;
-          html += `<p><strong>주소:</strong> ${
-            mainLocation.address || "정보 없음"
-          }</p>`;
-          html += `<p><strong>연락처:</strong> ${
-            mainLocation.tel || "정보 없음"
-          }</p>`;
-          html += `<p><strong>입장료:</strong> ${
-            mainLocation.entranceFee || "정보 없음"
-          }</p>`;
-          html += `<p><strong>운영 시간:</strong> ${
-            mainLocation.subDescription || "정보 없음"
-          }</p>`;
-          html += `<p class="full-width"><strong>설명:</strong> ${
-            mainLocation.description || "정보 없음"
-          }</p>`;
-          html += `</div>`;
+          html += `<div class="detail-info-grid">
+                     <p><strong>주소:</strong> ${ 
+                       mainLocation.address || "정보 없음"
+                     }</p>
+                     <p><strong>연락처:</strong> ${ 
+                       mainLocation.tel || "정보 없음"
+                     }</p>
+                     <p><strong>입장료:</strong> ${ 
+                       mainLocation.entranceFee || "정보 없음"
+                     }</p>
+                     <p><strong>운영 시간:</strong> ${ 
+                       mainLocation.subDescription || "정보 없음"
+                     }</p>
+                     <p class="full-width"><strong>설명:</strong> ${ 
+                       mainLocation.description || "정보 없음"
+                     }</p>
+                   </div>`;
 
-          // 지도 섹션 추가
+          // 지도 섹션 (컨테이너)
           html += `
             <div class="map-section">
               <h3>위치 정보</h3>
-              <div id="map"></div>
+              <div id="map" style="width:100%;height:400px;border-radius:8px;"></div>
             </div>
           `;
 
-          // --- 리뷰 섹션 동적 생성 ---
+          // --- 리뷰 섹션 ---
           let reviewSummaryHtml = "";
           let reviewListHtml = "";
-
           if (reviews && reviews.length > 0) {
-            // 평균 평점 및 리뷰 수 계산
-            const totalRating = reviews.reduce(
-              (sum, review) => sum + review.rating,
-              0
-            );
+            const totalRating = reviews.reduce((sum, r) => sum + r.rating, 0);
             const averageRating = (totalRating / reviews.length).toFixed(1);
             const starPercentage = (averageRating / 5) * 100;
-
             reviewSummaryHtml = `
               <div class="review-summary">
                 <span class="average-rating">${averageRating}</span>
-                <div class="stars-outer">
-                  <div class="stars-inner" style="width: ${starPercentage}%;"></div>
-                </div>
+                <div class="stars-outer"><div class="stars-inner" style="width: ${starPercentage}%;"></div></div>
                 <span class="review-count">(${reviews.length}개의 리뷰)</span>
-              </div>
-            `;
-
-            // 리뷰 목록 생성
-            reviews.forEach((review) => {
-              const reviewStarPercentage = (review.rating / 5) * 100;
-              const reviewDate = new Date(
-                review.created_at
-              ).toLocaleDateString();
-              reviewListHtml += `
+              </div>`;
+            reviewListHtml = reviews
+              .map((review) => {
+                const reviewStarPercentage = (review.rating / 5) * 100;
+                return `
                 <div class="review-item">
                   <div class="review-item-header">
                     <span class="review-author">${review.author}</span>
                     <div class="stars-outer"><div class="stars-inner" style="width: ${reviewStarPercentage}%;"></div></div>
                   </div>
                   <p class="review-text">${review.text}</p>
-                  ${
+                  ${ 
                     review.imageUrl
                       ? `<img src="${review.imageUrl}" alt="리뷰 이미지" class="review-image" style="width:120px; height:120px; object-fit:cover; border-radius:8px; margin:8px 0;">`
                       : ""
                   }
-                  <span class="review-date">${reviewDate}</span>
+                  <span class="review-date">${new Date(
+                    review.created_at
+                  ).toLocaleDateString()}</span>
                 </div>`;
-            });
+              })
+              .join("");
           } else {
-            reviewListHtml =
-              "<p>아직 작성된 리뷰가 없습니다. 첫 리뷰를 남겨주세요!</p>";
+            reviewListHtml = "<p>아직 작성된 리뷰가 없습니다.</p>";
           }
 
-          // 유저 평점 및 리뷰 섹션 추가
           html += `
             <div class="reviews-section">
               <h3>유저 리뷰 및 평점</h3>
               ${reviewSummaryHtml}
               <div class="review-list">${reviewListHtml}</div>
-
-              <!-- 리뷰 작성 폼 -->
               <div class="review-form-container">
                 <h4>리뷰 작성하기</h4>
                 <form id="review-form">
@@ -257,32 +286,27 @@
                   <button type="submit" class="details-button">리뷰 등록</button>
                 </form>
               </div>
-            </div>
-          `;
+            </div>`;
 
           detailContainer.innerHTML = html;
 
-          // '좋아요' 버튼에 이벤트 리스너 추가
+          // 지도 표시
+          displayMap(mainLocation.address || mainLocation.placeName);
+
+          // '좋아요' 버튼 이벤트 리스너
           const likeButton = detailContainer.querySelector(".like-button");
           if (likeButton) {
             likeButton.addEventListener("click", (event) => {
               event.stopPropagation();
-              if (likeButton.textContent === "♡") {
-                likeButton.textContent = "♥";
-              } else {
-                likeButton.textContent = "♡";
-              }
+              likeButton.textContent = likeButton.textContent === "♡" ? "♥" : "♡";
             });
           }
 
-          // 이미지가 여러 장일 때만 Swiper를 초기화합니다.
+          // Swiper 초기화
           if (images && images.length > 1) {
             new Swiper(".detail-image-slider", {
               loop: true,
-              pagination: {
-                el: ".swiper-pagination",
-                clickable: true,
-              },
+              pagination: { el: ".swiper-pagination", clickable: true },
               navigation: {
                 nextEl: ".swiper-button-next",
                 prevEl: ".swiper-button-prev",
@@ -296,7 +320,7 @@
       }
 
       // 페이지 로드 시 초기화 함수 실행
-      initSupabase();
+      initialize();
     </script>
   </body>
 </html>

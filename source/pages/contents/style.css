@@ -149,15 +149,15 @@ main {
 }
 
 .card .content-container .description {
-  height: 23px;
+  height: 100px;
   font-family: "Noto Sans KR";
   font-style: normal;
   font-weight: 350;
   font-size: 14px;
   line-height: 23px;
   display: flex;
-  align-items: center;
   color: #576764;
+  overflow: auto;
 }
 
 .card .content-container .details {
@@ -329,6 +329,14 @@ main {
   height: 80vh; /* 모달의 높이를 화면 높이의 80%로 고정 */
   overflow-y: auto; /* 내용이 넘칠 경우 세로 스크롤 생성 */
 }
+/* 모달 스크롤바 숨기기 (기능은 유지) */
+.modal-content {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.modal-content::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
 
 /* 모달 나타나는 애니메이션 */
 @keyframes animatetop {
@@ -399,7 +407,8 @@ main {
 
 /* 모달 내부 Swiper/Location Card 스타일 */
 .location-slider .swiper-slide {
-  padding: 0px 10px; /* 좌우 네비게이션 버튼과의 간격 확보 */
+  /* 슬라이드 자체의 패딩을 제거합니다. 
+     슬라이드 간 간격은 Swiper의 spaceBetween 옵션으로 제어합니다. */
 }
 
 .location-grid {
@@ -460,37 +469,34 @@ main {
   color: #777;
 }
 
-/* 모달 내부 Swiper 컨트롤러 스타일 */
-.swiper-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px; /* 카드 그리드와의 간격 */
-  gap: 20px;
+.location-slider {
+  position: relative; /* 버튼 위치의 기준점 */
+  margin-bottom: 16px;
 }
 
 .location-slider .swiper-button-next,
 .location-slider .swiper-button-prev {
-  position: static; /* top, left 등 위치 속성 초기화 */
-  width: auto;
-  height: auto;
-  margin-top: 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
   color: #00473c;
+  margin-top: -30px; /* 페이지네이션 높이 고려하여 살짝 위로 조정 */
 }
 
 .location-slider .swiper-button-next::after,
 .location-slider .swiper-button-prev::after {
-  font-size: 24px; /* 버튼 아이콘 크기 조정 */
+  font-size: 18px; /* 버튼 아이콘 크기 조정 */
   font-weight: 600;
 }
 
 .location-slider .swiper-pagination {
-  position: static; /* 위치 속성 초기화 */
-  width: auto;
-}
-
-.location-slider .swiper-pagination-bullet-active {
-  background-color: #00473c;
+  /* position을 static으로 변경하여 슬라이더 콘텐츠 아래에 자연스럽게 배치 */
+  position: static;
+  margin-top: 16px; /* 슬라이더와의 간격 */
 }
 
 /* Detail Modal Image Slider Styles */
@@ -500,6 +506,7 @@ main {
   margin-bottom: 20px;
   border-radius: 8px;
   overflow: hidden;
+  position: relative; /* 버튼 위치의 기준점 */
 }
 
 .detail-image-slider .swiper-slide {
@@ -519,6 +526,15 @@ main {
 .detail-image-slider .swiper-button-prev {
   color: #00473c;
   --swiper-navigation-size: 30px;
+  /* 버튼을 안쪽으로 이동 */
+  left: 20px;
+}
+
+.detail-image-slider .swiper-button-next {
+  color: #00473c;
+  --swiper-navigation-size: 30px;
+  /* 버튼을 안쪽으로 이동 */
+  right: 20px;
 }
 
 .detail-image-slider .swiper-pagination-bullet-active {

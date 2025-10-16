@@ -1,26 +1,27 @@
 {
-  "name": "251001_phase1",
+  "name": "aibe4_project1_codetour",
   "version": "1.0.0",
   "description": "1.",
-  "main": "index.js",
+  "main": "server/server_map.js",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon server/server_map.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jk-Nam/251001_phase1.git"
+    "url": "git+https://github.com/prgrms-aibe-devcourse/aibe4_project1_codetour.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/jk-Nam/251001_phase1/issues"
+    "url": "https://github.com/prgrms-aibe-devcourse/aibe4_project1_codetour/issues"
   },
-  "homepage": "https://github.com/jk-Nam/251001_phase1#readme",
+  "homepage": "https://github.com/prgrms-aibe-devcourse/aibe4_project1_codetour#readme",
   "dependencies": {
     "@google/genai": "^1.21.0",
     "@supabase/supabase-js": "^2.58.0",
+    "axios": "^1.12.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",

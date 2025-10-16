@@ -24,12 +24,12 @@
         </div>
       </div>
       <nav>
-        <a href="index.html">홈</a>
-        <a href="contents.html">콘텐츠별 여행지</a>
+        <a href="/source/pages/index/index.html">홈</a>
+        <a href="/source/pages/contents/contents.html">콘텐츠별 여행지</a>
         <a href="#">지역별 탐색</a>
-        <a href="#">여행 코스</a>
+        <a href="/source/pages/map/map_page.html">K-콘텐츠 여행 지도</a>
         <a href="#">인기 여행 루트</a>
-        <a href="#">마이페이지</a>
+        <a href="/source/pages/my-page/my-page.html">마이페이지</a>
       </nav>
     </header>
 
@@ -320,11 +320,11 @@
 
             html += `
                 </div>
-                <div class="swiper-controls">
-                  <div class="swiper-button-prev"></div>
-                  <div class="swiper-pagination"></div>
-                  <div class="swiper-button-next"></div>
-                </div>
+                <!-- Swiper Navigation Buttons -->
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+                <!-- Swiper Pagination -->
+                <div class="swiper-pagination"></div>
               </div>
             `;
           } else {
@@ -345,6 +345,7 @@
 
           new Swiper(".location-slider", {
             loop: false,
+            spaceBetween: 30, // 슬라이드 간의 간격을 명확하게 설정
             pagination: {
               el: ".swiper-pagination",
               clickable: true,
