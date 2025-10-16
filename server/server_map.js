@@ -85,7 +85,7 @@ app.use(
   express.static(path.join(__dirname, "../source/pages/map"))
 );
 app.use(
-  "/aiCourse",
+  "/source/pages/aiCourse",
   express.static(path.join(__dirname, "../source/pages/aiCourse"))
 );
 app.use("/auth", express.static(path.join(__dirname, "../public/auth")));
