@@ -936,12 +936,13 @@
       // 페이지 로드 시 저장된 언어로 설정
       document.addEventListener("DOMContentLoaded", () => {
         const langSelector = document.getElementById("languageSelector");
-        langSelector.value = currentLang;
+        if (langSelector) {
+          langSelector.value = currentLang;
+          langSelector.addEventListener("change", (e) => {
+            changeLanguage(e.target.value);
+          });
+        }
         changeLanguage(currentLang);
-
-        langSelector.addEventListener("change", (e) => {
-          changeLanguage(e.target.value);
-        });
       });
 
       let currentSearchMode = "place";
