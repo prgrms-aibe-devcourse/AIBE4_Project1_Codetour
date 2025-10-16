@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>서울 추천일정</title>
+    <style>
+      :root {
+        --brand: #e91e8c;
+        --txt: #0f172a;
+        --muted: #64748b;
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --line: #e2e8f0;
+        --chip: #f1f5f9;
+        --ok: #16a34a;
+        --warn: #f59e0b;
+        --err: #ef4444;
+        --shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+        --easing: cubic-bezier(0.2, 0.8, 0.2, 1);
+        --radius: 14px;
+        --radius-sm: 10px;
+        --dur: 280ms;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system,
+          "Apple SD Gothic Neo", "Malgun Gothic", "Nanum Gothic", sans-serif;
+        color: var(--txt);
+        background: var(--bg);
+      }
+      a {
+        color: inherit;
+      }
+      .wrap {
+        width: min(1200px, 94vw);
+        margin: 28px auto 100px;
+      }
+
+      /* ── 헤더/스텝 ─────────────────────────────────────────── */
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .steps {
+        display: flex;
+        gap: 18px;
+        align-items: center;
+        color: var(--muted);
+      }
+      .step {
+        display: grid;
+        grid-template-columns: 28px auto;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+      }
+      .step .dot {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        border: 2px solid var(--line);
+        color: #475569;
+        background: #fff;
+        font-weight: 700;
+        transition: all var(--dur) var(--easing);
+      }
+      .step.active .dot {
+        background: var(--brand);
+        color: #fff;
+        border-color: var(--brand);
+        box-shadow: 0 0 0 6px rgba(233, 30, 140, 0.12);
+      }
+      .step .label {
+        font-weight: 700;
+        font-size: 14px;
+      }
+
+      /* ── 레이아웃 ─────────────────────────────────────────── */
+      .grid {
+        display: grid;
+        grid-template-columns: 1.35fr 1fr;
+        gap: 18px;
+        align-items: start;
+      }
+      @media (max-width: 980px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ── 좌측 공통 카드/UI ────────────────────────────────── */
+      .card {
+        display: grid;
+        grid-template-columns: 108px auto 88px;
+        gap: 12px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+      .card .thumb {
+        height: 84px;
+        width: 108px;
+        background: #e2e8f0;
+        object-fit: cover;
+      }
+      .card .content {
+        padding: 12px 0;
+        display: grid;
+        align-content: center;
+        gap: 4px;
+      }
+      .title {
+        font-weight: 800;
+      }
+      .meta {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .tag {
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: #f8fafc;
+        border: 1px solid var(--line);
+        color: #334155;
+      }
+      .actions {
+        display: grid;
+        place-items: center;
+        padding: 10px;
+      }
+      .btn {
+        border: none;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-weight: 800;
+        cursor: pointer;
+        background: var(--brand);
+        color: #fff;
+        width: 100%;
+        transition: transform var(--dur) var(--easing),
+          box-shadow var(--dur) var(--easing);
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow);
+      }
+      .btn[disabled] {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      .btn.secondary {
+        background: #e2e8f0;
+        color: #0f172a;
+        font-weight: 700;
+      }
+
+      /* ── 검색 & 필터 ─────────────────────────────────────── */
+      .searchbar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px 12px;
+        box-shadow: var(--shadow);
+      }
+      .searchbar input {
+        width: 100%;
+        border: none;
+        outline: none;
+        font-size: 15px;
+        background: transparent;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 10px 0 4px;
+      }
+      .chip {
+        border: 1px solid var(--line);
+        background: var(--chip);
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all var(--dur) var(--easing);
+      }
+      .chip.active {
+        background: var(--brand);
+        color: #fff;
+        border-color: var(--brand);
+        box-shadow: 0 6px 14px rgba(233, 30, 140, 0.24);
+      }
+      .result-count {
+        color: var(--muted);
+        font-size: 13px;
+        margin: 10px 0;
+      }
+      .list {
+        display: grid;
+        gap: 10px;
+      }
+
+      /* ── 우측: 선택한 장소 ───────────────────────────────── */
+      aside {
+        position: sticky;
+        top: 16px;
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 14px;
+        box-shadow: var(--shadow);
+      }
+      aside h3 {
+        margin: 4px 0 10px;
+        font-size: 16px;
+      }
+      .count {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .chosen {
+        display: grid;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .chosen-item {
+        display: grid;
+        grid-template-columns: 64px auto 24px;
+        gap: 10px;
+        align-items: center;
+        border: 1px dashed var(--line);
+        border-radius: 12px;
+        padding: 8px;
+        background: #fff;
+        transition: background var(--dur) var(--easing);
+      }
+      .chosen-item:hover {
+        background: #fbfbff;
+      }
+      .chosen-item img {
+        width: 64px;
+        height: 48px;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+      .chosen-item .nm {
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .x {
+        cursor: pointer;
+        font-weight: 900;
+        color: #334155;
+        text-align: center;
+        border: none;
+        background: transparent;
+      }
+      .empty {
+        text-align: center;
+        color: var(--muted);
+        border: 1px dashed var(--line);
+        border-radius: 12px;
+        padding: 18px 10px;
+      }
+
+      /* ── CTA ─────────────────────────────────────────────── */
+      .cta {
+        margin-top: 16px;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        align-items: center;
+      }
+      .progress {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .progressbar {
+        width: 120px;
+        height: 8px;
+        background: #eef2f7;
+        border-radius: 999px;
+        overflow: hidden;
+        position: relative;
+      }
+      .progressbar > span {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, var(--brand), #ff7ab6);
+        transition: width var(--dur) var(--easing);
+      }
+      .next,
+      .prev {
+        border: none;
+        border-radius: 999px;
+        padding: 12px 18px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .next {
+        background: var(--brand);
+        color: white;
+        box-shadow: var(--shadow);
+      }
+      .prev {
+        background: #e2e8f0;
+        color: #0f172a;
+      }
+      .next[disabled],
+      .prev[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* 모바일 하단 고정 CTA */
+      .mobile-cta {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 16px;
+        z-index: 20;
+        border: none;
+        border-radius: 999px;
+        padding: 14px 22px;
+        font-weight: 800;
+        background: var(--brand);
+        color: #fff;
+        display: none;
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+      }
+      .mobile-cta.show {
+        display: inline-block;
+      }
+      @media (min-width: 981px) {
+        .mobile-cta {
+          display: none !important;
+        }
+      }
+
+      /* ── 접근성/유틸 ─────────────────────────────────────── */
+      .sr-only {
+        position: absolute;
+        clip: rect(1px, 1px, 1px, 1px);
+        padding: 0;
+        border: 0;
+        height: 1px;
+        width: 1px;
+        overflow: hidden;
+      }
+      .chip:focus-visible,
+      .btn:focus-visible,
+      .prev:focus-visible,
+      .next:focus-visible,
+      .x:focus-visible,
+      .searchbar input:focus-visible {
+        outline: 3px solid #94a3b8;
+        outline-offset: 2px;
+        border-radius: 8px;
+      }
+      .hidden {
+        display: none !important;
+      }
+
+      /* ── 공통 폼(강화) ───────────────────────────────────── */
+      .form {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px;
+        display: grid;
+        gap: 14px;
+        box-shadow: var(--shadow);
+      }
+      .row {
+        display: grid;
+        gap: 8px;
+      }
+      .row.inline {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      label {
+        font-weight: 800;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      input[type="date"],
+      input[type="number"],
+      input[type="text"],
+      input[type="range"],
+      select {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px 12px;
+        font-size: 14px;
+        transition: box-shadow var(--dur) var(--easing),
+          border-color var(--dur) var(--easing),
+          transform var(--dur) var(--easing);
+        background: #fff;
+      }
+      input:focus {
+        border-color: #cbd5e1;
+        box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.06);
+      }
+      .help {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      /* ── 애니메이션 ─────────────────────────────────────── */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes scaleIn {
+        from {
+          opacity: 0;
+          transform: scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      section.section-visible .form {
+        animation: fadeUp 380ms var(--easing) both;
+      }
+
+      /* ── Step 2: 날짜 카드화 ─────────────────────────────── */
+      .date-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .date-card {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 12px;
+        background: #fff;
+        display: grid;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+      }
+      .date-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: conic-gradient(
+          from 180deg at 50% 120%,
+          rgba(233, 30, 140, 0.12),
+          transparent 40%
+        );
+        opacity: 0;
+        transition: opacity var(--dur) var(--easing);
+      }
+      .date-card:focus-within::after,
+      .date-card:hover::after {
+        opacity: 1;
+      }
+      .nights-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #f8f0f5;
+        border: 1px solid #ffd1e7;
+        font-weight: 800;
+        font-size: 12px;
+        color: #9d174d;
+      }
+
+      /* ── Step 3: 이동수단 세그먼트 ──────────────────────── */
+      .options {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      @media (max-width: 520px) {
+        .options {
+          grid-template-columns: 1fr;
+        }
+      }
+      .option {
+        position: relative;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        padding: 12px;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: transform var(--dur) var(--easing),
+          box-shadow var(--dur) var(--easing),
+          border-color var(--dur) var(--easing);
+      }
+      .option input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .option svg {
+        flex: 0 0 28px;
+      }
+      .option .lbl {
+        font-weight: 800;
+      }
+      .option:has(input:checked) {
+        border-color: var(--brand);
+        box-shadow: 0 10px 22px rgba(233, 30, 140, 0.18);
+        transform: translateY(-1px);
+      }
+      .option:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow);
+      }
+
+      /* ── Step 4: 예산 슬라이더 ──────────────────────────── */
+      .budget-wrap {
+        display: grid;
+        gap: 10px;
+      }
+      .budget-inline {
+        display: grid;
+        grid-template-columns: 1fr 140px;
+        gap: 12px;
+        align-items: center;
+      }
+      .bubble {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        border: 1px solid var(--line);
+        font-weight: 800;
+        font-size: 12px;
+        color: #334155;
+      }
+      input[type="range"] {
+        height: 8px;
+        background: linear-gradient(90deg, var(--brand), #ff7ab6);
+        border: none;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid var(--brand);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+      }
+
+      /* ── Step 5: 스테퍼 ─────────────────────────────────── */
+      .stepper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .stepper input[type="number"] {
+        width: 100%;
+        text-align: center;
+        font-weight: 800;
+      }
+      .stepper .inc,
+      .stepper .dec {
+        width: 40px;
+        height: 38px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: #fff;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        font-weight: 900;
+        transition: transform var(--dur) var(--easing),
+          box-shadow var(--dur) var(--easing);
+      }
+      .stepper .inc:hover,
+      .stepper .dec:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow);
+      }
+
+      /* ── 미니 요약 배지 ─────────────────────────────────── */
+      .mini {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .pill {
+        background: #f8fafc;
+        border: 1px solid var(--line);
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 12px;
+        color: #334155;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>서울 추천일정</h1>
+        <nav class="steps" aria-label="단계">
+          <div class="step" data-step="1">
+            <div class="dot">1</div>
+            <div class="label">장소 선택</div>
+          </div>
+          <div class="step" data-step="2">
+            <div class="dot">2</div>
+            <div class="label">기간 설정</div>
+          </div>
+          <div class="step" data-step="3">
+            <div class="dot">3</div>
+            <div class="label">이동 수단</div>
+          </div>
+          <div class="step" data-step="4">
+            <div class="dot">4</div>
+            <div class="label">예산 설정</div>
+          </div>
+          <div class="step" data-step="5">
+            <div class="dot">5</div>
+            <div class="label">동행자 정보</div>
+          </div>
+        </nav>
+      </header>
+
+      <div class="grid">
+        <!-- 좌측: 단계별 본문 -->
+        <main>
+          <!-- STEP 1: 장소 선택 (원본과 동일) -->
+          <section id="step1" aria-labelledby="placeHeading">
+            <h2 class="sr-only" id="placeHeading">관심 장소 선택</h2>
+            <div class="searchbar" role="search" aria-labelledby="searchLabel">
+              <span id="searchLabel" class="sr-only">장소 검색</span>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M21 21l-4.3-4.3"
+                  stroke="#64748b"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="7"
+                  stroke="#64748b"
+                  stroke-width="2"
+                />
+              </svg>
+              <input
+                id="q"
+                placeholder="장소 검색... (예: 남산, 광장시장)"
+                autocomplete="off"
+                aria-describedby="resultCount"
+              />
+            </div>
+            <div
+              class="chips"
+              id="chips"
+              role="group"
+              aria-label="분류 필터"
+            ></div>
+            <div class="result-count" id="resultCount" aria-live="polite"></div>
+            <section
+              id="list"
+              class="list"
+              aria-labelledby="placeHeading"
+              aria-live="polite"
+            ></section>
+          </section>
+
+          <!-- STEP 2: 기간 설정 (업그레이드) -->
+          <section id="step2" class="hidden" aria-labelledby="dateHeading">
+            <h2 class="sr-only" id="dateHeading">기간 설정</h2>
+            <div class="form" role="form" aria-describedby="dateHelp">
+              <div class="row inline">
+                <div class="row">
+                  <label for="startDate">시작일</label>
+                  <input type="date" id="startDate" />
+                </div>
+                <div class="row">
+                  <label for="endDate">종료일</label>
+                  <input type="date" id="endDate" />
+                </div>
+              </div>
+
+              <!-- 요약/안내 배지 -->
+              <div
+                class="mini"
+                aria-live="polite"
+                style="
+                  display: flex;
+                  gap: 8px;
+                  flex-wrap: wrap;
+                  margin-top: 4px;
+                "
+              >
+                <span id="nightsChip" class="nights-chip" hidden
+                  >총 <b id="nights">0</b>박</span
+                >
+                <span id="dateSummary" class="pill" hidden></span>
+              </div>
+
+              <div id="dateHelp" class="help">
+                시작일과 종료일을 선택해주세요.
+              </div>
+            </div>
+          </section>
+
+          <!-- STEP 3: 이동 수단 (세그먼트 + 아이콘) -->
+          <section id="step3" class="hidden" aria-labelledby="transportHeading">
+            <h2 class="sr-only" id="transportHeading">이동 수단</h2>
+            <div class="form" role="form">
+              <div class="options" id="transportOptions">
+                <label class="option">
+                  <input
+                    type="radio"
+                    name="transport"
+                    value="대중교통"
+                    checked
+                  />
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <rect
+                      x="4"
+                      y="3"
+                      width="16"
+                      height="13"
+                      rx="3"
+                      stroke="#334155"
+                      stroke-width="1.6"
+                    />
+                    <path
+                      d="M7 17l-1.6 2.4M17 17l1.6 2.4"
+                      stroke="#334155"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                  <div class="lbl">대중교통</div>
+                </label>
+                <label class="option">
+                  <input type="radio" name="transport" value="택시" />
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3 15h18l-1-4a3 3 0 0 0-2.9-2.2H6.9A3 3 0 0 0 4 11l-1 4Z"
+                      stroke="#334155"
+                      stroke-width="1.6"
+                    />
+                    <circle cx="7.5" cy="17.5" r="1.5" fill="#334155" />
+                    <circle cx="16.5" cy="17.5" r="1.5" fill="#334155" />
+                  </svg>
+                  <div class="lbl">택시</div>
+                </label>
+                <label class="option">
+                  <input type="radio" name="transport" value="자가용" />
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M4 14l2-6h12l2 6"
+                      stroke="#334155"
+                      stroke-width="1.6"
+                    />
+                    <rect x="6" y="8" width="12" height="3" fill="#334155" />
+                    <circle cx="7" cy="17" r="1.6" fill="#334155" />
+                    <circle cx="17" cy="17" r="1.6" fill="#334155" />
+                  </svg>
+                  <div class="lbl">자가용</div>
+                </label>
+                <label class="option">
+                  <input type="radio" name="transport" value="도보" />
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M10 21l1.8-5.4 2.8-1.6 1.4-3.8"
+                      stroke="#334155"
+                      stroke-width="1.6"
+                    />
+                    <circle cx="14.5" cy="4.5" r="2" fill="#334155" />
+                  </svg>
+                  <div class="lbl">도보</div>
+                </label>
+              </div>
+              <div class="help">
+                선호 이동 수단을 고르면 동선 최적화에 반영됩니다.
+              </div>
+            </div>
+          </section>
+
+          <!-- STEP 4: 예산 설정 (슬라이더 + 숫자 연동) -->
+          <section id="step4" class="hidden" aria-labelledby="budgetHeading">
+            <h2 class="sr-only" id="budgetHeading">예산 설정</h2>
+            <div class="form" role="form">
+              <div class="budget-wrap">
+                <div class="row">
+                  <label for="budgetRange">1인당 총 예산 (원)</label>
+                  <div class="budget-inline">
+                    <input
+                      type="range"
+                      id="budgetRange"
+                      min="0"
+                      max="500000"
+                      step="10000"
+                      value="150000"
+                    />
+                    <input
+                      type="number"
+                      id="budget"
+                      inputmode="numeric"
+                      placeholder="예: 150000"
+                      min="0"
+                      step="1000"
+                      value="150000"
+                    />
+                  </div>
+                  <div class="mini">
+                    <span class="bubble" id="budgetBubble">150,000원</span>
+                    <span class="pill">숙박/교통/식비 포함</span>
+                  </div>
+                </div>
+              </div>
+              <div class="help">슬라이더 또는 입력창으로 조정하세요.</div>
+            </div>
+          </section>
+
+          <!-- STEP 5: 동행자 정보 (스테퍼 & 메모) -->
+          <section id="step5" class="hidden" aria-labelledby="partyHeading">
+            <h2 class="sr-only" id="partyHeading">동행자 정보</h2>
+            <div class="form" role="form">
+              <div class="row inline">
+                <div class="row">
+                  <label for="adults">성인</label>
+                  <div class="stepper">
+                    <button
+                      class="dec"
+                      data-for="adults"
+                      type="button"
+                      aria-label="성인 감소"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      id="adults"
+                      min="1"
+                      step="1"
+                      value="1"
+                    />
+                    <button
+                      class="inc"
+                      data-for="adults"
+                      type="button"
+                      aria-label="성인 증가"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+                <div class="row">
+                  <label for="kids">아동</label>
+                  <div class="stepper">
+                    <button
+                      class="dec"
+                      data-for="kids"
+                      type="button"
+                      aria-label="아동 감소"
+                    >
+                      −
+                    </button>
+                    <input type="number" id="kids" min="0" step="1" value="0" />
+                    <button
+                      class="inc"
+                      data-for="kids"
+                      type="button"
+                      aria-label="아동 증가"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <label for="notes">특이사항</label>
+                <input
+                  type="text"
+                  id="notes"
+                  placeholder="유모차, 휠체어, 반려동물 등"
+                />
+              </div>
+              <div class="mini" aria-live="polite">
+                <span class="pill" id="partySummary" hidden></span>
+              </div>
+              <div class="help">입력 완료 후 “다음(완료)”을 누르세요.</div>
+            </div>
+          </section>
+        </main>
+
+        <!-- 우측: 선택된 장소(모든 단계 공통 표시) -->
+        <aside aria-label="선택한 장소">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 8px;
+            "
+          >
+            <h3>선택한 장소</h3>
+            <span class="count" id="selCount">0개</span>
+          </div>
+          <div id="chosen" class="chosen">
+            <div class="empty" id="emptyMsg">아직 선택한 장소가 없습니다.</div>
+          </div>
+          <div class="cta">
+            <div class="progress" id="progressText">
+              1/5 단계
+              <div class="progressbar" aria-hidden="true">
+                <span id="progressBar"></span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px">
+              <button class="prev" id="prevBtn" type="button">이전</button>
+              <button class="next" id="nextBtn" type="button" disabled>
+                다음
+              </button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- 모바일 전용 하단 CTA -->
+      <button
+        type="button"
+        id="mobilePrev"
+        class="mobile-cta"
+        aria-live="polite"
+      >
+        이전
+      </button>
+      <button
+        type="button"
+        id="mobileNext"
+        class="mobile-cta"
+        aria-live="polite"
+      >
+        다음
+      </button>
+    </div>
+
+    <!-- 템플릿 (1단계 전용) -->
+    <template id="cardTmpl">
+      <article class="card">
+        <img class="thumb" alt="" loading="lazy" />
+        <div class="content">
+          <div class="title"></div>
+          <div class="meta"></div>
+          <div class="tags"></div>
+        </div>
+        <div class="actions">
+          <button class="btn add" type="button">담기</button>
+        </div>
+      </article>
+    </template>
+
+    <template id="chosenTmpl">
+      <div class="chosen-item">
+        <img alt="" loading="lazy" />
+        <div>
+          <div class="nm"></div>
+          <div class="meta"></div>
+        </div>
+        <button class="x" title="삭제" aria-label="삭제" type="button">
+          ×
+        </button>
+      </div>
+    </template>
+
+    <script>
+      // --- 상태 --------------------------------------------------------------
+      const state = {
+        step: getStepFromHash() || 1,
+        q: "",
+        type: "전체",
+        chosen: loadChosen(),
+      };
+
+      // --- 엘리먼트 ---------------------------------------------------------
+      const $stepsNav = document.querySelectorAll(".steps .step");
+      const $progressText = document.getElementById("progressText");
+      const $progressBar = document.getElementById("progressBar");
+
+      // step1 전용
+      const $chips = document.getElementById("chips");
+      const $list = document.getElementById("list");
+      const $q = document.getElementById("q");
+      const $resultCount = document.getElementById("resultCount");
+
+      // 공통 사이드
+      const $chosen = document.getElementById("chosen");
+      const $selCount = document.getElementById("selCount");
+      const $emptyMsg = document.getElementById("emptyMsg");
+      const $nextBtn = document.getElementById("nextBtn");
+      const $prevBtn = document.getElementById("prevBtn");
+      const $mobileNext = document.getElementById("mobileNext");
+      const $mobilePrev = document.getElementById("mobilePrev");
+
+      // 섹션 참조
+      const $sections = {
+        1: document.getElementById("step1"),
+        2: document.getElementById("step2"),
+        3: document.getElementById("step3"),
+        4: document.getElementById("step4"),
+        5: document.getElementById("step5"),
+      };
+
+      // 보조 요소 (강화된 단계 전용)
+      const $startDate = document.getElementById("startDate");
+      const $endDate = document.getElementById("endDate");
+      const $nightsChip = document.getElementById("nightsChip");
+      const $nights = document.getElementById("nights");
+      const $dateSummary = document.getElementById("dateSummary");
+
+      const $budget = document.getElementById("budget");
+      const $budgetRange = document.getElementById("budgetRange");
+      const $budgetBubble = document.getElementById("budgetBubble");
+
+      const $adults = document.getElementById("adults");
+      const $kids = document.getElementById("kids");
+      const $partySummary = document.getElementById("partySummary");
+
+      // --- 초기화 -----------------------------------------------------------
+      buildChips();
+      bindEvents();
+      renderAll();
+
+      // 해시 기반 진입(뒤로가기 대응)
+      window.addEventListener("hashchange", () => {
+        const s = getStepFromHash();
+        if (s && s !== state.step) {
+          state.step = s;
+          renderAll();
+        }
+      });
+
+      // --- 이벤트 -----------------------------------------------------------
+      function bindEvents() {
+        // step1 검색
+        $q.addEventListener("input", (e) => {
+          state.q = e.target.value.trim();
+          if (state.step === 1) renderStep1();
+        });
+        $q.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            e.currentTarget.value = "";
+            state.q = "";
+            if (state.step === 1) renderStep1();
+          }
+        });
+
+        $nextBtn.addEventListener("click", onNext);
+        $prevBtn.addEventListener("click", onPrev);
+        $mobileNext.addEventListener("click", onNext);
+        $mobilePrev.addEventListener("click", onPrev);
+
+        // 날짜 계산/요약
+        [$startDate, $endDate].forEach((el) =>
+          el?.addEventListener("change", onDateChange)
+        );
+
+        // 예산 동기화
+        $budgetRange?.addEventListener("input", () =>
+          syncBudget($budgetRange.value)
+        );
+        $budget?.addEventListener("input", () => syncBudget($budget.value));
+
+        // 스테퍼
+        document.addEventListener("click", (e) => {
+          const btn = e.target.closest(".inc, .dec");
+          if (!btn) return;
+          const id = btn.getAttribute("data-for");
+          const input = document.getElementById(id);
+          if (!input) return;
+          const step = Number(input.step) || 1;
+          const min = Number(input.min) || 0;
+          let v = Number(input.value || 0);
+          if (btn.classList.contains("inc")) v += step;
+          else v -= step;
+          if (v < min) v = min;
+          input.value = String(v);
+          updatePartySummary();
+        });
+        [$adults, $kids].forEach((el) =>
+          el?.addEventListener("input", updatePartySummary)
+        );
+      }
+
+      // --- 렌더링 -----------------------------------------------------------
+      function renderAll() {
+        // 섹션 토글 + 애니메이션 표시
+        Object.entries($sections).forEach(([k, el]) => {
+          const isActive = Number(k) === state.step;
+          el.classList.toggle("hidden", !isActive);
+          el.classList.toggle("section-visible", isActive);
+        });
+
+        // 네비 하이라이트
+        $stepsNav.forEach((el) => {
+          const s = Number(el.getAttribute("data-step"));
+          el.classList.toggle("active", s === state.step);
+        });
+
+        // 진행률
+        $progressText.childNodes[0].nodeValue = `${state.step}/5 단계 `; // keep text before bar
+        $progressBar.style.width = `${(state.step / 5) * 100}%`;
+
+        // 섹션별 렌더
+        if (state.step === 1) renderStep1();
+        if (state.step === 5) updatePartySummary();
+        updateChosenPanel();
+
+        // 버튼 활성화 규칙
+        updateNavButtons();
+
+        // 해시 동기화
+        setHashFromStep(state.step);
+      }
+
+      function renderStep1() {
+        const results = ALL.filter(byQuery).filter(byType);
+        $resultCount.textContent = `${results.length}개 결과`;
+        $list.innerHTML = "";
+        const frag = document.createDocumentFragment();
+        results.forEach((item) => frag.appendChild(makeCard(item)));
+        $list.appendChild(frag);
+      }
+
+      function updateChosenPanel() {
+        $chosen.innerHTML = "";
+        if (state.chosen.length === 0) {
+          $chosen.appendChild($emptyMsg);
+        } else {
+          state.chosen.forEach((id) => {
+            const info = ALL.find((v) => v.id === id);
+            if (!info) return;
+            $chosen.appendChild(makeChosen(info));
+          });
+        }
+        $selCount.textContent = `${state.chosen.length}개`;
+        saveChosen();
+      }
+
+      function updateNavButtons() {
+        const canNext = state.step === 1 ? state.chosen.length > 0 : true;
+        $nextBtn.disabled = !canNext;
+        const isFirst = state.step === 1;
+        $prevBtn.disabled = isFirst;
+        $mobileNext.classList.toggle("show", canNext);
+        $mobilePrev.classList.toggle("show", !isFirst);
+        const isLast = state.step === 5;
+        $nextBtn.textContent = isLast ? "완료" : "다음";
+        $mobileNext.textContent = isLast ? "완료" : "다음";
+      }
+
+      // --- 필터/빌더 --------------------------------------------------------
+      function byQuery(v) {
+        if (!state.q) return true;
+        const s = state.q.toLowerCase();
+        return (
+          v.name.toLowerCase().includes(s) ||
+          v.addr.toLowerCase().includes(s) ||
+          v.type.toLowerCase().includes(s) ||
+          v.tags.join(" ").toLowerCase().includes(s)
+        );
+      }
+      function byType(v) {
+        return state.type === "전체" ? true : v.type === state.type;
+      }
+
+      function buildChips() {
+        $chips.innerHTML = "";
+        TYPES.forEach((t) => {
+          const b = document.createElement("button");
+          b.className = "chip";
+          b.type = "button";
+          b.textContent = t;
+          b.setAttribute("aria-pressed", t === state.type ? "true" : "false");
+          if (t === state.type) b.classList.add("active");
+          b.addEventListener("click", () => {
+            state.type = t;
+            document.querySelectorAll(".chip").forEach((c) => {
+              c.classList.remove("active");
+              c.setAttribute("aria-pressed", "false");
+            });
+            b.classList.add("active");
+            b.setAttribute("aria-pressed", "true");
+            if (state.step === 1) renderStep1();
+          });
+          $chips.appendChild(b);
+        });
+      }
+
+      function makeCard(item) {
+        const tmpl = document
+          .getElementById("cardTmpl")
+          .content.cloneNode(true);
+        const el = tmpl.querySelector(".card");
+        const img = el.querySelector("img");
+        const title = el.querySelector(".title");
+        const meta = el.querySelector(".meta");
+        const tags = el.querySelector(".tags");
+        const addBtn = el.querySelector(".add");
+
+        img.src = item.img;
+        img.alt = item.name;
+        title.textContent = item.name;
+        meta.textContent = `${item.type} · ${item.addr}`;
+        tags.innerHTML = item.tags
+          .map((t) => `<span class="tag">${t}</span>`)
+          .join("");
+
+        const isPicked = state.chosen.includes(item.id);
+        addBtn.textContent = isPicked ? "담김" : "담기";
+        addBtn.disabled = isPicked;
+        addBtn.addEventListener("click", () => {
+          if (!state.chosen.includes(item.id)) {
+            state.chosen.push(item.id);
+            renderAll();
+          }
+        });
+
+        return el;
+      }
+
+      function makeChosen(item) {
+        const tmpl = document
+          .getElementById("chosenTmpl")
+          .content.cloneNode(true);
+        const el = tmpl.querySelector(".chosen-item");
+        const img = el.querySelector("img");
+        const nameEl = el.querySelector(".nm");
+        const metaEl = el.querySelector(".meta");
+        const delBtn = el.querySelector(".x");
+
+        img.src = item.img;
+        img.alt = item.name;
+        nameEl.textContent = item.name;
+        metaEl.textContent = `${item.type} · ${item.addr}`;
+        delBtn.addEventListener("click", () => {
+          state.chosen = state.chosen.filter((id) => id !== item.id);
+          renderAll();
+          const nextFocusable =
+            $chosen.querySelector(".x") || document.getElementById("q");
+          nextFocusable?.focus?.();
+        });
+        return el;
+      }
+
+      // --- 저장/불러오기 ----------------------------------------------------
+      function saveChosen() {
+        try {
+          localStorage.setItem("chosenPlaces", JSON.stringify(state.chosen));
+        } catch (_) {}
+      }
+      function loadChosen() {
+        try {
+          return JSON.parse(localStorage.getItem("chosenPlaces") || "[]");
+        } catch (_) {
+          return [];
+        }
+      }
+
+      // --- 단계 이동 --------------------------------------------------------
+      function onNext() {
+        if (state.step === 1 && state.chosen.length === 0) return; // 가드
+        if (state.step < 5) {
+          state.step += 1;
+          renderAll();
+        } else {
+          // 완료 액션(원하면 실제 제출/네비게이션으로 교체)
+          const names = state.chosen
+            .map((id) => ALL.find((v) => v.id === id)?.name)
+            .filter(Boolean);
+          const start = document.getElementById("startDate")?.value || "미지정";
+          const end = document.getElementById("endDate")?.value || "미지정";
+          const transport =
+            (document.querySelector('input[name="transport"]:checked') || {})
+              .value || "미지정";
+          const budget = document.getElementById("budget")?.value || "미지정";
+          const adults = document.getElementById("adults")?.value || "1";
+          const kids = document.getElementById("kids")?.value || "0";
+          const notes = document.getElementById("notes")?.value || "";
+
+          alert(
+            [
+              "맞춤형 코스를 생성하겠습니까?",
+              `선택한 장소: ${names.join(", ") || "없음"}`,
+              `기간: ${start} ~ ${end}`,
+              `이동 수단: ${transport}`,
+              `예산(1인): ${Number(budget).toLocaleString()}원`,
+              `동행자: 성인 ${adults}명, 아동 ${kids}명`,
+              notes ? `특이사항: ${notes}` : null,
+            ]
+              .filter(Boolean)
+              .join("\n")
+          );
+          console.log("[SUBMIT]", {
+            names,
+            start,
+            end,
+            transport,
+            budget,
+            adults,
+            kids,
+            notes,
+          });
+          // window.location.href = "/result"; // 실제 이동 시 사용
+        }
+      }
+      function onPrev() {
+        if (state.step > 1) {
+          state.step -= 1;
+          renderAll();
+        }
+      }
+
+      // 해시<->스텝 동기화
+      function getStepFromHash() {
+        const m = (location.hash || "").match(/#step([1-5])/);
+        return m ? Number(m[1]) : null;
+      }
+      function setHashFromStep(step) {
+        if (getStepFromHash() !== step) {
+          history.replaceState(null, "", `#step${step}`);
+        }
+      }
+
+      // --- UX 강화 로직 -----------------------------------------------------
+      function onDateChange() {
+        const s = $startDate?.value;
+        const e = $endDate?.value;
+        if (s && e) {
+          const nights = Math.max(
+            0,
+            Math.round((new Date(e) - new Date(s)) / (1000 * 60 * 60 * 24))
+          );
+          $nights.textContent = nights;
+          $nightsChip.hidden = false;
+          $dateSummary.hidden = false;
+          $dateSummary.textContent = `${s.replaceAll(
+            "-",
+            "."
+          )} ~ ${e.replaceAll("-", ".")}`;
+        } else {
+          $nightsChip.hidden = true;
+          $dateSummary.hidden = true;
+        }
+      }
+
+      function syncBudget(val) {
+        const num = Math.max(0, Number(val || 0));
+        if (document.activeElement === $budgetRange) {
+          $budget.value = num;
+        } else if (document.activeElement === $budget) {
+          $budgetRange.value = num;
+        } else {
+          $budget.value = num;
+          $budgetRange.value = num;
+        }
+        $budgetBubble.textContent = `${num.toLocaleString()}원`;
+      }
+
+      function updatePartySummary() {
+        const a = Number($adults?.value || 1);
+        const k = Number($kids?.value || 0);
+        const txt = `총 ${a + k}명 (성인 ${a}, 아동 ${k})`;
+        $partySummary.textContent = txt;
+        $partySummary.hidden = false;
+      }
+    </script>
+  </body>
+</html>
