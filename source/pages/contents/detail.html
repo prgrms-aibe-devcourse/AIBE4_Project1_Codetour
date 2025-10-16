@@ -224,6 +224,14 @@
     <script type="module">
       let supabase;
 
+      // auth.js가 로드된 후 user-manager.js의 함수를 사용할 수 있습니다.
+      let getIsLoggedIn;
+      let getUserId;
+      import("/libs/user-manager.js").then(module => {
+        getIsLoggedIn = module.getIsLoggedIn;
+        getUserId = module.getUserId;
+      });
+
       // Supabase 클라이언트 초기화
       async function initSupabase() {
         try {
@@ -265,6 +273,24 @@
           detailContainer.innerHTML =
             "<p>장소 ID가 올바르지 않습니다. 이전 페이지로 돌아가 다시 시도해주세요.</p>";
           return;
+        }
+
+        // 현재 사용자의 이 장소에 대한 좋아요 상태를 확인합니다.
+        let isLiked = false;
+        const userId = getUserId ? getUserId() : null;
+        if (userId) {
+          const { data: favorite, error: favoriteError } = await supabase
+            .from("user_favorites")
+            .select("id")
+            .eq("user_id", userId)
+            .eq("target_id", placeId)
+            .eq("target_type", "location")
+            .maybeSingle(); // 한 개의 결과만 가져오거나 null을 반환
+
+          if (favoriteError) {
+            console.error("좋아요 상태 확인 실패:", favoriteError);
+          }
+          if (favorite) isLiked = true;
         }
 
         try {
@@ -326,7 +352,7 @@
           let html = `
             <div class="detail-header">
               <h2>${mainLocation.placeName}</h2>
-              <button class="like-button" data-place-id="${mainLocation.placeId}">♡</button>
+              <button class="like-button ${isLiked ? 'liked' : ''}" data-place-id="${mainLocation.placeId}">${isLiked ? '♥' : '♡'}</button>
             </div>`;
 
           // 이미지 슬라이더 또는 단일 이미지 표시
@@ -454,12 +480,49 @@
           // '좋아요' 버튼에 이벤트 리스너 추가
           const likeButton = detailContainer.querySelector(".like-button");
           if (likeButton) {
-            likeButton.addEventListener("click", (event) => {
+            likeButton.addEventListener("click", async (event) => {
+              // 로그인 상태 확인
+              if (!getIsLoggedIn || !getIsLoggedIn()) {
+                alert("로그인이 필요합니다.");
+                return;
+              }
+
+              const currentUserId = getUserId();
+              if (!currentUserId) {
+                alert("사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.");
+                return;
+              }
+
               event.stopPropagation();
               if (likeButton.textContent === "♡") {
-                likeButton.textContent = "♥";
+                // 좋아요 추가
+                const { error } = await supabase.from("user_favorites").insert({
+                  user_id: currentUserId,
+                  target_id: placeId,
+                  target_type: "location",
+                });
+                if (error) {
+                  console.error("좋아요 추가 실패:", error);
+                  alert("좋아요 처리에 실패했습니다.");
+                } else {
+                  likeButton.textContent = "♥";
+                  likeButton.classList.add("liked");
+                }
               } else {
-                likeButton.textContent = "♡";
+                // 좋아요 취소
+                const { error } = await supabase
+                  .from("user_favorites")
+                  .delete()
+                  .eq("user_id", currentUserId)
+                  .eq("target_id", placeId);
+                
+                if (error) {
+                  console.error("좋아요 취소 실패:", error);
+                  alert("좋아요 취소에 실패했습니다.");
+                } else {
+                  likeButton.textContent = "♡";
+                  likeButton.classList.remove("liked");
+                }
               }
             });
           }
