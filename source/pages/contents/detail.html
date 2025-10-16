@@ -12,6 +12,10 @@
       href="https://unpkg.com/swiper/swiper-bundle.min.css"
     />
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script
+      type="text/javascript"
+      src="//dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"
+    ></script>
   </head>
   <body>
     <header class="header">
@@ -133,6 +137,17 @@
         }
       }
 
+      // 좌표 문자열을 파싱하여 위도, 경도 객체를 반환하는 함수
+      function parseCoordinates(coordStr) {
+        if (!coordStr || typeof coordStr !== "string") return null;
+        const parts = coordStr.split(",").map((s) => s.trim());
+        if (parts.length !== 2) return null;
+
+        const lat = parseFloat(parts[0].replace(/[N]/gi, ""));
+        const lng = parseFloat(parts[1].replace(/[E]/gi, ""));
+        return { lat, lng };
+      }
+
       // URL에서 placeId를 가져와 상세 정보를 로드하는 함수
       async function loadPlaceDetails() {
         const detailContainer = document.getElementById("detail-container");
@@ -232,24 +247,24 @@
           } else {
             html += `<img src="${mainLocation.imageUrl || ""}" alt="${
               mainLocation.name
-            }" style="max-width: 100%; height: 200px;" onerror="this.outerHTML='<div class=\\'no-image\\'>이미지가 없습니다.</div>'">`;
+            }" style="max-width: 100%; height: 200px;" onerror="this.outerHTML='<div class=\'no-image\'>이미지가 없습니다.</div>'">`;
           }
 
           // 상세 정보 표시
           html += `<div class="detail-info-grid">`;
-          html += `<p><strong>주소:</strong> ${
+          html += `<p><strong>주소:</strong> ${ 
             mainLocation.address || "정보 없음"
           }</p>`;
-          html += `<p><strong>연락처:</strong> ${
+          html += `<p><strong>연락처:</strong> ${ 
             mainLocation.tel || "정보 없음"
           }</p>`;
-          html += `<p><strong>입장료:</strong> ${
+          html += `<p><strong>입장료:</strong> ${ 
             mainLocation.entranceFee || "정보 없음"
           }</p>`;
-          html += `<p><strong>운영 시간:</strong> ${
+          html += `<p><strong>운영 시간:</strong> ${ 
             mainLocation.subDescription || "정보 없음"
           }</p>`;
-          html += `<p class="full-width"><strong>설명:</strong> ${
+          html += `<p class="full-width"><strong>설명:</strong> ${ 
             mainLocation.description || "정보 없음"
           }</p>`;
           html += `</div>`;
@@ -298,7 +313,7 @@
                     <div class="stars-outer"><div class="stars-inner" style="width: ${reviewStarPercentage}%;"></div></div>
                   </div>
                   <p class="review-text">${review.text}</p>
-                  ${
+                  ${ 
                     review.imageUrl
                       ? `<img src="${review.imageUrl}" alt="리뷰 이미지" class="review-image" style="width:120px; height:120px; object-fit:cover; border-radius:8px; margin:8px 0;">`
                       : ""
@@ -358,6 +373,29 @@
               },
             });
           }
+
+          // 지도 초기화
+          kakao.maps.load(function () {
+            const mapContainer = document.getElementById("map");
+            const coords = parseCoordinates(mainLocation.coordinates);
+
+            if (coords && coords.lat && coords.lng) {
+              const mapOption = {
+                center: new kakao.maps.LatLng(coords.lat, coords.lng),
+                level: 3,
+              };
+              const map = new kakao.maps.Map(mapContainer, mapOption);
+
+              const markerPosition = new kakao.maps.LatLng(coords.lat, coords.lng);
+              const marker = new kakao.maps.Marker({
+                position: markerPosition,
+              });
+              marker.setMap(map);
+            } else {
+              mapContainer.innerHTML =
+                '<p style="text-align:center; padding-top: 20px;">지도를 표시할 위치 정보가 없습니다.</p>';
+            }
+          });
         } catch (error) {
           console.error("Error fetching location details:", error);
           detailContainer.innerHTML = `<p>장소 정보를 불러오는 데 실패했습니다: ${error.message}</p>`;
