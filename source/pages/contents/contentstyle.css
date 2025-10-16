@@ -24,16 +24,10 @@ header {
 }
 
 header .container {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0px;
-  gap: 1163.02px;
   width: 100%;
   max-width: 1536px;
-  height: 56px;
   margin: 0 auto;
+  padding: 0 1rem; /* index.html과 유사한 여백 추가 */
 }
 
 header .logo-container {
