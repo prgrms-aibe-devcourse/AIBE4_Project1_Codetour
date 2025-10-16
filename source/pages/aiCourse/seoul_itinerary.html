@@ -667,12 +667,29 @@
     </div>
 
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
-    <script>
+    <script type="module">
+      import {
+        initAuthListener,
+        getIsLoggedIn,
+        getUserNickname,
+        getUserId,
+      } from "/libs/user-manager.js";
+
+      // 사용자 정보 초기화
+      initAuthListener();
+      window.currentUser = null;
+      const userId = getUserId();
+      if (userId) {
+        window.currentUser = { id: userId, nickname: getUserNickname() };
+      }
+
       const tabs = document.querySelectorAll(".tab");
       const panes = document.querySelectorAll(".pane");
 
-      // 각 DAY별 장소 데이터 추출
+      // 각 DAY별 장소 데이터 추출 (좌표 포함)
       const dayData = {};
+      const dayPositions = {}; // 좌표 저장용
+
       panes.forEach((pane) => {
         const day = pane.dataset.day;
         const items = pane.querySelectorAll(".item");
@@ -680,6 +697,7 @@
           title: item.querySelector(".title").textContent,
           address: item.querySelector(".addr").textContent.trim(),
         }));
+        dayPositions[day] = []; // 각 DAY별 좌표 배열 초기화
       });
 
       let map = null;
@@ -739,6 +757,7 @@
                     lat: parseFloat(result[0].y),
                     lng: parseFloat(result[0].x),
                     title: place.title,
+                    address: place.address,
                   });
                 } else {
                   resolve(null);
@@ -769,6 +788,9 @@
             console.error("주소 검색 오류:", place.address, error);
           }
         }
+
+        // 현재 DAY의 좌표 저장
+        dayPositions[day] = positions;
 
         // 경로 그리기
         if (positions.length >= 2) {
@@ -858,6 +880,65 @@
       } else {
         initKakaoMap();
       }
+
+      // "내 일정으로 담기" 버튼 클릭 이벤트
+      document.querySelector(".cta button").addEventListener("click", async function() {
+        // 로그인 체크
+        if (!window.currentUser) {
+          if (confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
+            window.location.href = "/auth";
+          }
+          return;
+        }
+
+        // 현재 선택된 DAY의 장소 가져오기
+        const currentDayPlaces = dayPositions[currentDay];
+
+        if (!currentDayPlaces || currentDayPlaces.length === 0) {
+          alert("장소 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+          return;
+        }
+
+        const userId = window.currentUser.id;
+        const courseName = prompt(
+          "코스 이름을 입력하세요",
+          `서울 여행 Day ${currentDay}`
+        );
+
+        if (!courseName) return;
+
+        try {
+          // map_page.html과 동일한 형식으로 데이터 준비
+          const places = currentDayPlaces.map((pos, index) => ({
+            name: pos.title,
+            lat: pos.lat,
+            lng: pos.lng,
+            mediaTitle: "", // AI 추천이므로 미디어 타이틀 없음
+            placeId: null, // placeId 없음
+          }));
+
+          const res = await fetch("/api/course", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId,
+              name: courseName,
+              places
+            }),
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+            alert(`🎉 저장 완료!\n코스 ID: ${data.courseId}\n\n마이페이지에서 확인하실 수 있습니다.`);
+          } else {
+            alert("저장에 실패했습니다 😢");
+          }
+        } catch (err) {
+          console.error("코스 저장 오류:", err);
+          alert("저장 중 오류가 발생했습니다 😢");
+        }
+      });
     </script>
   </body>
 </html>
