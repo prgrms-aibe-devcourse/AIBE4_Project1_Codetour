@@ -2,7 +2,7 @@
   "name": "aibe4_project1_codetour",
   "version": "1.0.0",
   "description": "1.",
-  "main": "server/server_map.js",
+  "main": "nodemon server/server_map.js",
   "scripts": {
     "dev": "nodemon server/server_map.js"
   },

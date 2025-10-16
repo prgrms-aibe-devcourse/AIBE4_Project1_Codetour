@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>상세 정보 - CodeTour</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="contentstyle.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/swiper/swiper-bundle.min.css"
@@ -45,53 +45,8 @@
 
     <script type="module">
       let supabase;
-      let kakaoMapKey;
 
-      // Kakao 지도 스크립트를 동적으로 로드하는 함수
-      function loadMapScript(onLoad) {
-        const script = document.createElement("script");
-        script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoMapKey}&libraries=services&autoload=false`;
-        script.onload = () => {
-          kakao.maps.load(onLoad);
-        };
-        document.head.appendChild(script);
-      }
-
-      // 주소를 좌표로 변환하고 지도를 표시하는 함수
-      function displayMap(address) {
-        const mapContainer = document.getElementById("map");
-        if (!mapContainer) {
-          console.error("Map container not found.");
-          return;
-        }
-
-        const mapOption = {
-          center: new kakao.maps.LatLng(33.450701, 126.570667), // 기본 중심 좌표
-          level: 3,
-        };
-
-        const map = new kakao.maps.Map(mapContainer, mapOption);
-        const geocoder = new kakao.maps.services.Geocoder();
-
-        geocoder.addressSearch(address, function (result, status) {
-          if (status === kakao.maps.services.Status.OK) {
-            const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-            const marker = new kakao.maps.Marker({
-              map: map,
-              position: coords,
-            });
-
-            // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
-            map.setCenter(coords);
-          } else {
-            console.warn(`'${address}'에 대한 지오코딩 실패: ${status}`);
-            mapContainer.innerHTML =
-              "<p>위치 정보를 지도에 표시할 수 없습니다.</p>";
-          }
-        });
-      }
-
-      // Supabase 클라이언트 및 지도 초기화
+      // Supabase 클라이언트 초기화
       async function initialize() {
         try {
           const response = await fetch("http://localhost:3000/api/config");
@@ -104,17 +59,8 @@
             config.supabaseKey
           );
 
-          // KakaoMap 키 설정 및 스크립트 로드
-          kakaoMapKey = config.kakaoMapKey;
-          if (!kakaoMapKey) {
-            throw new Error("Kakao Map API key is missing.");
-          }
-          
-          // 스크립트 로드가 완료된 후 장소 상세 정보 로드
-          loadMapScript(async () => {
-            await loadPlaceDetails();
-          });
-
+          // 장소 상세 정보 로드
+          await loadPlaceDetails();
         } catch (error) {
           console.error("Error during initialization:", error);
           const detailContainer = document.getElementById("detail-container");
@@ -202,39 +148,31 @@
                 <div class="swiper-button-prev"></div>
                 <div class="swiper-button-next"></div>
               </div>`;
-          } else if (images && images.length === 1) {
-            html += `<img src="${images[0].imageUrl}" alt="${mainLocation.name}" style="width: 100%; height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 20px;">`;
+          } else if (mainLocation.imageUrl || (images && images.length === 1)) {
+            const imageUrl = mainLocation.imageUrl || images[0].imageUrl;
+            html += `<img src="${imageUrl}" alt="${mainLocation.placeName}" style="width: 100%; height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 20px;">`;
           } else {
-            html += `<img src="${mainLocation.imageUrl || ""}" alt="${
-              mainLocation.name
-            }" style="max-width: 100%; height: 200px;" onerror="this.outerHTML='<div class=\'no-image\'>이미지가 없습니다.</div>'">`;
+            // 이미지가 없는 경우, 400px 높이를 유지하는 플레이스홀더를 표시합니다.
+            html += `<div class="no-image" style="height: 400px; width: 100%; border-radius: 8px; margin-bottom: 20px;">이미지가 없습니다.</div>`;
           }
 
           html += `<div class="detail-info-grid">
-                     <p><strong>주소:</strong> ${ 
+                     <p><strong>주소:</strong> ${
                        mainLocation.address || "정보 없음"
                      }</p>
-                     <p><strong>연락처:</strong> ${ 
+                     <p><strong>연락처:</strong> ${
                        mainLocation.tel || "정보 없음"
                      }</p>
-                     <p><strong>입장료:</strong> ${ 
+                     <p><strong>입장료:</strong> ${
                        mainLocation.entranceFee || "정보 없음"
                      }</p>
-                     <p><strong>운영 시간:</strong> ${ 
+                     <p><strong>운영 시간:</strong> ${
                        mainLocation.subDescription || "정보 없음"
                      }</p>
-                     <p class="full-width"><strong>설명:</strong> ${ 
+                     <p class="full-width"><strong>설명:</strong> ${
                        mainLocation.description || "정보 없음"
                      }</p>
                    </div>`;
-
-          // 지도 섹션 (컨테이너)
-          html += `
-            <div class="map-section">
-              <h3>위치 정보</h3>
-              <div id="map" style="width:100%;height:400px;border-radius:8px;"></div>
-            </div>
-          `;
 
           // --- 리뷰 섹션 ---
           let reviewSummaryHtml = "";
@@ -259,7 +197,7 @@
                     <div class="stars-outer"><div class="stars-inner" style="width: ${reviewStarPercentage}%;"></div></div>
                   </div>
                   <p class="review-text">${review.text}</p>
-                  ${ 
+                  ${
                     review.imageUrl
                       ? `<img src="${review.imageUrl}" alt="리뷰 이미지" class="review-image" style="width:120px; height:120px; object-fit:cover; border-radius:8px; margin:8px 0;">`
                       : ""
@@ -290,15 +228,13 @@
 
           detailContainer.innerHTML = html;
 
-          // 지도 표시
-          displayMap(mainLocation.address || mainLocation.placeName);
-
           // '좋아요' 버튼 이벤트 리스너
           const likeButton = detailContainer.querySelector(".like-button");
           if (likeButton) {
             likeButton.addEventListener("click", (event) => {
               event.stopPropagation();
-              likeButton.textContent = likeButton.textContent === "♡" ? "♥" : "♡";
+              likeButton.textContent =
+                likeButton.textContent === "♡" ? "♥" : "♡";
             });
           }
 
