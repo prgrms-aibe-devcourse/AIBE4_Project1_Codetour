@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <title>K-콘텐츠 지도</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <meta property="og:image" content="/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="K-Spot">
+    <script src="/libs/nav-manager.js" type="module"></script>
     <link rel="stylesheet" href="../index/style.css" />
     <style>
       * {
@@ -550,87 +559,7 @@
     </style>
   </head>
   <body>
-    <header class="header">
-      <div class="container">
-        <div class="header-top">
-          <a href="/source/pages/index/index.html" class="logo">
-            <svg
-              width="200"
-              height="50"
-              viewBox="0 0 200 50"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <defs>
-                <linearGradient
-                  id="logoGradient"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="0%"
-                >
-                  <stop
-                    offset="0%"
-                    style="stop-color: #e91e8c; stop-opacity: 1"
-                  />
-                  <stop
-                    offset="100%"
-                    style="stop-color: #ff6b9d; stop-opacity: 1"
-                  />
-                </linearGradient>
-                <style>
-                  .logo-text {
-                    font-family: "Pretendard", sans-serif;
-                    font-weight: 800;
-                    font-size: 40px;
-                    fill: url(#logoGradient);
-                    letter-spacing: -1px;
-                  }
-                </style>
-              </defs>
-              <text x="0" y="37" class="logo-text">K</text>
-              <text x="30" y="37" class="logo-text">-</text>
-              <text x="44" y="37" class="logo-text">S</text>
-              <text x="70" y="37" class="logo-text">P</text>
-              <g transform="translate(95.5, 4) scale(0.93)">
-                <path
-                  d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z"
-                  fill="url(#logoGradient)"
-                />
-                <circle cx="18" cy="13" r="8" fill="white" />
-              </g>
-              <text x="128" y="37" class="logo-text">T</text>
-            </svg>
-          </a>
-          <div
-            class="header-right"
-            style="display: flex; gap: 8px; align-items: center"
-          >
-            <select class="lang-select" id="languageSelector">
-              <option value="ko">한국어</option>
-              <option value="en">English</option>
-              <option value="ja">日本語</option>
-            </select>
-            <button class="btn-search" id="searchToggle">🔍</button>
-            <button id="loginBtn">로그인</button>
-          </div>
-        </div>
-
-        <nav class="nav">
-          <a href="/source/pages/index/index.html" class="nav-link">홈</a>
-          <a href="/source/pages/index/index.html#content" class="nav-link"
-            >콘텐츠별 여행지</a
-          >
-          <a href="/aiCourse" class="nav-link">AI 코스 추천</a>
-          <a href="/source/pages/map/map_page.html" class="nav-link active"
-            >K-콘텐츠 여행 지도</a
-          >
-          <a href="/source/pages/index/index.html#routes" class="nav-link"
-            >인기 여행 루트</a
-          >
-          <a href="/my-page" class="nav-link">마이페이지</a>
-        </nav>
-      </div>
-    </header>
+    <div id="headerPlaceholder"></div>
     <div class="container">
       <div class="left-panel">
         <!-- 장소 검색 -->
@@ -1079,10 +1008,11 @@
         }
 
         kakao.maps.load(function () {
-          var map = new kakao.maps.Map(document.getElementById("map"), {
-            center: new kakao.maps.LatLng(37.5665, 126.978),
-            level: 5,
-          });
+
+        var map = new kakao.maps.Map(document.getElementById("map"), {
+          center: new kakao.maps.LatLng(37.5665, 126.978),
+          level: 5,
+        });
 
           let markers = [];
           let myCourse = [];
@@ -1667,5 +1597,53 @@
         initKakaoMap();
       }
     </script>
+
+    <script>
+  // --- 유틸: 쿼리 파라미터 가져오기
+  function getQS(name, dflt = null) {
+    const v = new URLSearchParams(location.search).get(name);
+    return v == null ? dflt : v;
+  }
+
+  const toNum = v => (v == null ? NaN : Number(v));
+
+  function performTextSearch(keyword) {
+    const input =
+      document.querySelector('#searchInput') ||             
+      document.querySelector('input[placeholder*="검색"]');   
+    const btn =
+      document.querySelector('#searchBtn') ||              
+      Array.from(document.querySelectorAll('button'))
+        .find(b => /검색/.test(b.textContent));
+
+    if (input) input.value = keyword || '';
+    if (btn) btn.click();
+  }
+
+  function addDirectMarker(lat, lng, title) {
+    if (isNaN(lat) || isNaN(lng) || !window.kakao || !window.map) return;
+    const pos = new kakao.maps.LatLng(lat, lng);
+    map.setCenter(pos);
+    const marker = new kakao.maps.Marker({ position: pos, title: title || '' });
+    marker.setMap(map);
+  }
+
+  function initFromQuery() {
+    const name = getQS('name', '').trim();
+    const lat = toNum(getQS('lat'));
+    const lng = toNum(getQS('lng'));
+
+    if (!name && isNaN(lat) && isNaN(lng)) return;
+
+    if (name) performTextSearch(name);
+
+    if (!isNaN(lat) && !isNaN(lng)) addDirectMarker(lat, lng, name);
+  }
+
+  document.addEventListener('DOMContentLoaded', initFromQuery);
+</script>
+
+
+
   </body>
 </html>

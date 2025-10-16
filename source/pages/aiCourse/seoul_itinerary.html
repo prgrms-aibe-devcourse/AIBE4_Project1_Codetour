@@ -407,21 +407,7 @@
             </div>
             <div class="rec">
               추천 3회에서 심청(지안나 준)은 허준재(이민호)를 만나러 수족관에서
-              수영을 한다. | 2회에서 DN그룹은 이 곳 홀에서 기념일 축하연을 열고,
-              차지헌(지성 분)이 공황발작으로 방을 떠나야 할 때까지 자신을 새로운
-              최고재무책임자로 소개한다. | 3화에서 서건우(임주환)는
-              김보라(성유리)를 데려온다. | 16회에서 이별 만찬을 위해 공명은
-              이곳에 박하나(박하선)를 데려갑니다. | 한이안(남주혁)은 이 건물 밖
-              공원에서 솜사탕을 산다. | 남수리(박규선)는 한강에서 이 건물을 보고
-              정면에 금덩어리가 들어있다고 생각하고 하백(박규선)과 합체시키려
-              한다. | 10회에서 허임(김남길)과 오하라(노정의)의 데이트장면에서
-              나온다. | 1회에서 이은비(김소현)와 한이안(남주혁)은 이 건물 밖
-              공원에서 솜사탕을 산다. | 8회에서 은소현(선우선)이 운영합니다. |
-              8화에서 주유린(이다해)는 설공찬(이동욱)과 함께 전망대로 천문대를
-              방문하는 장면으로 등장. 16회에서는 두 사람이 다시 이곳에서
-              재회하는 장면으로 등장. | 2회에서 이 무도회장에서 기념일을
-              축하한다. 그리고 차지헌(지성)은 공황 발작으로 인해 방을 떠나야 할
-              때까지 자신을 새로운 최고 재무 책임자라고 소개한다.
+              수영을 한다.
             </div>
           </div>
         </div>
@@ -667,12 +653,29 @@
     </div>
 
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
-    <script>
+    <script type="module">
+      import {
+        initAuthListener,
+        getIsLoggedIn,
+        getUserNickname,
+        getUserId,
+      } from "/libs/user-manager.js";
+
+      // 사용자 정보 초기화
+      initAuthListener();
+      window.currentUser = null;
+      const userId = getUserId();
+      if (userId) {
+        window.currentUser = { id: userId, nickname: getUserNickname() };
+      }
+
       const tabs = document.querySelectorAll(".tab");
       const panes = document.querySelectorAll(".pane");
 
-      // 각 DAY별 장소 데이터 추출
+      // 각 DAY별 장소 데이터 추출 (좌표 포함)
       const dayData = {};
+      const dayPositions = {}; // 좌표 저장용
+
       panes.forEach((pane) => {
         const day = pane.dataset.day;
         const items = pane.querySelectorAll(".item");
@@ -680,6 +683,7 @@
           title: item.querySelector(".title").textContent,
           address: item.querySelector(".addr").textContent.trim(),
         }));
+        dayPositions[day] = []; // 각 DAY별 좌표 배열 초기화
       });
 
       let map = null;
@@ -690,7 +694,7 @@
 
       // Kakao Maps SDK 로드 대기 및 초기화
       function initKakaoMap() {
-        if (typeof kakao === 'undefined' || !kakao.maps) {
+        if (typeof kakao === "undefined" || !kakao.maps) {
           setTimeout(initKakaoMap, 100);
           return;
         }
@@ -739,6 +743,7 @@
                     lat: parseFloat(result[0].y),
                     lng: parseFloat(result[0].x),
                     title: place.title,
+                    address: place.address,
                   });
                 } else {
                   resolve(null);
@@ -752,7 +757,10 @@
               // 마커 색상 결정
               const isStart = i === 0;
               const isEnd = i === places.length - 1;
-              const markerPosition = new kakao.maps.LatLng(position.lat, position.lng);
+              const markerPosition = new kakao.maps.LatLng(
+                position.lat,
+                position.lng
+              );
 
               // 커스텀 마커 생성
               const customMarker = createCustomMarker(
@@ -769,6 +777,9 @@
             console.error("주소 검색 오류:", place.address, error);
           }
         }
+
+        // 현재 DAY의 좌표 저장
+        dayPositions[day] = positions;
 
         // 경로 그리기
         if (positions.length >= 2) {
@@ -853,11 +864,76 @@
       );
 
       // 페이지 로드 시 지도 초기화
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initKakaoMap);
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initKakaoMap);
       } else {
         initKakaoMap();
       }
+
+      // "내 일정으로 담기" 버튼 클릭 이벤트
+      document
+        .querySelector(".cta button")
+        .addEventListener("click", async function () {
+          // 로그인 체크
+          if (!window.currentUser) {
+            if (
+              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
+            ) {
+              window.location.href = "/auth";
+            }
+            return;
+          }
+
+          // 현재 선택된 DAY의 장소 가져오기
+          const currentDayPlaces = dayPositions[currentDay];
+
+          if (!currentDayPlaces || currentDayPlaces.length === 0) {
+            alert("장소 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
+          }
+
+          const userId = window.currentUser.id;
+          const courseName = prompt(
+            "코스 이름을 입력하세요",
+            `서울 여행 Day ${currentDay}`
+          );
+
+          if (!courseName) return;
+
+          try {
+            // map_page.html과 동일한 형식으로 데이터 준비
+            const places = currentDayPlaces.map((pos, index) => ({
+              name: pos.title,
+              lat: pos.lat,
+              lng: pos.lng,
+              mediaTitle: "", // AI 추천이므로 미디어 타이틀 없음
+              placeId: null, // placeId 없음
+            }));
+
+            const res = await fetch("/api/course", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userId,
+                name: courseName,
+                places,
+              }),
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+              alert(
+                `🎉 저장 완료!\n코스 ID: ${data.courseId}\n\n마이페이지에서 확인하실 수 있습니다.`
+              );
+            } else {
+              alert("저장에 실패했습니다 😢");
+            }
+          } catch (err) {
+            console.error("코스 저장 오류:", err);
+            alert("저장 중 오류가 발생했습니다 😢");
+          }
+        });
     </script>
   </body>
 </html>

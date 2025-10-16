@@ -1,0 +1,202 @@
+<style>
+  .header-search-wrap {
+    overflow: hidden;
+    height: 0;
+    transition: height 220ms ease;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+  }
+  .header-search-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-search-input {
+    flex: 1;
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 15px;
+  }
+  .header-search-btn,
+  .header-search-close {
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: 1px solid #bcd0c7;
+    background: #0f5132;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .header-search-close {
+    background: #fff;
+    color: #0f5132;
+  }
+
+  .header-search-results,
+  .header-content-suggest {
+    max-width: 1200px;
+    margin: 6px auto 12px;
+    padding: 0 16px;
+  }
+  .search-empty {
+    color: #6b7280;
+    font-size: 14px;
+    padding: 6px 2px;
+  }
+  .search-item {
+    padding: 10px 12px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    background: #fff;
+  }
+  .search-item:hover {
+    background: #f9fbfa;
+  }
+
+  .content-suggest-title {
+    margin: 10px 2px 8px;
+    font-weight: 800;
+  }
+</style>
+<!-- 헤더 -->
+<header class="header">
+  <div class="container">
+    <div class="header-top">
+      <a href="/" class="logo">
+        <svg
+          width="200"
+          height="50"
+          viewBox="0 0 200 50"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color: #e91e8c; stop-opacity: 1" />
+              <stop
+                offset="100%"
+                style="stop-color: #ff6b9d; stop-opacity: 1"
+              />
+            </linearGradient>
+            <style>
+              .logo-text {
+                font-family: "Pretendard", sans-serif;
+                font-weight: 800;
+                font-size: 40px;
+                fill: url(#logoGradient);
+                letter-spacing: -1px;
+              }
+            </style>
+          </defs>
+          <text x="0" y="37" class="logo-text">K</text>
+          <text x="30" y="37" class="logo-text">-</text>
+          <text x="44" y="37" class="logo-text">S</text>
+          <text x="70" y="37" class="logo-text">P</text>
+          <g class="logo-pin" transform="translate(95.5, 4) scale(0.93)">
+            <path
+              d="M18 0C10 0 4 6 4 13c0 10 14 26 14 26s14-16 14-26c0-7-6-13-14-13z"
+              fill="url(#logoGradient)"
+            />
+            <circle cx="18" cy="13" r="8" fill="white" />
+          </g>
+          <text x="128" y="37" class="logo-text">T</text>
+        </svg>
+      </a>
+
+      <div
+        class="header-right"
+        style="display: flex; gap: 8px; align-items: center"
+      >
+        <select class="lang-select" id="languageSelector">
+          <option value="ko">한국어</option>
+          <option value="en">English</option>
+          <option value="ja">日本語</option>
+        </select>
+
+        <button class="btn-search" id="searchToggle">🔍</button>
+
+        <span id="greeting" class="hide"
+          >안녕하세요, <span id="nickname"></span>님</span
+        >
+        <button id="loginBtn">로그인</button>
+        <button id="logoutBtn" class="hide">로그아웃</button>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a
+        href="/source/pages/index/index.html"
+        class="nav-link active"
+        data-i18n="nav.home"
+        >홈</a
+      >
+      <a
+        href="/source/pages/contents/contents.html"
+        class="nav-link"
+        data-i18n="nav.content"
+        >콘텐츠별 여행지</a
+      >
+
+      <a
+        href="/source/pages/aiCourse/aiSchedule.html"
+        class="nav-link"
+        data-i18n="nav.ai"
+        >AI 코스 추천</a
+      >
+
+      <a
+        href="/source/pages/map/map_page.html"
+        class="nav-link"
+        data-i18n="nav.region"
+        >K-콘텐츠 여행 지도</a
+      >
+      <a
+        href="/source/pages/index/index.html#routes"
+        class="nav-link"
+        data-i18n="nav.routes"
+        >인기 여행 루트</a
+      >
+
+      <a
+        href="/source/pages/my-page/my-page.html"
+        class="nav-link"
+        data-i18n="nav.mypage"
+        >마이페이지</a
+      >
+    </nav>
+  </div>
+
+  <div class="header-search-wrap" id="headerSearchWrap">
+    <div class="header-search-inner">
+      <input
+        type="text"
+        class="header-search-input"
+        id="searchInput"
+        placeholder="드라마, 영화, 장소를 검색하세요..."
+        autocomplete="off"
+      />
+      <button class="header-search-btn" id="searchDo">검색</button>
+      <button class="header-search-close" id="searchClose">닫기</button>
+    </div>
+
+    <div class="header-content-suggest">
+      <div
+        id="contentSuggestTitle"
+        class="content-suggest-title"
+        style="display: none"
+      >
+        추천 콘텐츠
+      </div>
+      <div id="contentSuggestRail" class="card-carousel"></div>
+    </div>
+
+    <div class="header-search-results" id="searchResults"></div>
+  </div>
+</header>

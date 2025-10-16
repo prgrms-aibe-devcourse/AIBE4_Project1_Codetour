@@ -4,9 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kspot-mypage</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <meta property="og:image" content="/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="K-Spot">
     <link rel="stylesheet" href="my-page.css" />
     <link rel="stylesheet" href="/source/pages/index/style.css" />
-    <script src="/libs/include.js"></script>
+    <script src="/libs/nav-manager.js" type="module"></script>
     <style>
       /* 마이 페이지 스타일 */
       h1 {
@@ -90,7 +98,7 @@
     </style>
   </head>
   <body>
-    <header></header>
+    <div id="headerPlaceholder"></div>
     <main>
       <div id="mypage-home">
         <h1>마이페이지</h1>
