@@ -23,7 +23,6 @@
     <script src="/libs/nav-manager.js" type="module"></script>
   </head>
   <body>
-    <div id="headerPlaceholder"></div>
 
     <main>
       <section class="recently-visited-section">
@@ -68,8 +67,143 @@
     <script type="module" src="/auth/auth.js"></script>
 
     <!-- 헤더 인라인 검색 스크립트 (index.html과 동일) -->
-    <script type="module" src="/source/pages/index/header-search.js"></script>
+    <script type="module">
+      const header = document.querySelector(".header");
+      const wrap = document.getElementById("headerSearchWrap");
+      const input = document.getElementById("searchInput");
+      const btnToggle = document.getElementById("searchToggle");
+      const btnClose = document.getElementById("searchClose");
+      const btnDo = document.getElementById("searchDo");
+      const results = document.getElementById("searchResults");
 
+      const suggestTitle = document.getElementById("contentSuggestTitle");
+      const suggestRail = document.getElementById("contentSuggestRail");
+
+      function setWrapHeight(open) {
+        if (open) {
+          wrap.style.height = wrap.scrollHeight + "px";
+          header.classList.add("header--search-open");
+        } else {
+          wrap.style.height = "0px";
+          header.classList.remove("header--search-open");
+        }
+      }
+      function openSearch() {
+        results.innerHTML = "";
+        clearRail();
+        input.value = "";
+        setWrapHeight(true);
+        setTimeout(() => input.focus(), 0);
+        ensureContentsLoaded();
+      }
+      function closeSearch() {
+        setWrapHeight(false);
+      }
+      function toggleSearch() {
+        const isOpen = wrap.style.height && wrap.style.height !== "0px";
+        isOpen ? closeSearch() : openSearch();
+      }
+      btnToggle?.addEventListener("click", toggleSearch);
+      btnClose?.addEventListener("click", closeSearch);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeSearch();
+      });
+      window.addEventListener("resize", () => {
+        if (wrap.style.height && wrap.style.height !== "0px") {
+          wrap.style.height = "auto";
+          const h = wrap.scrollHeight;
+          wrap.style.height = h + "px";
+        }
+      });
+
+      function tryTeamRenderer(items) {
+        if (window.ContentCards?.render) {
+          window.ContentCards.render(suggestRail, items);
+          return true;
+        }
+        if (typeof window.renderContentCards === "function") {
+          window.renderContentCards("contentSuggestRail", items);
+          return true;
+        }
+        if (window.CardFactory?.render) {
+          window.CardFactory.render(suggestRail, items);
+          return true;
+        }
+        if (typeof window.buildCards === "function") {
+          window.buildCards(suggestRail, items);
+          return true;
+        }
+        return false;
+      }
+      function fallbackRender(items) {
+        suggestRail.innerHTML = items
+          .map(
+            (it) => `
+          <div class="search-item" style="min-width:220px;">
+            <div style="font-weight:700;">${it.title}</div>
+            <div style="color:#666;font-size:13px;margin-top:2px;">${
+              it.subtitle ?? ""
+            }</div>
+          </div>
+        `
+          )
+          .join("");
+      }
+      function renderRail(items) {
+        suggestTitle.style.display = items?.length ? "" : "none";
+        suggestRail.innerHTML = "";
+        if (!items?.length) return;
+        const ok = tryTeamRenderer(items);
+        if (!ok) fallbackRender(items);
+        if (wrap.style.height && wrap.style.height !== "0px") {
+          wrap.style.height = "auto";
+          const h = wrap.scrollHeight;
+          wrap.style.height = h + "px";
+        }
+      }
+      function clearRail() {
+        suggestTitle.style.display = "none";
+        suggestRail.innerHTML = "";
+      }
+
+      async function ensureContentsLoaded() {
+        if (allContents) return;
+        try {
+          const res = await fetch("/api/contents");
+          if (!res.ok) throw new Error("contents load failed");
+          const data = await res.json(); // [{ contents, name, ... }]
+          const unique = [
+            ...new Set(
+              (data || []).map((d) => (d.contents || "").trim()).filter(Boolean)
+            ),
+          ];
+          const countByContent = unique.map((c) => ({
+            content: c,
+            count: (data || []).filter((d) => (d.contents || "").trim() === c)
+              .length,
+          }));
+          allContents = countByContent;
+        } catch (e) {
+          console.error("Failed to load contents:", e);
+          allContents = [];
+        }
+      }
+      function rankScore(q, name) {
+        const a = (q || "").toLowerCase();
+        const b = (name || "").toLowerCase();
+        if (!a || !b) return 0;
+        if (b === a) return 100;
+        if (b.startsWith(a)) return 80;
+        if (b.includes(a)) return 60;
+        let lcs = 0;
+        for (let i = 0; i < a.length; i++) {
+          for (let j = i + 1; j <= a.length; j++) {
+            if (b.includes(a.slice(i, j))) lcs = Math.max(lcs, j - i);
+          }
+        }
+        return lcs;
+      }
+    </script>
 
     <div id="modal" class="modal">
       <div class="modal-content">
@@ -82,6 +216,7 @@
       let supabase;
       let allContents = []; // 모든 콘텐츠를 저장할 배열
       let allLocations = []; // 모든 장소 정보를 저장할 배열
+      let userFavorites = new Set(); // 사용자의 좋아요 목록을 저장할 Set
 
       // --- 모달 관련 DOM 요소 가져오기 ---
       const modal = document.getElementById("modal");
@@ -89,6 +224,14 @@
       const closeModalBtn = document.querySelector(".modal-close");
 
       // Supabase 클라이언트 초기화
+      // auth.js가 로드된 후 user-manager.js의 함수를 사용할 수 있습니다.
+      let getIsLoggedIn;
+      let getUserId;
+      import("/libs/user-manager.js").then(module => {
+        getIsLoggedIn = module.getIsLoggedIn;
+        getUserId = module.getUserId;
+      });
+
       async function initSupabase() {
         try {
           const response = await fetch("http://localhost:3000/api/config");
@@ -98,6 +241,23 @@
             config.supabaseUrl,
             config.supabaseKey
           );
+
+          // 로그인 상태라면 사용자의 좋아요 목록을 가져옵니다.
+          const userId = getUserId ? getUserId() : null;
+          if (userId) {
+            const { data: favoritesData, error: favoritesError } = await supabase
+              .from("user_favorites")
+              .select("target_id")
+              .eq("user_id", userId)
+              .eq("target_type", "contents");
+
+            if (favoritesError) {
+              console.error("사용자 좋아요 목록 조회 실패:", favoritesError);
+            } else {
+              userFavorites = new Set(favoritesData.map(fav => fav.target_id.toString()));
+            }
+          }
+
           await loadAllContents(); // 모든 콘텐츠 로드
           setupTabListeners(); // 탭 이벤트 리스너 설정
 
@@ -141,7 +301,7 @@
           }
 
           allContents = contentsWithCount;
-          allLocations = contentsData; // 가져온 장소 정보를 전역 변수에 저장
+          allLocations = contentsData;
 
           // 페이지 로드 시 sessionStorage에 저장된 모달이 있는지 확인하고 다시 엽니다.
           // 이 위치에서 호출해야 allContents와 allLocations 데이터가 보장됩니다.
@@ -151,6 +311,8 @@
           }
 
           filterByCategory("k-pop"); // 처음에는 'K-Pop' 카테고리를 표시
+
+
         } catch (error) {
           console.error("Error initializing Supabase:", error);
           const cardContainer = document.getElementById("card-container");
@@ -210,10 +372,13 @@
         }
 
         for (const content of contents) {
+          // 현재 콘텐츠가 사용자가 좋아요 누른 목록에 있는지 확인
+          const isLiked = userFavorites.has(content.id.toString());
+
           const locationCount = content.locationCount || 0;
 
           const card = document.createElement("div");
-          card.classList.add("card");
+          card.classList.add("content-item-card");
 
           card.innerHTML = `
                 <div class="image-container">
@@ -232,35 +397,71 @@
                       content.id
                     }">자세히 보기</button>
                   </div>
-                  <button class="like-button" data-content-id="${
+                  <button class="like-button ${isLiked ? 'liked' : ''}" data-content-id="${
                     content.id
-                  }">♡</button>
+                  }">${isLiked ? '♥' : '♡'}</button>
                 </div>
               `;
 
-          cardContainer.appendChild(card);
-        }
+          card
+            .querySelector(".details-button")
+            .addEventListener("click", (event) => {
+              const contentId = event.target.dataset.contentId;
+              openModal(contentId);
+            });
 
-        document.querySelectorAll(".details-button").forEach((button) => {
-          button.addEventListener("click", (event) => {
-            const contentId = event.target.dataset.contentId;
-            openModal(contentId);
-          });
-        });
-
-        document.querySelectorAll(".like-button").forEach((button) => {
-          button.addEventListener("click", (event) => {
+          card.querySelector(".like-button").addEventListener("click", async (event) => {
             event.stopPropagation(); // 이벤트 버블링 방지
+
+            if (!getIsLoggedIn || !getIsLoggedIn()) {
+              alert("로그인이 필요합니다.");
+              return;
+            }
+
             const likeButton = event.currentTarget;
+            const contentId = likeButton.dataset.contentId; // contentGroup 테이블의 id
+            const userId = getUserId();
+
+            if (!userId) {
+              alert("사용자 정보를 가져올 수 없습니다. 다시 로그인해주세요.");
+              return;
+            }
+
             if (likeButton.textContent === "♡") {
-              likeButton.textContent = "♥";
-              likeButton.classList.add("liked");
+              // 좋아요 추가
+              const { error } = await supabase.from("user_favorites").insert({
+                user_id: userId,
+                target_id: contentId,
+                target_type: "contents",
+              });
+
+              if (error) {
+                console.error("좋아요 추가 실패:", error);
+                alert("좋아요 처리에 실패했습니다.");
+              } else {
+                likeButton.textContent = "♥";
+                likeButton.classList.add("liked");
+              }
             } else {
-              likeButton.textContent = "♡";
-              likeButton.classList.remove("liked");
+              // 좋아요 취소
+              const { error } = await supabase
+                .from("user_favorites")
+                .delete()
+                .eq("user_id", userId)
+                .eq("target_id", contentId);
+
+              if (error) {
+                console.error("좋아요 취소 실패:", error);
+                alert("좋아요 취소에 실패했습니다.");
+              } else {
+                likeButton.textContent = "♡";
+                likeButton.classList.remove("liked");
+              }
             }
           });
-        });
+
+          cardContainer.appendChild(card);
+        }
       }
 
       // --- 모달을 열고 상세 정보를 표시하는 함수 ---
@@ -283,7 +484,7 @@
             (loc) => loc.contentGroup === contentInfo.name
           );
           // console.log("relatedLocations:", relatedLocations);
-
+          
           let html = `<img src="${contentInfo.imageUrl}" alt="${contentInfo.name}">`;
           html += `<h2>${contentInfo.name}</h2>`;
           html += "<hr><h3>관련 촬영지 정보</h3>";
@@ -350,6 +551,7 @@
 
           new Swiper(".location-slider", {
             loop: false,
+            spaceBetween: 20, // 슬라이드 사이의 간격을 20px로 설정합니다.
             pagination: {
               el: ".swiper-pagination",
               clickable: true,
