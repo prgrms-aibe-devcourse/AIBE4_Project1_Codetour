@@ -708,7 +708,7 @@
 
       // Kakao Maps SDK 로드 대기 및 초기화
       function initKakaoMap() {
-        if (typeof kakao === 'undefined' || !kakao.maps) {
+        if (typeof kakao === "undefined" || !kakao.maps) {
           setTimeout(initKakaoMap, 100);
           return;
         }
@@ -771,7 +771,10 @@
               // 마커 색상 결정
               const isStart = i === 0;
               const isEnd = i === places.length - 1;
-              const markerPosition = new kakao.maps.LatLng(position.lat, position.lng);
+              const markerPosition = new kakao.maps.LatLng(
+                position.lat,
+                position.lng
+              );
 
               // 커스텀 마커 생성
               const customMarker = createCustomMarker(
@@ -875,70 +878,76 @@
       );
 
       // 페이지 로드 시 지도 초기화
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initKakaoMap);
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initKakaoMap);
       } else {
         initKakaoMap();
       }
 
       // "내 일정으로 담기" 버튼 클릭 이벤트
-      document.querySelector(".cta button").addEventListener("click", async function() {
-        // 로그인 체크
-        if (!window.currentUser) {
-          if (confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
-            window.location.href = "/auth";
+      document
+        .querySelector(".cta button")
+        .addEventListener("click", async function () {
+          // 로그인 체크
+          if (!window.currentUser) {
+            if (
+              confirm("로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")
+            ) {
+              window.location.href = "/auth";
+            }
+            return;
           }
-          return;
-        }
 
-        // 현재 선택된 DAY의 장소 가져오기
-        const currentDayPlaces = dayPositions[currentDay];
+          // 현재 선택된 DAY의 장소 가져오기
+          const currentDayPlaces = dayPositions[currentDay];
 
-        if (!currentDayPlaces || currentDayPlaces.length === 0) {
-          alert("장소 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
-          return;
-        }
-
-        const userId = window.currentUser.id;
-        const courseName = prompt(
-          "코스 이름을 입력하세요",
-          `서울 여행 Day ${currentDay}`
-        );
-
-        if (!courseName) return;
-
-        try {
-          // map_page.html과 동일한 형식으로 데이터 준비
-          const places = currentDayPlaces.map((pos, index) => ({
-            name: pos.title,
-            lat: pos.lat,
-            lng: pos.lng,
-            mediaTitle: "", // AI 추천이므로 미디어 타이틀 없음
-            placeId: null, // placeId 없음
-          }));
-
-          const res = await fetch("/api/course", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              userId,
-              name: courseName,
-              places
-            }),
-          });
-
-          const data = await res.json();
-
-          if (data.success) {
-            alert(`🎉 저장 완료!\n코스 ID: ${data.courseId}\n\n마이페이지에서 확인하실 수 있습니다.`);
-          } else {
-            alert("저장에 실패했습니다 😢");
+          if (!currentDayPlaces || currentDayPlaces.length === 0) {
+            alert("장소 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
           }
-        } catch (err) {
-          console.error("코스 저장 오류:", err);
-          alert("저장 중 오류가 발생했습니다 😢");
-        }
-      });
+
+          const userId = window.currentUser.id;
+          const courseName = prompt(
+            "코스 이름을 입력하세요",
+            `서울 여행 Day ${currentDay}`
+          );
+
+          if (!courseName) return;
+
+          try {
+            // map_page.html과 동일한 형식으로 데이터 준비
+            const places = currentDayPlaces.map((pos, index) => ({
+              name: pos.title,
+              lat: pos.lat,
+              lng: pos.lng,
+              mediaTitle: "", // AI 추천이므로 미디어 타이틀 없음
+              placeId: null, // placeId 없음
+            }));
+
+            const res = await fetch("/api/course", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userId,
+                name: courseName,
+                places,
+              }),
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+              alert(
+                `🎉 저장 완료!\n코스 ID: ${data.courseId}\n\n마이페이지에서 확인하실 수 있습니다.`
+              );
+            } else {
+              alert("저장에 실패했습니다 😢");
+            }
+          } catch (err) {
+            console.error("코스 저장 오류:", err);
+            alert("저장 중 오류가 발생했습니다 😢");
+          }
+        });
     </script>
   </body>
 </html>
