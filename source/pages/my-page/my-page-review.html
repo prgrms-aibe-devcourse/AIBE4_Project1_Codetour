@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KSpot-리뷰 관리</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <meta property="og:image" content="/og-image.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="K-Spot">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="K-Spot" />
     <link rel="stylesheet" href="my-page.css" />
     <link rel="stylesheet" href="/source/pages/index/style.css" />
     <script src="/libs/config.js"></script>
@@ -183,6 +183,24 @@
 
         searchInput.addEventListener("input", () => applyFiltersAndSort());
         sortSelect.addEventListener("change", () => applyFiltersAndSort());
+
+        // 이벤트 위임을 사용하여 리뷰 카드 내의 버튼 클릭 처리
+        document
+          .querySelector(".review-list")
+          .addEventListener("click", (event) => {
+            const editButton = event.target.closest(".btn-edit");
+            const deleteButton = event.target.closest(".btn-delete");
+
+            if (editButton) {
+              const reviewId = editButton.dataset.reviewId;
+              editReview(reviewId);
+            }
+
+            if (deleteButton) {
+              const reviewId = deleteButton.dataset.reviewId;
+              deleteReview(reviewId);
+            }
+          });
       });
 
       function renderReviews(reviews) {
@@ -301,7 +319,7 @@
           <div class="review-image">
             <img src="${
               review.review_image ||
-              "https://via.placeholder.com/400x300.png?text=No+Image"
+              "https://placehold.co/400x300?text=No+Image"
             }" alt="${locationName}" />
           </div>
           <div class="review-content">
@@ -317,12 +335,12 @@
             </div>
             <p class="review-text">${review.comment || ""}</p>
             <div class="review-actions">
-              <button class="btn-edit" onclick="editReview('${
+              <button class="btn-edit" data-review-id="${
                 review.id
-              }')">수정</button>
-              <button class="btn-delete" onclick="deleteReview('${
+              }">수정</button>
+              <button class="btn-delete" data-review-id="${
                 review.id
-              }')">삭제</button>
+              }">삭제</button>
             </div>
           </div>
         `;
