@@ -140,6 +140,7 @@ export async function signOut() {
     await hardLocalClear();
 
     //'auth-state-changed' 이벤트 발생
+    userManager.clearUser();
     dispatchAuthStateChangeEvent(false);
 
     setTimeout(() => {
@@ -154,6 +155,7 @@ export async function signOut() {
 
 /** 로그인 상태별 이벤트 발생 -> nav-manager에서 헤더 토글 & 닉네임 표시 **/
 async function renderIndexUI() {
+  console.log("render index UI called");
   try {
     const {
       data: { user },
@@ -163,6 +165,7 @@ async function renderIndexUI() {
     if (!user) {
       //로그아웃 상태 이벤트 발생
       dispatchAuthStateChangeEvent(false);
+      userManager.clearUser();
       return;
     }
 
@@ -185,7 +188,15 @@ async function renderIndexUI() {
       nickname: display,
       profile_image_url: user.user_metadata?.avatar_url ?? "",
     };
+    const userDataForUserManager = {
+      id: data.id,
+      email: data.email,
+      nickname: data.display_name,
+      profile_image_url: data.avatar_url,
+      bio: data.bio,
+    };
     dispatchAuthStateChangeEvent(true, userData);
+    userManager.setLoggedInUser(userDataForUserManager);
     console.log("[auth.js] 'auth-state-changed' (login) 이벤트 발생 완료");
   } catch (err) {
     console.error("auth getUser 실패:", err.message);
