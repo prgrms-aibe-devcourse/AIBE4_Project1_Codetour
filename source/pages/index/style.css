@@ -429,7 +429,7 @@ html[lang="ja"] .nav-link {
 
 .btn-hero {
   display: inline-block;
-  text-decoration: none; 
+  text-decoration: none;
   padding: 1rem 3rem;
   font-size: 1.3rem;
   font-weight: 700;
@@ -607,7 +607,7 @@ html[lang="ja"] .nav-link {
   transition: var(--transition);
   cursor: pointer;
   position: relative;
-  min-width: 320px;
+  width: 320px;
   flex-shrink: 0;
   padding: 0;
 }
@@ -983,7 +983,9 @@ html[lang="ja"] .nav-link {
 }
 
 /* 카드 이미지 컨테이너 */
-.card-media { position: relative; }
+.card-media {
+  position: relative;
+}
 
 /* 기본 배지 */
 .card-badge {
@@ -1002,9 +1004,9 @@ html[lang="ja"] .nav-link {
   top: 10px;
   left: 10px;
   z-index: 2;
-  background: rgba(255,255,255,0.9);
-  border: 1px solid rgba(0,0,0,0.06);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 /* 카드 이미지(있을 때) */
