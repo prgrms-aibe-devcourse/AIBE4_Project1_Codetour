@@ -47,7 +47,7 @@ function toCardFromContent(row) {
     title,
     subtitle: sub,
     imageUrl: row.imageUrl ?? "",          // contents에는 imageUrl 컬럼이 존재
-    badge: "추천",
+    badge: undefined,
     href: `/source/pages/map/map_page.html?name=${encodeURIComponent(place || title)}`
   };
 }
@@ -61,7 +61,7 @@ function toCardFromLocation(row) {
     subtitle: sub,
     // location 테이블엔 imageUrl 없음 → 안전 처리(없으면 빈값)
     imageUrl: row.image_url ?? row.imageUrl ?? "",
-    badge: "추천",
+    badge: undefined,
     href: `/source/pages/map/map_page.html?name=${encodeURIComponent(title)}`
   };
 }
