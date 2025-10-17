@@ -589,7 +589,7 @@
             <div class="search-input-group">
               <input
                 type="text"
-                id="searchInput"
+                id="placeSearchInput"
                 data-i18n-placeholder="placeholder.placeSearch"
                 placeholder="장소명, 주소 검색..."
               />
@@ -1015,6 +1015,9 @@
           level: 5,
         });
 
+        // map을 전역으로 설정
+        window.map = map;
+
           let markers = [];
           let myCourse = [];
           let routePolyline = null;
@@ -1145,14 +1148,26 @@
 
           // 장소 검색 기능
           document.getElementById("searchBtn").onclick = async function () {
-            const query = document.getElementById("searchInput").value;
-            if (!query) return alert(t("alert.enterSearch"));
+            const inputElement = document.getElementById("placeSearchInput");
+            console.log("검색 버튼 클릭됨");
+            console.log("Input element:", inputElement);
+            console.log("Input value:", inputElement?.value);
+
+            const query = inputElement?.value?.trim() || "";
+            console.log("Query after trim:", query);
+
+            if (!query) {
+              console.log("검색어가 비어있음");
+              return alert(t("alert.enterSearch"));
+            }
 
             try {
+              console.log("검색 API 호출:", query);
               const res = await fetch(
                 `/api/search?q=${encodeURIComponent(query)}`
               );
               const data = await res.json();
+              console.log("검색 결과:", data);
 
               markers.forEach((m) => m.setMap(null));
               markers = [];
@@ -1286,7 +1301,7 @@
 
           // 엔터키로 검색
           document
-            .getElementById("searchInput")
+            .getElementById("placeSearchInput")
             .addEventListener("keypress", (e) => {
               if (e.key === "Enter") {
                 document.getElementById("searchBtn").click();
@@ -1588,6 +1603,9 @@
               alert(t("alert.routeFailed"));
             }
           };
+
+          // Kakao Maps 초기화 완료 후 쿼리 파라미터 처리
+          initFromQuery();
         });
       }
 
@@ -1597,52 +1615,55 @@
       } else {
         initKakaoMap();
       }
+
+      // --- 유틸: 쿼리 파라미터 가져오기
+      function getQS(name, dflt = null) {
+        const v = new URLSearchParams(location.search).get(name);
+        return v == null ? dflt : v;
+      }
+
+      const toNum = v => (v == null ? NaN : Number(v));
+
+      function performTextSearch(keyword) {
+        const input = document.querySelector('#placeSearchInput');
+        const btn = document.querySelector('#searchBtn');
+
+        console.log("performTextSearch:", keyword, input, btn);
+
+        if (input) input.value = keyword || '';
+        // 값이 설정된 후 검색 실행되도록 약간의 지연
+        if (btn) {
+          setTimeout(() => btn.click(), 300);
+        }
+      }
+
+      function addDirectMarker(lat, lng, title) {
+        if (isNaN(lat) || isNaN(lng) || !window.kakao || !window.map) {
+          console.log("addDirectMarker: 조건 불충족", {lat, lng, kakao: !!window.kakao, map: !!window.map});
+          return;
+        }
+        const pos = new kakao.maps.LatLng(lat, lng);
+        window.map.setCenter(pos);
+        const marker = new kakao.maps.Marker({ position: pos, title: title || '' });
+        marker.setMap(window.map);
+      }
+
+      function initFromQuery() {
+        const name = getQS('name', '').trim();
+        const lat = toNum(getQS('lat'));
+        const lng = toNum(getQS('lng'));
+
+        console.log("initFromQuery 호출:", {name, lat, lng});
+
+        if (!name && isNaN(lat) && isNaN(lng)) return;
+
+        if (name) performTextSearch(name);
+
+        if (!isNaN(lat) && !isNaN(lng)) addDirectMarker(lat, lng, name);
+      }
     </script>
 
     <script>
-  // --- 유틸: 쿼리 파라미터 가져오기
-  function getQS(name, dflt = null) {
-    const v = new URLSearchParams(location.search).get(name);
-    return v == null ? dflt : v;
-  }
-
-  const toNum = v => (v == null ? NaN : Number(v));
-
-  function performTextSearch(keyword) {
-    const input =
-      document.querySelector('#searchInput') ||             
-      document.querySelector('input[placeholder*="검색"]');   
-    const btn =
-      document.querySelector('#searchBtn') ||              
-      Array.from(document.querySelectorAll('button'))
-        .find(b => /검색/.test(b.textContent));
-
-    if (input) input.value = keyword || '';
-    if (btn) btn.click();
-  }
-
-  function addDirectMarker(lat, lng, title) {
-    if (isNaN(lat) || isNaN(lng) || !window.kakao || !window.map) return;
-    const pos = new kakao.maps.LatLng(lat, lng);
-    map.setCenter(pos);
-    const marker = new kakao.maps.Marker({ position: pos, title: title || '' });
-    marker.setMap(map);
-  }
-
-  function initFromQuery() {
-    const name = getQS('name', '').trim();
-    const lat = toNum(getQS('lat'));
-    const lng = toNum(getQS('lng'));
-
-    if (!name && isNaN(lat) && isNaN(lng)) return;
-
-    if (name) performTextSearch(name);
-
-    if (!isNaN(lat) && !isNaN(lng)) addDirectMarker(lat, lng, name);
-  }
-
-  document.addEventListener('DOMContentLoaded', initFromQuery);
-</script>
 
 
 
