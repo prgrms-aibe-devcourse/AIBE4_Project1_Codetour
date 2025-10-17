@@ -669,7 +669,7 @@
       </div>
     </div>
 
-    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"></script>
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services"></script>
     <script type="module">
       // Supabase Auth 연동
       import {
@@ -1008,7 +1008,7 @@
           return;
         }
 
-        kakao.maps.load(function () {
+        console.log("Kakao Maps SDK 로드 완료, 지도 초기화 시작");
 
         var map = new kakao.maps.Map(document.getElementById("map"), {
           center: new kakao.maps.LatLng(37.5665, 126.978),
@@ -1604,9 +1604,8 @@
             }
           };
 
-          // Kakao Maps 초기화 완료 후 쿼리 파라미터 처리
-          initFromQuery();
-        });
+        // Kakao Maps 초기화 완료 후 쿼리 파라미터 처리
+        initFromQuery();
       }
 
       // 페이지 로드 완료 후 Kakao Maps 초기화

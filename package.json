@@ -4,6 +4,7 @@
   "description": "1.",
   "main": "server/server_map.js",
   "scripts": {
+    "start": "node server/server_map.js",
     "dev:main": "nodemon server.js",
     "dev:map": "nodemon server/server_map.js",
     "dev": "concurrently \"npm:dev:main\" \"npm:dev:map\""
