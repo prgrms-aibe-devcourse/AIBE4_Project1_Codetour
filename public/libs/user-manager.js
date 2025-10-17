@@ -74,6 +74,7 @@ export function getBio() {
  * user-manager 함수 사용 전 먼저 호출.
  */
 export function initAuthListener() {
+  console.log("[UserManager] Initializing auth-state-changed listener.");
   window.addEventListener("auth-state-changed", (event) => {
     const { loggedIn, user } = event.detail;
     if (loggedIn && user) {

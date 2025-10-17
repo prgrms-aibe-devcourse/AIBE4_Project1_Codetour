@@ -1,5 +1,6 @@
 import * as auth from "/auth/auth.js";
 import { supabase } from "/auth/userStore.js";
+import * as userManager from "./user-manager.js";
 
 const headerPath = "/includes/_header.html";
 
@@ -24,6 +25,7 @@ K-콘텐츠 여행 지도: "/source/pages/map/map_page.html"
 마이페이지: "/source/pages/my-page/my-page.html"
 */
 document.addEventListener("DOMContentLoaded", async () => {
+  userManager.initAuthListener();
   await loadHeader();
   lang = localStorage.getItem("preferredLang") || "ko";
   await loadTranslations(lang);
@@ -204,10 +206,6 @@ function updateActiveNav() {
       const linkPathBase =
         linkPathNormalize.split("/").slice(0, -1).join("/") || "/";
 
-      console.log(
-        `currentPathBase: ${currentPathBase}, linkPathBase:${linkPathBase}`
-      );
-
       link.classList.remove("active");
       if (currentPathBase === linkPathBase && linkPathBase !== "") {
         link.classList.add("active");
@@ -289,8 +287,18 @@ async function initializeAuth() {
         displayName = user.email?.split("@")[0] || "사용자";
       }
       updateLoginUI(true, displayName);
+
+      const supabaseUser = window.currentUser;
+      const userDataForUserManager = {
+        id: supabaseUser.id,
+        email: supabaseUser.email,
+        nickname: supabaseUser.name,
+        profile_image_url: supabaseUser.avatar_url,
+      };
+      userManager.setLoggedInUser(userDataForUserManager);
     } else {
       updateLoginUI(false);
+      userManager.clearUser();
     }
   }
 

@@ -453,7 +453,6 @@ function renderPersonalizedCourses() {
 
 function createContentCard(data) {
   let currentLang = localStorage.getItem("preferredLang") || "ko";
-  console.log(`createContentCard : ${data} / ${currentLang}`);
   const card = document.createElement("div");
   card.className = "card";
   const badgeClass = "";
