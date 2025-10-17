@@ -1,0 +1,69 @@
+{
+  "header": {
+    "title": "🇺🇸 K-Content Travel Map",
+    "subtitle": "Create your own special travel course with K-content"
+  },
+  "btn": {
+    "home": "Home",
+    "search": "Search",
+    "saveCourse": "💾 Save Course",
+    "showRoute": "🚗 Show Route",
+    "aiRecommend": "🤖 Get AI Recommendation",
+    "load": "Load",
+    "delete": "Delete",
+    "addToCourse": "+ Add to Course"
+  },
+  "section": {
+    "search": "🔍 Search",
+    "myCourse": "📍 My Travel Course",
+    "savedCourses": "💎 Saved Courses"
+  },
+  "tab": {
+    "place": "Search by Place",
+    "content": "Search by Content"
+  },
+  "placeholder": {
+    "placeSearch": "Search by place name or address..."
+  },
+  "option": {
+    "selectContent": "Select content...",
+    "selectUser": "Select user..."
+  },
+  "hint": {
+    "dragOrder": "You can change the order by dragging"
+  },
+  "user": {
+    "user1": "User 1",
+    "user2": "User 2",
+    "user3": "User 3"
+  },
+  "alert": {
+    "enterSearch": "Please enter a search term 😊",
+    "noResults": "No search results 😢",
+    "selectContent": "Please select content 😊",
+    "selectUser": "Please select a user 😊",
+    "noLocations": "No filming locations for this content 😢",
+    "deleteCourse": "Do you want to delete this course? 🗑️",
+    "courseDeleted": "✅ Course deleted!",
+    "addPlaces": "Please add places to your course 📍",
+    "courseNamePrompt": "Enter a name for your course ✨",
+    "courseNameDefault": "My K-Travel Course",
+    "courseSaved": "🎉 Saved successfully!\nCourse ID: ",
+    "saveFailed": "Failed to save 😢",
+    "noSavedCourses": "No saved courses 📭",
+    "courseLoaded": "✨ Loaded course \"{name}\"!",
+    "minTwoPlaces": "You need at least 2 places to view the route 🗺️",
+    "routeFailed": "Failed to load route 😢",
+    "added": "✨ {name} has been added to your course!"
+  },
+  "route": {
+    "totalDistance": "📏 Total Distance: ",
+    "estimatedTime": "⏱️ Estimated Time: ",
+    "info": "🚗 Route Info"
+  },
+  "text": {
+    "places": " places",
+    "km": " km",
+    "min": " min"
+  }
+}

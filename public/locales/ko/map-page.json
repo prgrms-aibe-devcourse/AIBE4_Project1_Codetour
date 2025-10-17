@@ -1,0 +1,69 @@
+{
+  "header": {
+    "title": "🇰🇷 K-콘텐츠 여행 지도",
+    "subtitle": "한류 콘텐츠와 함께하는 특별한 여행 코스를 만들어보세요"
+  },
+  "btn": {
+    "home": "홈으로",
+    "search": "검색",
+    "saveCourse": "💾 코스 저장하기",
+    "showRoute": "🚗 경로 확인하기",
+    "aiRecommend": "🤖 AI 추천받기",
+    "load": "불러오기",
+    "delete": "삭제",
+    "addToCourse": "+ 코스 추가"
+  },
+  "section": {
+    "search": "🔍 검색",
+    "myCourse": "📍 나만의 여행 코스",
+    "savedCourses": "💎 저장된 코스"
+  },
+  "tab": {
+    "place": "장소 검색",
+    "content": "콘텐츠 검색"
+  },
+  "placeholder": {
+    "placeSearch": "장소명, 주소 검색..."
+  },
+  "option": {
+    "selectContent": "콘텐츠 선택...",
+    "selectUser": "사용자 선택..."
+  },
+  "hint": {
+    "dragOrder": "드래그로 순서를 변경할 수 있어요"
+  },
+  "user": {
+    "user1": "사용자 1",
+    "user2": "사용자 2",
+    "user3": "사용자 3"
+  },
+  "alert": {
+    "enterSearch": "검색어를 입력해주세요 😊",
+    "noResults": "검색 결과가 없습니다 😢",
+    "selectContent": "콘텐츠를 선택해주세요 😊",
+    "selectUser": "사용자를 선택해주세요 😊",
+    "noLocations": "해당 콘텐츠의 촬영지가 없습니다 😢",
+    "deleteCourse": "이 코스를 삭제하시겠습니까? 🗑️",
+    "courseDeleted": "✅ 코스가 삭제되었습니다!",
+    "addPlaces": "코스에 장소를 추가해주세요 📍",
+    "courseNamePrompt": "코스 이름을 입력하세요 ✨",
+    "courseNameDefault": "나의 K-여행 코스",
+    "courseSaved": "🎉 저장 완료!\n코스 ID: ",
+    "saveFailed": "저장에 실패했습니다 😢",
+    "noSavedCourses": "저장된 코스가 없습니다 📭",
+    "courseLoaded": "✨ \"{name}\" 코스를 불러왔습니다!",
+    "minTwoPlaces": "경로를 보려면 최소 2개 이상의 장소가 필요합니다 🗺️",
+    "routeFailed": "경로 검색에 실패했습니다 😢",
+    "added": "✨ {name}이(가) 코스에 추가되었습니다!"
+  },
+  "route": {
+    "totalDistance": "📏 총 거리: ",
+    "estimatedTime": "⏱️ 예상 시간: ",
+    "info": "🚗 경로 정보"
+  },
+  "text": {
+    "places": "개 장소",
+    "km": " km",
+    "min": " 분"
+  }
+}

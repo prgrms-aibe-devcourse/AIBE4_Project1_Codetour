@@ -1,0 +1,27 @@
+{
+  "title": {
+    "main": "AI旅行おすすめ"
+  },
+  "breadcrumb": {
+    "main": "AIおすすめ"
+  },
+  "filter": {
+    "all": "すべて",
+    "drama": "ドラマ",
+    "movie": "映画",
+    "kpop": "K-POP"
+  },
+  "label": {
+    "cost": "予想費用",
+    "days": "おすすめ日程",
+    "distance": "移動距離",
+    "transport": "交通手段"
+  },
+  "button": {
+    "recommend": "AIおすすめを受け取る",
+    "top": "トップへ戻る"
+  },
+  "footer": {
+    "copy": "© 2025 Codetour. All rights reserved."
+  }
+}

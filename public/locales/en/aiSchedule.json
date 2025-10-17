@@ -1,0 +1,28 @@
+{
+  "title": {
+    "main": "AI Travel Recommendation"
+  },
+  "breadcrumb": {
+    "main": "AI Recommend"
+  },
+  "filter": {
+    "all": "All",
+    "drama": "Drama",
+    "movie": "Movie",
+    "kpop": "K-POP"
+  },
+  "label": {
+    "cost": "Estimated Cost",
+    "days": "Recommended Duration",
+    "distance": "Distance",
+    "transport": "Transportation"
+  },
+  "button": {
+    "recommend": "Get AI Recommendation",
+    "top": "Back to Top"
+  },
+  "footer": {
+    "copy": "© 2025 Codetour. All rights reserved."
+  }
+}
+

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>K-Spot - 한류 콘텐츠 여행 플랫폼</title>
+    <title data-i18n="title.main">K-Spot - 한류 콘텐츠 여행 플랫폼</title>
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -29,8 +29,10 @@
     <main>
       <section class="recently-visited-section">
         <div class="recently-visited-header">
-          <h2>최근 방문한 장소</h2>
-          <button class="clear-all-btn">전체 삭제</button>
+          <h2 data-i18n="recent.title">최근 방문한 장소</h2>
+          <button class="clear-all-btn" data-i18n="recent.clearAll">
+            전체 삭제
+          </button>
         </div>
         <div class="recently-visited-list" id="recently-visited-list">
           <!-- 최근 방문 목록이 여기에 동적으로 삽입됩니다. -->
@@ -38,25 +40,47 @@
       </section>
 
       <div class="main-header">
-        <h1>콘텐츠별 여행지</h1>
-        <p>좋아하는 드라마, 영화, 예능의 촬영지를 찾아보세요</p>
+        <h1 data-i18n="content.title">콘텐츠별 여행지</h1>
+        <p data-i18n="content.subtitle">
+          좋아하는 드라마, 영화, 예능의 촬영지를 찾아보세요
+        </p>
       </div>
 
       <div class="tab-menu">
-        <button class="tab-button active" data-category="k-pop">K-Pop</button>
-        <button class="tab-button" data-category="k-drama">
+        <button
+          class="tab-button active"
+          data-category="k-pop"
+          data-i18n="tab.kpop"
+        >
+          K-Pop
+        </button>
+        <button
+          class="tab-button"
+          data-category="k-drama"
+          data-i18n="tab.kdrama"
+        >
           K-Drama/Movie
         </button>
-        <button class="tab-button" data-category="k-webtoon">K-Webtoon</button>
-        <button class="tab-button" data-category="k-food">K-Food</button>
-        <button class="tab-button" data-category="k-ent">K-Ent</button>
+        <button
+          class="tab-button"
+          data-category="k-webtoon"
+          data-i18n="tab.kwebtoon"
+        >
+          K-Webtoon
+        </button>
+        <button class="tab-button" data-category="k-food" data-i18n="tab.kfood">
+          K-Food
+        </button>
+        <button class="tab-button" data-category="k-ent" data-i18n="tab.kent">
+          K-Ent
+        </button>
       </div>
 
       <div class="card-container" id="card-container"></div>
     </main>
 
     <footer>
-      <p>&copy; Kspot</p>
+      <p data-i18n="footer.copy">&copy; Kspot</p>
     </footer>
 
     <script>
@@ -69,7 +93,7 @@
 
     <div id="modal" class="modal">
       <div class="modal-content">
-        <span class="modal-close">&times;</span>
+        <span class="modal-close" data-i18n="modal.close">&times;</span>
         <div id="modal-body"></div>
       </div>
     </div>

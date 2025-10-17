@@ -1,0 +1,26 @@
+{
+  "title": {
+    "main": "K-Spot - Korean Wave Travel Platform"
+  },
+  "recent": {
+    "title": "Recently Visited Places",
+    "clearAll": "Clear All"
+  },
+  "content": {
+    "title": "Destinations by Content",
+    "subtitle": "Find filming locations from your favorite dramas, movies, and shows"
+  },
+  "tab": {
+    "kpop": "K-Pop",
+    "kdrama": "K-Drama/Movie",
+    "kwebtoon": "K-Webtoon",
+    "kfood": "K-Food",
+    "kent": "K-Entertainment"
+  },
+  "footer": {
+    "copy": "© Kspot"
+  },
+  "modal": {
+    "close": "Close"
+  }
+}

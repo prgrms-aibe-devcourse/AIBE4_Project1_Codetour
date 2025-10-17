@@ -1,0 +1,69 @@
+{
+  "header": {
+    "title": "🇯🇵 Kコンテンツ旅行マップ",
+    "subtitle": "韓流コンテンツで特別な旅行コースを作りましょう"
+  },
+  "btn": {
+    "home": "ホームへ",
+    "search": "検索",
+    "saveCourse": "💾 コースを保存",
+    "showRoute": "🚗 経路を表示",
+    "aiRecommend": "🤖 AIおすすめを受け取る",
+    "load": "読み込み",
+    "delete": "削除",
+    "addToCourse": "+ コースに追加"
+  },
+  "section": {
+    "search": "🔍 検索",
+    "myCourse": "📍 マイ旅行コース",
+    "savedCourses": "💎 保存されたコース"
+  },
+  "tab": {
+    "place": "場所で検索",
+    "content": "コンテンツで検索"
+  },
+  "placeholder": {
+    "placeSearch": "場所名、住所を検索..."
+  },
+  "option": {
+    "selectContent": "コンテンツを選択...",
+    "selectUser": "ユーザーを選択..."
+  },
+  "hint": {
+    "dragOrder": "ドラッグして順番を変更できます"
+  },
+  "user": {
+    "user1": "ユーザー 1",
+    "user2": "ユーザー 2",
+    "user3": "ユーザー 3"
+  },
+  "alert": {
+    "enterSearch": "検索ワードを入力してください 😊",
+    "noResults": "検索結果がありません 😢",
+    "selectContent": "コンテンツを選択してください 😊",
+    "selectUser": "ユーザーを選択してください 😊",
+    "noLocations": "このコンテンツの撮影地はありません 😢",
+    "deleteCourse": "このコースを削除しますか？ 🗑️",
+    "courseDeleted": "✅ コースを削除しました！",
+    "addPlaces": "コースに場所を追加してください 📍",
+    "courseNamePrompt": "コース名を入力してください ✨",
+    "courseNameDefault": "私のK旅行コース",
+    "courseSaved": "🎉 保存完了！\nコースID: ",
+    "saveFailed": "保存に失敗しました 😢",
+    "noSavedCourses": "保存されたコースがありません 📭",
+    "courseLoaded": "✨ 「{name}」コースを読み込みました！",
+    "minTwoPlaces": "経路を見るには少なくとも2つの場所が必要です 🗺️",
+    "routeFailed": "経路の取得に失敗しました 😢",
+    "added": "✨ {name} をコースに追加しました！"
+  },
+  "route": {
+    "totalDistance": "📏 総距離: ",
+    "estimatedTime": "⏱️ 所要時間: ",
+    "info": "🚗 経路情報"
+  },
+  "text": {
+    "places": "ヶ所",
+    "km": " km",
+    "min": " 分"
+  }
+}
