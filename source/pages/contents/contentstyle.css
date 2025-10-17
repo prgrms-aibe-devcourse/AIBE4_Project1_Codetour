@@ -647,6 +647,15 @@ main {
   margin: 8px 0;
 }
 
+/* 모달 내 리뷰 이미지 스타일 (더 구체적인 선택자 사용) */
+#modal .reviews-section .review-item .review-image {
+  width: 100px; /* 원하는 너비 */
+  height: 100px; /* 원하는 높이 */
+  object-fit: cover;
+  border-radius: 8px;
+  margin: 8px 0;
+}
+
 /* Review Form */
 .review-form-container {
   margin-top: 40px;
