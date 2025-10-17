@@ -1,4 +1,4 @@
-const translations = {
+const translations_index = {
   ko: {
     nav: {
       home: "홈",
@@ -162,7 +162,6 @@ const translations = {
     },
   },
 };
-
 const popularContents = [
   {
     id: 1,
@@ -418,9 +417,9 @@ const recommendedCourses = [
   },
 ];
 
-let currentLang = localStorage.getItem("preferredLang") || "ko";
-
 document.addEventListener("DOMContentLoaded", function () {
+  let currentLang = localStorage.getItem("preferredLang") || "ko";
+  updateIndexContentsLanguage(currentLang);
   renderPopularContent();
   renderRecommendedCourses();
   renderPersonalizedCourses();
@@ -453,11 +452,13 @@ function renderPersonalizedCourses() {
 }
 
 function createContentCard(data) {
+  let currentLang = localStorage.getItem("preferredLang") || "ko";
+  console.log(`createContentCard : ${data} / ${currentLang}`);
   const card = document.createElement("div");
   card.className = "card";
   const badgeClass = "";
   card.innerHTML = `<span class="card-badge ${badgeClass}">${
-    translations[currentLang].card.badge[data.badge]
+    translations_index[currentLang].card.badge[data.badge]
   }</span><img src="${data.image}" alt="${
     data.title[currentLang]
   }" class="card-image"><div class="card-content"><h4 class="card-title">${
@@ -467,17 +468,18 @@ function createContentCard(data) {
   }</p><div class="card-meta"><span class="card-rating">⭐ ${
     data.rating
   }</span><span>${data.reviews.toLocaleString()} ${
-    translations[currentLang].card.reviews
+    translations_index[currentLang].card.reviews
   }</span></div></div>`;
   return card;
 }
 
 function createCourseCard(data) {
+  let currentLang = localStorage.getItem("preferredLang") || "ko";
   const card = document.createElement("div");
   card.className = "card";
   let badgeClass = "";
   card.innerHTML = `<span class="card-badge ${badgeClass}">${
-    translations[currentLang].card.badge[data.badge]
+    translations_index[currentLang].card.badge[data.badge]
   }</span><img src="${data.image}" alt="${
     data.title[currentLang]
   }" class="card-image"><div class="card-content"><h4 class="card-title">${
@@ -485,7 +487,7 @@ function createCourseCard(data) {
   }</h4><p class="card-subtitle">${
     data.subtitle[currentLang]
   }</p><div class="card-meta"><span>📅 ${data.days}${
-    translations[currentLang].card.days
+    translations_index[currentLang].card.days
   }</span><span>💰 ${data.price}</span><span>⏱️ ${
     data.duration
   }</span></div></div>`;
@@ -564,10 +566,38 @@ function setupCarouselDots() {
   });
 }
 
+//콘텐츠 카드들만을 위한 번역 기능 별도(시간 상 i18next 사용 없이)
+function updateIndexContentsLanguage(lang) {
+  renderPopularContent();
+  renderRecommendedCourses();
+  renderPersonalizedCourses();
+  // 도트를 다시 설정
+  setTimeout(() => setupCarouselDots(), 100);
+  //로그인하기 large버튼만
+  let value = translations_index[lang];
+  document.querySelector(".btn-login-large").textContent =
+    translations_index[lang].btn.login;
+}
+
 function setupEventListeners() {
   document
     .querySelector(".btn-hero")
     .addEventListener("click", () =>
       document.querySelector("#content").scrollIntoView({ behavior: "smooth" })
     );
+
+  window.addEventListener("languageChanged", (e) => {
+    const lang = e.detail;
+    updateIndexContentsLanguage(lang);
+  });
+
+  const languageSelector = document.getElementById("languageSelector");
+  if (languageSelector) {
+    languageSelector.addEventListener("change", (e) =>
+      updateIndexContentsLanguage(e.target.value)
+    );
+  }
+  document
+    .querySelector(".btn-login-large")
+    .addEventListener("click", () => (window.location.href = "/auth"));
 }

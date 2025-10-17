@@ -1,0 +1,44 @@
+{
+  "hero": {
+    "title": "韓流コンテンツと一緒に<br>特別な旅行",
+    "subtitle": "好きなドラマ、K-pop、映画の撮影地を直接訪問してみてください",
+    "cta": "スタート"
+  },
+  "popular": {
+    "title": "人気コンテンツ",
+    "subtitle": "国内外のファンが最も多く訪れる韓流コンテンツをご覧ください"
+  },
+  "recommended": {
+    "title": "おすすめ旅行コース",
+    "subtitle": "好みに近いテーマ別コースを推薦"
+  },
+  "personalized": {
+    "title": "ユーザーカスタマイズ推薦",
+    "subtitle": "私の好みに合わせたコース",
+    "loginRequired": "ログインが必要です",
+    "loginMessage": "カスタマイズ旅行推薦を受けるにはログインしてください"
+  },
+  "footer": {
+    "tagline": "韓流コンテンツと一緒に特別な旅行",
+    "service": "サービス",
+    "contentTravel": "コンテンツ別旅行地",
+    "regionExplore": "地域別探索",
+    "popularRoutes": "人気ルート",
+    "support": "カスタマーサポート",
+    "faq": "FAQ",
+    "contact": "お問い合わせ",
+    "terms": "利用規約",
+    "social": "ソーシャルメディア"
+  },
+  "card": {
+    "reviews": "レビュー",
+    "days": "日",
+    "badge": {
+      "drama": "ドラマ",
+      "movie": "映画",
+      "popular": "人気",
+      "recommended": "おすすめ",
+      "special": "特価"
+    }
+  }
+}

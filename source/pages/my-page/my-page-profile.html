@@ -13,8 +13,9 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="K-Spot">
     <link rel="stylesheet" href="my-page.css" />
+    <link rel="stylesheet" href="/source/pages/index/style.css" />
     <script src="/libs/config.js"></script>
-    <script src="/libs/include.js" defer></script>
+    <script src="/libs/nav-manager.js" type="module"></script>
     <style>
       .page-header {
         margin-bottom: 32px;
@@ -206,9 +207,7 @@
     </style>
   </head>
   <body>
-    <header>
-      <!-- Header content will be loaded by include.js -->
-    </header>
+    <div id="headerPlaceholder"></div>
 
     <nav>
       <!-- Navigation content will be loaded by include.js -->

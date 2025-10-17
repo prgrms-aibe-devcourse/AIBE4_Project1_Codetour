@@ -114,7 +114,11 @@
         class="header-right"
         style="display: flex; gap: 8px; align-items: center"
       >
-        <select class="lang-select" id="languageSelector">
+        <select
+          class="lang-select"
+          id="languageSelector"
+          onchange="changeLanguage(this.value)"
+        >
           <option value="ko">한국어</option>
           <option value="en">English</option>
           <option value="ja">日本語</option>
