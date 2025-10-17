@@ -521,7 +521,7 @@ app.get("/api/favorites/:userId", async (req, res) => {
     if (favError) throw favError;
 
     const contentIds = favorites
-      .filter((f) => f.target_type === "contentGroup")
+      .filter((f) => f.target_type === "contents")
       .map((f) => f.target_id);
     const locationIds = favorites
       .filter((f) => f.target_type === "location")
@@ -540,7 +540,7 @@ app.get("/api/favorites/:userId", async (req, res) => {
     if (locationsRes.error) throw locationsRes.error;
 
     res.json({
-      contentGroup: contentsRes.data,
+      contents: contentsRes.data,
       location: locationsRes.data,
     });
   } catch (error) {
@@ -599,7 +599,6 @@ app.get("/api/personalized", async (req, res) => {
   if (!userId) return res.status(400).json({ error: "userId is required" });
 
   try {
-
     const { data: prefRow, error: prefErr } = await supabase
       .from("user_preferences")
       .select("categories")
@@ -635,7 +634,9 @@ app.get("/api/personalized", async (req, res) => {
       subtitle: r.address || r.mediaTitle || "",
       badge: r.category || "추천",
       imageUrl: r.imageUrl || null,
-      href: `/source/pages/map/map_page.html?name=${encodeURIComponent(r.placeName)}`,
+      href: `/source/pages/map/map_page.html?name=${encodeURIComponent(
+        r.placeName
+      )}`,
       rating: r.avgRating || 0,
     });
 
@@ -645,16 +646,16 @@ app.get("/api/personalized", async (req, res) => {
       subtitle: r.contentGroup ? `그룹: ${r.contentGroup}` : "",
       badge: r.category || "추천",
       imageUrl: r.imageUrl || null,
-      href: `/source/pages/map/map_page.html?name=${encodeURIComponent(r.contents)}`,
+      href: `/source/pages/map/map_page.html?name=${encodeURIComponent(
+        r.contents
+      )}`,
       rating: 0,
     });
-
 
     const merged = [
       ...(locRes.data || []).map(mapLoc),
       ...(contRes.data || []).map(mapCont),
     ];
-
 
     const uniqByTitle = [
       ...new Map(merged.map((x) => [x.title.trim(), x])).values(),

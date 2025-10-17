@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KSpot-관심 콘텐츠 관리</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <meta property="og:image" content="/og-image.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="K-Spot">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="K-Spot" />
     <link rel="stylesheet" href="my-page.css" />
     <link rel="stylesheet" href="/source/pages/index/style.css" />
     <script src="/libs/config.js"></script>
@@ -109,7 +109,7 @@
         <div class="favorite-tab" data-tab="location">여행지</div>
       </div>
 
-      <div id="contentGroup-panel" class="tab-panel active">
+      <div id="contents-panel" class="tab-panel active">
         <div class="favorite-grid"></div>
         <div class="empty-message" style="display: none">
           <p>좋아요를 누른 컨텐츠가 없습니다.</p>
@@ -152,7 +152,7 @@
         let title, description, image;
 
         switch (type) {
-          case "contentGroup":
+          case "contents":
             title = item.name || "제목 없음";
             description = item.des || "설명 없음";
             image =
@@ -220,12 +220,12 @@
           const favorites = await response.json();
 
           if (!favorites) {
-            renderItems(null, "contentGroup");
+            renderItems(null, "contents");
             renderItems(null, "location");
             return;
           }
 
-          renderItems(favorites.contentGroup, "contentGroup");
+          renderItems(favorites.contents, "contents");
           renderItems(favorites.location, "location");
         } catch (error) {
           console.error("Error fetching favorites:", error);
