@@ -1,0 +1,27 @@
+{
+  "title": {
+    "main": "AI 일정 추천"
+  },
+  "breadcrumb": {
+    "main": "AI 추천"
+  },
+  "filter": {
+    "all": "모두",
+    "drama": "드라마",
+    "movie": "영화",
+    "kpop": "K-POP"
+  },
+  "label": {
+    "cost": "예상경비",
+    "days": "추천일정",
+    "distance": "이동거리",
+    "transport": "이동수단"
+  },
+  "button": {
+    "recommend": "AI 일정 추천받기",
+    "top": "맨 위로"
+  },
+  "footer": {
+    "copy": "© 2025 Codetour. All rights reserved."
+  }
+}

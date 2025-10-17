@@ -1,0 +1,26 @@
+{
+  "title": {
+    "main": "K-Spot - 한류 콘텐츠 여행 플랫폼"
+  },
+  "recent": {
+    "title": "최근 방문한 장소",
+    "clearAll": "전체 삭제"
+  },
+  "content": {
+    "title": "콘텐츠별 여행지",
+    "subtitle": "좋아하는 드라마, 영화, 예능의 촬영지를 찾아보세요"
+  },
+  "tab": {
+    "kpop": "K-Pop",
+    "kdrama": "K-Drama/Movie",
+    "kwebtoon": "K-Webtoon",
+    "kfood": "K-Food",
+    "kent": "K-Ent"
+  },
+  "footer": {
+    "copy": "© Kspot"
+  },
+  "modal": {
+    "close": "닫기"
+  }
+}

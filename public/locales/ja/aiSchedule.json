@@ -1,0 +1,30 @@
+{
+  "title": {
+    "mypage-main": "My Page"
+  },
+  "subtitle": {
+    "nickname": "KimTravel"
+  },
+  "card": {
+    "profile": {
+      "title": "Manage Personal Info",
+      "desc": "Change profile, email, password"
+    },
+    "preference": {
+      "title": "Set Travel Preferences",
+      "desc": "Set interest tags, trips, travel styles"
+    },
+    "favorite": {
+      "title": "Manage Favorite Content",
+      "desc": "View liked content, destinations, courses"
+    },
+    "course": {
+      "title": "My Travel Courses",
+      "desc": "Create and save travel courses"
+    },
+    "review": {
+      "title": "Manage Reviews",
+      "desc": "Manage written reviews and ratings"
+    }
+  }
+}

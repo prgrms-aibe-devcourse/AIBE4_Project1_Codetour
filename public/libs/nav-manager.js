@@ -96,7 +96,14 @@ async function loadPage(path) {
 
 //번역
 async function loadTranslations(lang) {
-  const namespaces = ["header", "index"];
+  const namespaces = [
+    "header",
+    "index",
+    "contents",
+    "map-page",
+    "aiSchedule",
+    "my-page",
+  ];
   const loaded = await Promise.all(
     namespaces.map((ns) =>
       fetch(`/locales/${lang}/${ns}.json`, { cache: "no-store" })
@@ -242,7 +249,7 @@ function updateLoginUI(isLoggedIn, displayName = "") {
     loginBtn: !!loginBtn,
     logoutBtn: !!logoutBtn,
     isLoggedIn,
-    displayName
+    displayName,
   });
 
   if (!loginBtn) {

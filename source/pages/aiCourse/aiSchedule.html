@@ -12,14 +12,14 @@
     />
 
     <title>KSPOT</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <meta property="og:image" content="/og-image.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="K-Spot">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="K-Spot" />
     <script src="/libs/nav-manager.js" type="module"></script>
 
     <!-- 부트스트랩 CSS  -->
@@ -130,7 +130,7 @@
             <span class="breadcrumb"
               ><a href="#">Course</a> / AI Recommend</span
             >
-            <h3>AI일정추천</h3>
+            <h3 data-i18n="page.title">AI 일정 추천</h3>
           </div>
         </div>
       </div>
@@ -140,16 +140,22 @@
       <div class="container">
         <ul class="properties-filter">
           <li>
-            <a class="is_active" href="#!" data-filter="*">모두</a>
+            <a
+              class="is_active"
+              href="#!"
+              data-filter="*"
+              data-i18n="filter.all"
+              >모두</a
+            >
           </li>
           <li>
-            <a href="#!" data-filter=".adv">드라마</a>
+            <a href="#!" data-filter=".adv" data-i18n="filter.drama">드라마</a>
           </li>
           <li>
-            <a href="#!" data-filter=".str">영화</a>
+            <a href="#!" data-filter=".str" data-i18n="filter.movie">영화</a>
           </li>
           <li>
-            <a href="#!" data-filter=".rac">K-POP</a>
+            <a href="#!" data-filter=".rac" data-i18n="filter.kpop">K-POP</a>
           </li>
         </ul>
         <div class="row properties-box">
@@ -166,13 +172,19 @@
                 <a href="aiEndpointSeoul.html">Seoul</a>
               </h4>
               <ul>
-                <li>예상경비: <span>₩250,000</span></li>
-                <li>추천일정: <span>2박 3일</span></li>
-                <li>이동거리: <span>약 15km</span></li>
-                <li>추천 이동수단: <span>지하철,버스</span></li>
+                <li data-i18n="label.cost">예상경비: <span>₩250,000</span></li>
+                <li data-i18n="label.days">추천일정: <span>2박 3일</span></li>
+                <li data-i18n="label.distance">
+                  이동거리: <span>약 15km</span>
+                </li>
+                <li data-i18n="label.transport">
+                  추천 이동수단: <span>지하철,버스</span>
+                </li>
               </ul>
               <div class="main-button">
-                <a href="aiEndpointSeoul.html">AI일정 추천받기</a>
+                <a href="aiEndpointSeoul.html" data-i18n="btn.recommend"
+                  >AI일정 추천받기</a
+                >
               </div>
             </div>
           </div>

@@ -1,0 +1,30 @@
+{
+  "title": {
+    "mypage-main": "마이페이지"
+  },
+  "subtitle": {
+    "nickname": "김여행"
+  },
+  "card": {
+    "profile": {
+      "title": "개인정보 관리",
+      "desc": "프로필, 이메일, 비밀번호 변경"
+    },
+    "preference": {
+      "title": "여행 선호도 설정",
+      "desc": "관심 태그, 여행, 여행 스타일 설정"
+    },
+    "favorite": {
+      "title": "관심 콘텐츠 관리",
+      "desc": "좋아요한 컨텐츠, 여행지, 코스 보기"
+    },
+    "course": {
+      "title": "나의 여행 코스",
+      "desc": "생성 및 저장된 여행 코스"
+    },
+    "review": {
+      "title": "리뷰 관리",
+      "desc": "작성한 리뷰 및 평점 관리"
+    }
+  }
+}
