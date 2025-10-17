@@ -39,9 +39,10 @@ console.log("Index 경로:", indexPath, "존재:", fs.existsSync(indexPath));
 console.log("Map   경로:", mapPath, "존재:", fs.existsSync(mapPath));
 
 // ---------- Supabase ----------
+// Server-side client uses service role key for elevated permissions
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 // Map 라우터에 supabase 클라이언트 주입

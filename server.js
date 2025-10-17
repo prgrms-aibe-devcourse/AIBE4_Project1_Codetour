@@ -7,10 +7,14 @@ const { Groq } = require("groq-sdk");
 const multer = require("multer");
 
 dotenv.config();
-const { SUPABASE_KEY: supabaseKey, SUPABASE_URL: supabaseUrl } = process.env;
-console.log("supabaseKey", supabaseKey);
+const {
+  SUPABASE_SERVICE_ROLE_KEY: supabaseServiceKey,
+  SUPABASE_KEY: supabaseAnonKey,
+  SUPABASE_URL: supabaseUrl
+} = process.env;
 console.log("supabaseUrl", supabaseUrl);
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Server-side client uses service role key for elevated permissions
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 // 파일 처리
 const storage = multer.memoryStorage(); // 메모리 -> 실행할 때 임시로 파일 관리
 const upload = multer({ storage }); // 업로드를 처리해주는 미들웨어
@@ -148,17 +152,11 @@ app.get("/culture-api", (req, res) => {
     });
 });
 
+// Expose anon key (safe for browser) via API config endpoint
 app.get("/api/config", (req, res) => {
   res.json({
     supabaseUrl: process.env.SUPABASE_URL,
-    supabaseKey: process.env.SUPABASE_KEY,
-  });
-});
-
-app.get("/api/config", (req, res) => {
-  res.json({
-    supabaseUrl: process.env.SUPABASE_URL,
-    supabaseKey: process.env.SUPABASE_KEY,
+    supabaseKey: process.env.SUPABASE_KEY, // Anon key for browser use
   });
 });
 app.listen(port, () => {

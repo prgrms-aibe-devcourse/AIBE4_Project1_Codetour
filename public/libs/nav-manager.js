@@ -236,19 +236,33 @@ function updateLoginUI(isLoggedIn, displayName = "") {
   const loginBtn = document.getElementById("loginBtn");
   const logoutBtn = document.getElementById("logoutBtn");
 
-  if (!greet || !nick || !loginBtn || !logoutBtn) return;
+  console.log("[updateLoginUI] 요소 확인:", {
+    greet: !!greet,
+    nick: !!nick,
+    loginBtn: !!loginBtn,
+    logoutBtn: !!logoutBtn,
+    isLoggedIn,
+    displayName
+  });
+
+  if (!loginBtn) {
+    console.warn("[updateLoginUI] loginBtn이 없습니다");
+    return;
+  }
 
   if (isLoggedIn) {
-    nick.textContent = displayName;
-    greet.classList.remove("hide");
-    logoutBtn.classList.remove("hide");
+    if (nick) nick.textContent = displayName;
+    if (greet) greet.classList.remove("hide");
+    if (logoutBtn) logoutBtn.classList.remove("hide");
     loginBtn.classList.add("hide");
   } else {
-    nick.textContent = "";
-    greet.classList.add("hide");
-    logoutBtn.classList.add("hide");
+    if (nick) nick.textContent = "";
+    if (greet) greet.classList.add("hide");
+    if (logoutBtn) logoutBtn.classList.add("hide");
     loginBtn.classList.remove("hide");
   }
+
+  console.log("[updateLoginUI] 완료");
 }
 
 //로그인 UI 초기화

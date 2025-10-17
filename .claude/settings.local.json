@@ -12,7 +12,8 @@
       "Bash(curl:*)",
       "Bash(for file in \"source/pages/aiCourse/aiSchedule.html\" \"source/pages/contents/contents.html\" \"source/pages/contents/detail.html\" \"source/pages/index/index.html\" \"source/pages/map/map_page.html\" \"source/pages/my-page/my-page.html\")",
       "Bash(do echo \"=== $file ===\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(C:WindowsSystem32taskkill.exe /F /PID 193488)"
     ],
     "deny": [],
     "ask": []
