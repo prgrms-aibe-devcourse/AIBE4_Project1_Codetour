@@ -24,6 +24,7 @@
       type="text/javascript"
       src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8d27848d8e0061837441313b57eba277&libraries=services&autoload=false"
     ></script>
+    <script src="/libs/config.js"></script>
     <script src="/libs/nav-manager.js" type="module"></script>
   </head>
   <body>
@@ -63,7 +64,7 @@
       // Supabase 클라이언트 초기화
       async function initSupabase() {
         try {
-          const response = await fetch("http://localhost:3000/api/config");
+          const response = await fetch(`${API_BASE_URL}/api/config`);
           if (!response.ok) throw new Error("Failed to fetch Supabase config");
           const config = await response.json();
           supabase = window.supabase.createClient(
