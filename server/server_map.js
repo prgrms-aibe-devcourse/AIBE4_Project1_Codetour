@@ -508,7 +508,7 @@ app.get("/api/favorites/:userId", async (req, res) => {
     if (favError) throw favError;
 
     const contentIds = favorites
-      .filter((f) => f.target_type === "contents")
+      .filter((f) => f.target_type === "contentGroup")
       .map((f) => f.target_id);
     const locationIds = favorites
       .filter((f) => f.target_type === "location")
@@ -516,7 +516,7 @@ app.get("/api/favorites/:userId", async (req, res) => {
 
     const [contentsRes, locationsRes] = await Promise.all([
       contentIds.length > 0
-        ? supabase.from("contents").select("*").in("contentsId", contentIds)
+        ? supabase.from("contentGroup").select("*").in("id", contentIds)
         : Promise.resolve({ data: [], error: null }),
       locationIds.length > 0
         ? supabase.from("location").select("*").in("placeId", locationIds)
@@ -527,7 +527,7 @@ app.get("/api/favorites/:userId", async (req, res) => {
     if (locationsRes.error) throw locationsRes.error;
 
     res.json({
-      contents: contentsRes.data,
+      contentGroup: contentsRes.data,
       location: locationsRes.data,
     });
   } catch (error) {
@@ -536,28 +536,20 @@ app.get("/api/favorites/:userId", async (req, res) => {
   }
 });
 
-// Get user preferences
-app.get("/api/preferences/:userId", async (req, res) => {
-  const { userId } = req.params;
-  if (!userId) return res.status(400).json({ error: "User ID is required" });
-
-  try {
-    const { data, error } = await supabase
-      .from("user_preferences")
-      .select("categories")
-      .eq("user_id", userId)
-      .single();
-
-    if (error && error.code !== "PGRST116") throw error; // PGRST116 = no rows found
-    res.json(data || { categories: [] });
-  } catch (error) {
-    console.error("Error fetching user preferences:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
 // Update user preferences
-app.post("/api/preferences", async (req, res) => {
+app.get("/api/mypagepreferences/:userId", async (req, res) => {
+  const { userId } = req.params;
+  const { data, error } = await supabase
+    .from("user_preferences")
+    .select("categories")
+    .eq("user_id", userId)
+    .single();
+
+  if (error && error.code !== "PGRST116")
+    return res.status(500).json({ error: error.message });
+  res.json(data || { categories: [] });
+});
+app.post("/api/mypagepreferences", async (req, res) => {
   console.log("Received preferences update request:", req.body);
   const { userId, categories } = req.body;
   if (!userId || !categories) {

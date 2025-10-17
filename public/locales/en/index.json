@@ -1,0 +1,44 @@
+{
+  "hero": {
+    "title": "Special Travel<br>with K-Content",
+    "subtitle": "Visit the filming locations of your favorite K-dramas, K-pop, and movies",
+    "cta": "Get Started"
+  },
+  "popular": {
+    "title": "Popular Content",
+    "subtitle": "Discover the most visited K-content locations by fans worldwide"
+  },
+  "recommended": {
+    "title": "Recommended Routes",
+    "subtitle": "Curated themed courses to match your preferences"
+  },
+  "personalized": {
+    "title": "Personalized Recommendations",
+    "subtitle": "Courses tailored to your taste",
+    "loginRequired": "Login Required",
+    "loginMessage": "Please log in to receive personalized travel recommendations"
+  },
+  "footer": {
+    "tagline": "Special travel with K-content",
+    "service": "Service",
+    "contentTravel": "Content Locations",
+    "regionExplore": "Explore Regions",
+    "popularRoutes": "Popular Routes",
+    "support": "Support",
+    "faq": "FAQ",
+    "contact": "Contact Us",
+    "terms": "Terms of Service",
+    "social": "Social Media"
+  },
+  "card": {
+    "reviews": "reviews",
+    "days": "days",
+    "badge": {
+      "drama": "Drama",
+      "movie": "Movie",
+      "popular": "Popular",
+      "recommended": "Recommended",
+      "special": "Special"
+    }
+  }
+}

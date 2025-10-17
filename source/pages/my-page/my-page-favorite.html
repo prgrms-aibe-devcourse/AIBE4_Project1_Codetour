@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KSpot-관심 콘텐츠 관리</title>
     <link rel="stylesheet" href="my-page.css" />
+    <link rel="stylesheet" href="/source/pages/index/style.css" />
     <script src="/libs/config.js"></script>
-    <script src="/libs/include.js" defer></script>
+    <script src="/libs/nav-manager.js" type="module"></script>
     <style>
       .favorite-tabs {
         display: flex;
@@ -82,8 +83,7 @@
     </style>
   </head>
   <body>
-    <header></header>
-    <nav></nav>
+    <div id="headerPlaceholder"></div>
 
     <main>
       <div class="page-header">
@@ -97,11 +97,11 @@
       </div>
 
       <div class="favorite-tabs">
-        <div class="favorite-tab active" data-tab="contents">컨텐츠</div>
+        <div class="favorite-tab active" data-tab="contentGroup">컨텐츠</div>
         <div class="favorite-tab" data-tab="location">여행지</div>
       </div>
 
-      <div id="contents-panel" class="tab-panel active">
+      <div id="contentGroup-panel" class="tab-panel active">
         <div class="favorite-grid"></div>
         <div class="empty-message" style="display: none">
           <p>좋아요를 누른 컨텐츠가 없습니다.</p>
@@ -144,9 +144,9 @@
         let title, description, image;
 
         switch (type) {
-          case "contents":
-            title = item.contents || "제목 없음";
-            description = item.explanation || "설명 없음";
+          case "contentGroup":
+            title = item.name || "제목 없음";
+            description = item.des || "설명 없음";
             image =
               item.imageUrl ||
               `https://via.placeholder.com/300x200/00a896/ffffff?text=${encodeURI(
@@ -212,12 +212,12 @@
           const favorites = await response.json();
 
           if (!favorites) {
-            renderItems(null, "contents");
+            renderItems(null, "contentGroup");
             renderItems(null, "location");
             return;
           }
 
-          renderItems(favorites.contents, "contents");
+          renderItems(favorites.contentGroup, "contentGroup");
           renderItems(favorites.location, "location");
         } catch (error) {
           console.error("Error fetching favorites:", error);

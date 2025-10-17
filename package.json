@@ -21,10 +21,12 @@
   "dependencies": {
     "@google/genai": "^1.21.0",
     "@supabase/supabase-js": "^2.58.0",
+    "axios": "^1.12.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "groq-sdk": "^0.33.0",
+    "i18next": "^25.6.0",
     "multer": "^2.0.2",
     "xml-js": "^1.6.11"
   },

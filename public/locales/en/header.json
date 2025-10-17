@@ -1,0 +1,11 @@
+{
+  "nav": {
+    "home": "Home",
+    "content": "By Content",
+    "ai": "AI Course Picks",
+    "region": "By Region",
+    "routes": "Popular Routes",
+    "mypage": "My Page"
+  },
+  "btn": { "login": "Login", "signup": "Sign Up" }
+}

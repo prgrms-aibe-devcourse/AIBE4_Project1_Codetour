@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>K-Spot - 여행 선호도 설정</title>
     <link rel="stylesheet" href="my-page.css" />
+    <link rel="stylesheet" href="/source/pages/index/style.css" />
     <script src="/libs/config.js"></script>
-    <script src="/libs/include.js" defer></script>
+    <script src="/libs/nav-manager.js" type="module"></script>
     <style>
       :root {
         --primary-gradient: linear-gradient(135deg, #ff6b9d 0%, #c06fef 100%);
@@ -94,9 +95,7 @@
     </style>
   </head>
   <body>
-    <header>
-      <!-- Header content will be loaded by include.js -->
-    </header>
+    <div id="headerPlaceholder"></div>
 
     <main>
       <div class="page-header">
@@ -129,8 +128,14 @@
         }
 
         const categories = [
-          "movie", "kpop", "drama", "variety", "history",
-          "romance", "action", "thriller",
+          "movie",
+          "kpop",
+          "drama",
+          "variety",
+          "history",
+          "romance",
+          "action",
+          "thriller",
         ];
         const grid = document.getElementById("preference-grid");
 
@@ -153,11 +158,11 @@
         // Fetch and apply user's existing preferences
         try {
           const response = await fetch(
-            `${API_BASE_URL}/api/preferences/${userId}`
+            `${API_BASE_URL}/api/mypagepreferences/${userId}`
           );
           if (response.ok) {
-            const data = await response.json();
-            const userCategories = data.categories || [];
+            const result = await response.json();
+            const userCategories = result.categories || [];
             userCategories.forEach((category) => {
               const item = grid.querySelector(`[data-category='${category}']`);
               if (item) {
@@ -187,22 +192,27 @@
             });
 
           try {
-            const response = await fetch(`${API_BASE_URL}/api/preferences`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                userId: currentUserId,
-                categories: selectedCategories,
-              }),
-            });
+            const response = await fetch(
+              `${API_BASE_URL}/api/mypagepreferences`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  userId: currentUserId,
+                  categories: selectedCategories,
+                }),
+              }
+            );
 
             if (response.ok) {
               alert("선호도가 저장되었습니다.");
             } else {
               const errorData = await response.json().catch(() => ({}));
-              alert(`저장에 실패했습니다: ${errorData.error || 'Unknown error'}`);
+              alert(
+                `저장에 실패했습니다: ${errorData.error || "Unknown error"}`
+              );
             }
           } catch (error) {
             console.error("Error saving preferences:", error);

@@ -1,0 +1,44 @@
+{
+  "hero": {
+    "title": "한류 콘텐츠와 함께하는<br>특별한 여행",
+    "subtitle": "좋아하는 드라마, K-pop, 영화의 촬영지를 직접 방문해보세요",
+    "cta": "시작하기"
+  },
+  "popular": {
+    "title": "인기 콘텐츠",
+    "subtitle": "국내외 팬들이 가장 많이 찾는 한류 콘텐츠를 만나보세요"
+  },
+  "recommended": {
+    "title": "추천 여행 코스",
+    "subtitle": "취향과 가까운 테마별 코스를 추천"
+  },
+  "personalized": {
+    "title": "사용자 맞춤 추천",
+    "subtitle": "내 취향 맞춤 코스",
+    "loginRequired": "로그인이 필요합니다",
+    "loginMessage": "맞춤 여행 추천을 받으시려면 로그인해주세요"
+  },
+  "footer": {
+    "tagline": "한류 콘텐츠와 함께하는 특별한 여행",
+    "service": "서비스",
+    "contentTravel": "콘텐츠별 여행지",
+    "regionExplore": "지역별 탐색",
+    "popularRoutes": "인기 루트",
+    "support": "고객지원",
+    "faq": "FAQ",
+    "contact": "문의하기",
+    "terms": "이용약관",
+    "social": "소셜미디어"
+  },
+  "card": {
+    "reviews": "리뷰",
+    "days": "일",
+    "badge": {
+      "drama": "드라마",
+      "movie": "영화",
+      "popular": "인기",
+      "recommended": "추천",
+      "special": "특가"
+    }
+  }
+}
