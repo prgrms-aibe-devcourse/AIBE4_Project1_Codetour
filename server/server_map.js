@@ -63,8 +63,8 @@ app.use((req, res, next) => {
       // 스타일/폰트 CDN
       "style-src 'self' 'unsafe-inline' https: https://fonts.googleapis.com https://unpkg.com",
       "font-src 'self' https: data: https://fonts.gstatic.com",
-      // API / Realtime / 개발 서버(로컬) + 구글 OAuth 허용
-      "connect-src 'self' http://localhost:3000 https: wss: https://accounts.google.com https://www.googleapis.com https://*.googleusercontent.com",
+      // API / Realtime / 개발 서버(로컬) + 구글 OAuth + Kakao API 허용
+      "connect-src 'self' http://localhost:3000 https: wss: http://dapi.kakao.com https://dapi.kakao.com https://accounts.google.com https://www.googleapis.com https://*.googleusercontent.com",
       // 이미지/동영상 등
       "img-src 'self' https: http: data: blob:",
       // OAuth 프레임 허용
@@ -578,4 +578,90 @@ app.post("/api/mypagepreferences", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+});
+
+// ---------- API: 사용자 맞춤 추천 ----------
+app.get("/api/personalized", async (req, res) => {
+  const userId = req.query.userId;
+  if (!userId) return res.status(400).json({ error: "userId is required" });
+
+  try {
+
+    const { data: prefRow, error: prefErr } = await supabase
+      .from("user_preferences")
+      .select("categories")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (prefErr) throw prefErr;
+
+    const cats = Array.isArray(prefRow?.categories) ? prefRow.categories : [];
+    if (cats.length === 0) {
+      return res.json({ items: [] });
+    }
+
+    const [locRes, contRes] = await Promise.all([
+      supabase
+        .from("location")
+        .select("placeId, placeName, address, category, mediaTitle, imageUrl")
+        .in("category", cats)
+        .limit(30),
+      supabase
+        .from("contents")
+        .select("contentsId, contents, category, imageUrl, contentGroup")
+        .in("category", cats)
+        .limit(30),
+    ]);
+
+    if (locRes.error) throw locRes.error;
+    if (contRes.error) throw contRes.error;
+
+    const mapLoc = (r) => ({
+      id: `loc_${r.placeId}`,
+      title: r.placeName,
+      subtitle: r.address || r.mediaTitle || "",
+      badge: r.category || "추천",
+      imageUrl: r.imageUrl || null,
+      href: `/source/pages/map/map_page.html?name=${encodeURIComponent(r.placeName)}`,
+      rating: r.avgRating || 0,
+    });
+
+    const mapCont = (r) => ({
+      id: `con_${r.contentsId}`,
+      title: r.contents,
+      subtitle: r.contentGroup ? `그룹: ${r.contentGroup}` : "",
+      badge: r.category || "추천",
+      imageUrl: r.imageUrl || null,
+      href: `/source/pages/map/map_page.html?name=${encodeURIComponent(r.contents)}`,
+      rating: 0,
+    });
+
+
+    const merged = [
+      ...(locRes.data || []).map(mapLoc),
+      ...(contRes.data || []).map(mapCont),
+    ];
+
+
+    const uniqByTitle = [
+      ...new Map(merged.map((x) => [x.title.trim(), x])).values(),
+    ];
+
+    uniqByTitle.sort((a, b) => {
+      const aLoc = a.id.startsWith("loc_") ? 1 : 0;
+      const bLoc = b.id.startsWith("loc_") ? 1 : 0;
+      if (bLoc !== aLoc) return bLoc - aLoc;
+      const aImg = a.imageUrl ? 1 : 0;
+      const bImg = b.imageUrl ? 1 : 0;
+      if (bImg !== aImg) return bImg - aImg;
+      return a.title.localeCompare(b.title, "ko");
+    });
+
+    const items = uniqByTitle.slice(0, 5);
+
+    res.json({ items });
+  } catch (e) {
+    console.error("❌ /api/personalized:", e);
+    res.status(500).json({ error: "failed to build personalized feed" });
+  }
 });
